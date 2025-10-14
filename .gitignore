@@ -1,0 +1,60 @@
+# Rust
+/rust-bridge/target/
+/rust-bridge/Cargo.lock
+**/*.rs.bk
+*.pdb
+
+# .NET / C#
+/PowerShell.MemoryAnalysis/bin/
+/PowerShell.MemoryAnalysis/obj/
+*.dll
+*.exe
+*.pdb
+*.user
+*.suo
+*.cache
+.vs/
+
+# Python
+volatility-env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/settings.json
+.vscode/.ropeproject
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+
+# Test results
+*.trx
+TestResults/
+
+# Build artifacts
+*.nupkg
+*.snupkg
+
+# Verification results
+verification-results-*.json
+
+# Memory dumps (don't commit actual memory dumps)
+*.vmem
+*.raw
+*.dmp
+*.mem
