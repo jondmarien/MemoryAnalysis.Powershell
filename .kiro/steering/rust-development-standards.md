@@ -11,7 +11,7 @@ fileMatchPattern: "rust-bridge/**/*.rs"
 
 All Rust code lives in `rust-bridge/src/`:
 
-```
+```tree
 rust-bridge/src/
 ├── lib.rs                 # FFI exports, main entry point
 ├── python_manager.rs      # Python interpreter lifecycle

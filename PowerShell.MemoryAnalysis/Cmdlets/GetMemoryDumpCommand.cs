@@ -56,16 +56,33 @@ public class GetMemoryDumpCommand : PSCmdlet
     public SwitchParameter DetectProfile { get; set; }
 
     /// <summary>
+    /// <para type="description">Enable detailed debug output.</para>
+    /// </summary>
+    [Parameter(HelpMessage = "Enable detailed debug output")]
+    public SwitchParameter DebugMode { get; set; }
+
+    /// <summary>
     /// Initialize the cmdlet.
     /// </summary>
     protected override void BeginProcessing()
     {
+        // Enable Rust bridge debug logging if -DebugMode flag is set
+        if (DebugMode.IsPresent)
+        {
+            Environment.SetEnvironmentVariable("RUST_BRIDGE_DEBUG", "1");
+            WriteVerbose("Debug logging enabled for Rust bridge");
+        }
+
         _logger = LoggingService.GetLogger<GetMemoryDumpCommand>();
         _logger.LogInformation("Get-MemoryDump cmdlet starting");
 
         try
         {
             _rustInterop = new RustInteropService();
+            if (DebugMode.IsPresent)
+            {
+                WriteVerbose("Rust interop service initialized");
+            }
             _logger.LogDebug("Rust interop service initialized");
         }
         catch (Exception ex)

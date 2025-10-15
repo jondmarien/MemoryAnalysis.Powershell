@@ -93,16 +93,33 @@ public class AnalyzeProcessTreeCommand : PSCmdlet
     public SwitchParameter FlagSuspicious { get; set; }
 
     /// <summary>
+    /// <para type="description">Enable detailed debug output.</para>
+    /// </summary>
+    [Parameter(HelpMessage = "Enable detailed debug output")]
+    public SwitchParameter DebugMode { get; set; }
+
+    /// <summary>
     /// Initialize the cmdlet.
     /// </summary>
     protected override void BeginProcessing()
     {
+        // Enable Rust bridge debug logging if -DebugMode flag is set
+        if (DebugMode.IsPresent)
+        {
+            Environment.SetEnvironmentVariable("RUST_BRIDGE_DEBUG", "1");
+            WriteVerbose("Debug logging enabled for Rust bridge");
+        }
+
         _logger = LoggingService.GetLogger<AnalyzeProcessTreeCommand>();
         _logger.LogInformation("Analyze-ProcessTree cmdlet starting");
 
         try
         {
             _rustInterop = new RustInteropService();
+            if (DebugMode.IsPresent)
+            {
+                WriteVerbose("Rust interop service initialized");
+            }
             _logger.LogDebug("Rust interop service initialized");
         }
         catch (Exception ex)
@@ -154,6 +171,11 @@ public class AnalyzeProcessTreeCommand : PSCmdlet
             WriteProgress(progressRecord);
 
             var rawProcesses = _rustInterop?.ListProcesses(MemoryDump.Path);
+            if (DebugMode.IsPresent)
+            {
+                WriteVerbose($"Retrieved {rawProcesses?.Length ?? 0} raw process entries from Rust bridge");
+            }
+            
             if (rawProcesses == null || rawProcesses.Length == 0)
             {
                 WriteWarning($"No processes found in dump: {MemoryDump.FileName}");
@@ -166,6 +188,10 @@ public class AnalyzeProcessTreeCommand : PSCmdlet
             WriteProgress(progressRecord);
 
             var processes = ConvertToProcessTreeInfo(rawProcesses);
+            if (DebugMode.IsPresent)
+            {
+                WriteVerbose($"Converted to {processes.Count} ProcessTreeInfo objects");
+            }
 
             // Apply filters
             if (Pid.HasValue || !string.IsNullOrEmpty(ProcessName) || ParentPid.HasValue)
@@ -226,8 +252,17 @@ public class AnalyzeProcessTreeCommand : PSCmdlet
             CreateTime = p.CreateTime ?? "Unknown"
         }).ToList();
 
-        // Build tree structure
-        var processDict = processes.ToDictionary(p => p.Pid);
+        // Build tree structure - handle duplicate PIDs gracefully
+        var processDict = new Dictionary<uint, ProcessTreeInfo>();
+        foreach (var proc in processes)
+        {
+            if (!processDict.ContainsKey(proc.Pid))
+            {
+                processDict[proc.Pid] = proc;
+            }
+            // Skip duplicates - might be parsing artifacts
+        }
+        
         foreach (var process in processes)
         {
             if (process.Ppid != 0 && processDict.TryGetValue(process.Ppid, out ProcessTreeInfo? parent))

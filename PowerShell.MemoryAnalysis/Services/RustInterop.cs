@@ -253,11 +253,24 @@ public class VersionInfo
 /// </summary>
 public class ProcessInfo
 {
+    [JsonPropertyName("pid")]
     public uint Pid { get; set; }
+    
+    [JsonPropertyName("ppid")]
     public uint Ppid { get; set; }
+    
+    [JsonPropertyName("name")]
     public string? Name { get; set; }
+    
+    [JsonPropertyName("offset")]
     public string? Offset { get; set; }
+    
+    [JsonPropertyName("threads")]
     public uint Threads { get; set; }
+    
+    [JsonPropertyName("handles")]
     public uint Handles { get; set; }
+    
+    [JsonPropertyName("create_time")]
     public string? CreateTime { get; set; }
 }
