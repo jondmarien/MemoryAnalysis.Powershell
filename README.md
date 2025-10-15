@@ -2,7 +2,8 @@
 
 A high-performance PowerShell module for memory dump forensics using the Volatility 3 framework with a Rust/Python bridge.
 
-> **Current Status:** 🔄 In Development - Phase 1 (Rust-Python Bridge) 85% complete  
+> **Current Status:** ✅ Production Ready - Phases 1 & 2 Complete  
+> **Note:** Network analysis and malware detection disabled on Windows 11 Build 26100 due to Volatility 3 compatibility issues.  
 > See [PROJECT_STATUS.md](docs/PROJECT_STATUS.md) for detailed progress tracking.
 
 ## Repository Structure
@@ -25,10 +26,11 @@ The Rust bridge is maintained as a separate repository but linked as a submodule
 
 ## Requirements
 
-- PowerShell 7.6.0 or later
-- .NET 10.0 SDK
-- Python 3.12+ with Volatility 3
-- Rust 1.90.0 or later (for development)
+- **PowerShell:** 7.6.0 or later (Core only)
+- **.NET:** 10.0 SDK
+- **Python:** 3.12+ with Volatility 3 (`pip install volatility3` or `uv pip install --system volatility3`)
+- **Rust:** 1.90.0+ (for building from source)
+- **Docker:** Required for GitHub Actions testing with `act`
 
 ## Installation
 
@@ -66,7 +68,7 @@ Import-Module .\PowerShell.MemoryAnalysis\publish\MemoryAnalysis.psd1
 
 ## Cmdlets
 
-### ✅ Get-MemoryDump (Available)
+### ✅ Get-MemoryDump (Production Ready)
 
 Loads a memory dump file for analysis.
 
@@ -81,7 +83,7 @@ $dump = Get-MemoryDump -Path C:\dumps\memory.raw -Validate
 $dump = Get-MemoryDump -Path C:\dumps\memory.dmp -DetectProfile
 ```
 
-### ✅ Test-ProcessTree (Available)
+### ✅ Test-ProcessTree (Production Ready)
 
 Analyzes process hierarchies in a memory dump.
 
@@ -104,7 +106,7 @@ Test-ProcessTree -MemoryDump $dump -Pid 1234
 Test-ProcessTree -MemoryDump $dump -Format JSON
 ```
 
-### 🔄 Get-ProcessCommandLine (In Development - Rust Complete)
+### ✅ Get-ProcessCommandLine (Production Ready)
 
 Extracts command line arguments for processes.
 
@@ -119,7 +121,7 @@ Get-ProcessCommandLine -MemoryDump $dump -ProcessName "powershell*"
 Get-ProcessCommandLine -MemoryDump $dump -Pid 1234
 ```
 
-### 🔄 Get-ProcessDll (In Development - Rust Complete)
+### ✅ Get-ProcessDll (Production Ready)
 
 Lists DLLs loaded by processes.
 
@@ -134,24 +136,30 @@ Get-ProcessDll -MemoryDump $dump -Pid 1234
 Get-ProcessDll -MemoryDump $dump -DllName "*malware*"
 ```
 
-### ⏳ Get-NetworkConnection (Planned)
+### ⚠️ Get-NetworkConnection (Disabled - Win11 26100 Incompatibility)
 
 Extracts network connections from memory.
 
+**Status:** Implemented but disabled due to Volatility 3 incompatibility with Windows 11 Build 26100.  
+**Issue:** `PagedInvalidAddressException` in Windows 11 kernel pool structures.
+
 ```powershell
-# Get all connections
+# Get all connections (disabled)
 Get-MemoryDump -Path memory.vmem | Get-NetworkConnection
 
 # Filter by state
 Get-NetworkConnection -MemoryDump $dump -State ESTABLISHED
 ```
 
-### ⏳ Find-Malware (Planned)
+### ⚠️ Find-Malware (Disabled - Win11 26100 Incompatibility)
 
 Detects potential malware in memory dumps.
 
+**Status:** Implemented but disabled due to Volatility 3 incompatibility with Windows 11 Build 26100.  
+**Issue:** Returns zero detections on Windows 11 Build 26100.
+
 ```powershell
-# Full malware scan
+# Full malware scan (disabled)
 Get-MemoryDump -Path memory.vmem | Find-Malware
 
 # Quick scan with high confidence threshold
@@ -296,9 +304,19 @@ MemoryAnalysis/ (main repo)
 
 ## Performance
 
-- **Rust-Python overhead**: < 100ms per operation
-- **Memory efficiency**: < 1GB RAM overhead per dump
-- **Parallel processing**: Full support with ForEach-Object -Parallel
+- **Rust-Python overhead**: < 100ms per operation ✅
+- **Memory efficiency**: Successfully handles 98GB memory dumps
+- **Process extraction**: 830 processes from 98GB dump in seconds
+- **Parallel processing**: Full support with `ForEach-Object -Parallel`
+
+## CI/CD
+
+Fully automated GitHub Actions workflow:
+- **Rust Tests**: Unit tests, clippy, formatting checks
+- **C# Tests**: Unit tests with code coverage (Codecov integration)
+- **Build**: Multi-platform builds (Windows, Ubuntu, macOS)
+- **Integration Tests**: PowerShell 7.6 integration tests with Pester
+- **Benchmarks**: Performance tracking on main branch
 
 ## Contributing
 

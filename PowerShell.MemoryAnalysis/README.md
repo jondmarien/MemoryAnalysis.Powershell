@@ -40,18 +40,20 @@ PowerShell Pipeline
 ```tree
 PowerShell.MemoryAnalysis/
 ├── Cmdlets/
-│   ├── GetMemoryDumpCommand.cs           # ✅ Get-MemoryDump
-│   ├── AnalyzeProcessTreeCommand.cs      # ✅ Test-ProcessTree
-│   ├── GetProcessCommandLineCommand.cs   # 🔄 In Development
-│   ├── GetProcessDllCommand.cs           # 🔄 In Development
-│   └── FindMalwareCommand.cs             # ⏳ Planned
+│   ├── GetMemoryDumpCommand.cs           # ✅ Production Ready
+│   ├── AnalyzeProcessTreeCommand.cs      # ✅ Production Ready
+│   ├── GetProcessCommandLineCommand.cs   # ✅ Production Ready
+│   ├── GetProcessDllCommand.cs           # ✅ Production Ready
+│   ├── GetNetworkConnectionCommand.cs    # ⚠️ Disabled (Win11 26100)
+│   └── FindMalwareCommand.cs             # ⚠️ Disabled (Win11 26100)
 ├── Models/
 │   ├── MemoryDump.cs                     # Memory dump metadata
 │   ├── ProcessInfo.cs                    # Process information
 │   ├── ProcessTreeInfo.cs                # Process tree node
-│   ├── CommandLineInfo.cs                # 🔄 To be added
-│   ├── DllInfo.cs                        # 🔄 To be added
-│   └── MalwareDetection.cs               # ⏳ Planned
+│   ├── CommandLineInfo.cs                # ✅ Complete
+│   ├── DllInfo.cs                        # ✅ Complete
+│   ├── NetworkConnectionInfo.cs          # ⚠️ Disabled (Win11 26100)
+│   └── MalwareDetection.cs               # ⚠️ Disabled (Win11 26100)
 ├── Services/
 │   ├── RustInterop.cs                    # P/Invoke to Rust bridge
 │   └── LoggingService.cs                 # Logging configuration
@@ -65,8 +67,9 @@ PowerShell.MemoryAnalysis/
 ### Prerequisites
 
 - .NET 10.0 SDK
-- PowerShell 7.6.0-preview.5 or later
+- PowerShell 7.6.0 or later (Core only, not Windows PowerShell 5.1)
 - Rust bridge DLL (built from `rust-bridge/`)
+- Python 3.12+ with Volatility 3
 
 ### Build Commands
 
@@ -91,7 +94,7 @@ Import-Module .\publish\MemoryAnalysis.psd1
 
 ### ✅ Get-MemoryDump
 
-**Status:** Complete and tested
+**Status:** Production Ready - Tested with 98GB memory dumps
 
 Loads a memory dump file for analysis.
 
@@ -109,7 +112,7 @@ public class GetMemoryDumpCommand : PSCmdlet
 
 ### ✅ Test-ProcessTree (Analyze-ProcessTree)
 
-**Status:** Complete and tested
+**Status:** Production Ready - Extracts 830+ processes from 98GB dumps
 
 Analyzes process hierarchies in a memory dump.
 
@@ -130,43 +133,47 @@ public class AnalyzeProcessTreeCommand : PSCmdlet
 - `FlagSuspicious` - Mark suspicious processes
 - `DebugMode` - Enable debug logging
 
-### 🔄 Get-ProcessCommandLine
+### ✅ Get-ProcessCommandLine
 
-**Status:** Rust bridge complete, C# wrapper needed
+**Status:** Production Ready
 
 Extracts command line arguments for processes.
 
-**Integration Steps:**
+**Parameters:**
+- `MemoryDump` (mandatory, pipeline) - Memory dump to analyze
+- `ProcessName` - Filter by process name (wildcards)
+- `Pid` - Filter by specific PID
 
-1. Add `CommandLineInfo.cs` model
-2. Add P/Invoke declaration in `RustInterop.cs`
-3. Add wrapper method `GetCommandLines()`
-4. Create `GetProcessCommandLineCommand.cs` cmdlet
-5. Update module manifest
+**Integration Guide:** `docs/PHASE2_CMDLINE_INTEGRATION.md`
 
-**Documentation:** See `docs/PHASE2_CMDLINE_INTEGRATION.md`
+### ✅ Get-ProcessDll
 
-### 🔄 Get-ProcessDll
-
-**Status:** Rust bridge complete, C# wrapper needed
+**Status:** Production Ready
 
 Lists DLLs loaded by processes.
 
-**Integration Steps:**
+**Parameters:**
+- `MemoryDump` (mandatory, pipeline) - Memory dump to analyze
+- `Pid` - Optional: filter by specific PID (0 or omit for all processes)
+- `DllName` - Optional: filter by DLL name (wildcards)
 
-1. Add `DllInfo.cs` model
-2. Add P/Invoke declaration in `RustInterop.cs`
-3. Add wrapper method `ListDlls()`
-4. Create `GetProcessDllCommand.cs` cmdlet
-5. Update module manifest
+**Integration Guide:** `docs/PHASE2_DLL_INTEGRATION.md`
 
-**Documentation:** See `docs/PHASE2_DLL_INTEGRATION.md`
+### ⚠️ Get-NetworkConnection
 
-### ⏳ Find-Malware
+**Status:** Disabled - Win11 Build 26100 Incompatibility
 
-**Status:** Planned (depends on Rust bridge malware detection)
+Extracts network connections from memory dumps.
+
+**Issue:** Volatility 3 `PagedInvalidAddressException` on Windows 11 Build 26100.
+
+### ⚠️ Find-Malware
+
+**Status:** Disabled - Win11 Build 26100 Incompatibility
 
 Multi-technique malware detection.
+
+**Issue:** Returns zero detections on Windows 11 Build 26100.
 
 ## P/Invoke Pattern
 
