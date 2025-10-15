@@ -198,6 +198,7 @@ jobs:
     name: PowerShell Integration Tests
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
     needs: build-module
@@ -218,7 +219,7 @@ jobs:
       - name: Install PowerShell 7.6 Preview (macOS)
         if: matrix.os == 'macos-latest'
         run: |
-          brew install --cask powershell-preview
+          brew install --cask powershell@preview
       
       - name: Install PowerShell 7.6 Preview (Linux)
         if: matrix.os == 'ubuntu-latest'
