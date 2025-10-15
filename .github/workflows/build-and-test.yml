@@ -88,20 +88,15 @@ jobs:
       - name: Build Tests
         run: dotnet build tests/MemoryAnalysis.Tests/MemoryAnalysis.Tests.csproj --no-restore
       
-      - name: Run C# Tests
-        run: dotnet test tests/MemoryAnalysis.Tests/MemoryAnalysis.Tests.csproj --no-build --verbosity normal
-      
-      - name: Generate Coverage Report
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          dotnet test tests/MemoryAnalysis.Tests/MemoryAnalysis.Tests.csproj --collect:"XPlat Code Coverage"
+      - name: Run C# Tests with Coverage
+        run: dotnet test tests/MemoryAnalysis.Tests/MemoryAnalysis.Tests.csproj --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./TestResults
       
       - name: Upload Coverage to Codecov
-        if: matrix.os == 'ubuntu-latest'
         uses: codecov/codecov-action@v4
         with:
-          files: tests/MemoryAnalysis.Tests/TestResults/*/coverage.cobertura.xml
-          flags: csharp-tests
+          files: ./TestResults/*/coverage.cobertura.xml
+          flags: csharp-tests-${{ matrix.os }}
+          fail_ci_if_error: false
 
   build-module:
     name: Build PowerShell Module
