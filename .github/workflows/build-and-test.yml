@@ -207,10 +207,30 @@ jobs:
         with:
           submodules: recursive
       
+      - name: Install PowerShell 7.6 Preview (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri https://github.com/PowerShell/PowerShell/releases/download/v7.6.0-preview.5/PowerShell-7.6.0-preview.5-win-x64.msi -OutFile pwsh.msi
+          Start-Process msiexec.exe -ArgumentList '/i', 'pwsh.msi', '/qn', '/norestart' -NoNewWindow -Wait
+          Remove-Item pwsh.msi
+      
+      - name: Install PowerShell 7.6 Preview (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew install --cask powershell-preview
+      
+      - name: Install PowerShell 7.6 Preview (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          wget https://github.com/PowerShell/PowerShell/releases/download/v7.6.0-preview.5/powershell-preview_7.6.0-preview.5-1.deb_amd64.deb
+          sudo dpkg -i powershell-preview_7.6.0-preview.5-1.deb_amd64.deb
+          sudo apt-get install -f -y
+      
       - name: Setup PowerShell
         shell: pwsh
         run: |
-          $PSVersionTable
+          pwsh-preview -Version
       
       - name: Install Pester
         shell: pwsh
@@ -226,8 +246,11 @@ jobs:
       - name: Run Integration Tests
         shell: pwsh
         run: |
-          Import-Module Pester -MinimumVersion 5.0
-          Invoke-Pester -Path tests/integration-tests/Module.Tests.ps1 -CI
+          pwsh-preview -Command {
+            Import-Module Pester -MinimumVersion 5.0
+            Set-Location "$env:GITHUB_WORKSPACE"
+            Invoke-Pester -Path tests/integration-tests/Module.Tests.ps1 -CI
+          }
       
       - name: Upload Test Results
         if: always()
@@ -248,6 +271,13 @@ jobs:
         with:
           submodules: recursive
       
+      - name: Install PowerShell 7.6 Preview
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri https://github.com/PowerShell/PowerShell/releases/download/v7.6.0-preview.5/PowerShell-7.6.0-preview.5-win-x64.msi -OutFile pwsh.msi
+          Start-Process msiexec.exe -ArgumentList '/i', 'pwsh.msi', '/qn', '/norestart' -NoNewWindow -Wait
+          Remove-Item pwsh.msi
+      
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4
         with:
@@ -257,7 +287,10 @@ jobs:
       - name: Run Benchmarks
         shell: pwsh
         run: |
-          ./benchmarks/Measure-Performance.ps1
+          & "C:\Program Files\PowerShell\7-preview\pwsh.exe" -Command {
+            Set-Location "$env:GITHUB_WORKSPACE"
+            ./benchmarks/Measure-Performance.ps1
+          }
       
       - name: Upload Benchmark Results
         uses: actions/upload-artifact@v4
