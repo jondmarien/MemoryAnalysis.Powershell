@@ -1,0 +1,240 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  RUST_VERSION: 'stable'
+  PYTHON_VERSION: '3.12'
+
+jobs:
+  rust-tests:
+    name: Rust Unit Tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+          override: true
+          components: rustfmt, clippy
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install Volatility3
+        run: |
+          python -m pip install --upgrade pip
+          pip install volatility3
+      
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            rust-bridge/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      
+      - name: Run Rust Tests
+        working-directory: rust-bridge
+        run: |
+          cargo test --verbose
+          cargo test --test types_tests --test error_tests
+      
+      - name: Run Clippy
+        working-directory: rust-bridge
+        run: cargo clippy -- -D warnings
+      
+      - name: Check Formatting
+        working-directory: rust-bridge
+        run: cargo fmt -- --check
+
+  csharp-tests:
+    name: C# Unit Tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: Restore Dependencies
+        run: dotnet restore tests/MemoryAnalysis.Tests/MemoryAnalysis.Tests.csproj
+      
+      - name: Build Tests
+        run: dotnet build tests/MemoryAnalysis.Tests/MemoryAnalysis.Tests.csproj --no-restore
+      
+      - name: Run C# Tests
+        run: dotnet test tests/MemoryAnalysis.Tests/MemoryAnalysis.Tests.csproj --no-build --verbosity normal
+      
+      - name: Generate Coverage Report
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          dotnet test tests/MemoryAnalysis.Tests/MemoryAnalysis.Tests.csproj --collect:"XPlat Code Coverage"
+      
+      - name: Upload Coverage to Codecov
+        if: matrix.os == 'ubuntu-latest'
+        uses: codecov/codecov-action@v4
+        with:
+          files: tests/MemoryAnalysis.Tests/TestResults/*/coverage.cobertura.xml
+          flags: csharp-tests
+
+  build-module:
+    name: Build PowerShell Module
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    needs: [rust-tests, csharp-tests]
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+          override: true
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install Volatility3
+        run: |
+          python -m pip install --upgrade pip
+          pip install volatility3
+      
+      - name: Build Rust Bridge
+        working-directory: rust-bridge
+        run: cargo build --release
+      
+      - name: Build PowerShell Module
+        working-directory: PowerShell.MemoryAnalysis
+        run: dotnet publish -c Release -o publish
+      
+      - name: Copy Rust DLL (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          Copy-Item rust-bridge/target/release/rust_bridge.dll PowerShell.MemoryAnalysis/publish/
+        shell: pwsh
+      
+      - name: Copy Rust Library (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cp rust-bridge/target/release/librust_bridge.so PowerShell.MemoryAnalysis/publish/
+      
+      - name: Copy Rust Library (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          cp rust-bridge/target/release/librust_bridge.dylib PowerShell.MemoryAnalysis/publish/
+      
+      - name: Generate MAML Help
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          Install-Module -Name platyPS -Force -Scope CurrentUser
+          ./scripts/Generate-Help.ps1
+      
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: MemoryAnalysis-${{ matrix.os }}
+          path: PowerShell.MemoryAnalysis/publish/
+          retention-days: 7
+
+  integration-tests:
+    name: PowerShell Integration Tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    needs: build-module
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup PowerShell
+        shell: pwsh
+        run: |
+          $PSVersionTable
+      
+      - name: Install Pester
+        shell: pwsh
+        run: |
+          Install-Module -Name Pester -Force -MinimumVersion 5.0 -Scope CurrentUser
+      
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: MemoryAnalysis-${{ matrix.os }}
+          path: PowerShell.MemoryAnalysis/publish/
+      
+      - name: Run Integration Tests
+        shell: pwsh
+        run: |
+          Import-Module Pester -MinimumVersion 5.0
+          Invoke-Pester -Path tests/integration-tests/Module.Tests.ps1 -CI
+      
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.os }}
+          path: tests/integration-tests/TestResults/
+          retention-days: 7
+
+  benchmark:
+    name: Performance Benchmarks
+    runs-on: windows-latest
+    needs: build-module
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: MemoryAnalysis-windows-latest
+          path: PowerShell.MemoryAnalysis/publish/
+      
+      - name: Run Benchmarks
+        shell: pwsh
+        run: |
+          ./benchmarks/Measure-Performance.ps1
+      
+      - name: Upload Benchmark Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: benchmarks/benchmark-results-*.json
+          retention-days: 30

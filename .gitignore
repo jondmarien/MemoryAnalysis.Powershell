@@ -18,6 +18,12 @@
 *.cache
 .vs/
 
+# Test projects
+/tests/**/bin/
+/tests/**/obj/
+/tests/**/TestResults/
+/tests/**/CoverageReport/
+
 # Python
 volatility-env/
 __pycache__/
@@ -48,6 +54,7 @@ desktop.ini
 # Test results
 *.trx
 TestResults/
+CoverageReport/
 
 # Build artifacts
 *.nupkg
@@ -55,6 +62,9 @@ TestResults/
 
 # Verification results
 verification-results-*.json
+
+# Benchmark results (keep README, exclude JSON results)
+benchmarks/benchmark-results-*.json
 
 # Memory dumps (don't commit actual memory dumps)
 *.vmem
