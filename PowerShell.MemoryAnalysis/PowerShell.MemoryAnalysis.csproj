@@ -8,6 +8,21 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.6.0-preview.5" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
+  </ItemGroup>
+
+  <!-- Copy Rust native library to output -->
+  <ItemGroup>
+    <None Include="..\rust-bridge\target\debug\rust_bridge.dll" Condition="Exists('..\rust-bridge\target\debug\rust_bridge.dll')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>rust_bridge.dll</Link>
+    </None>
+    <None Include="..\rust-bridge\target\release\rust_bridge.dll" Condition="Exists('..\rust-bridge\target\release\rust_bridge.dll')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>rust_bridge.dll</Link>
+    </None>
   </ItemGroup>
 
 </Project>

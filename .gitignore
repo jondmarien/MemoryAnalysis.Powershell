@@ -7,6 +7,9 @@
 # .NET / C#
 /PowerShell.MemoryAnalysis/bin/
 /PowerShell.MemoryAnalysis/obj/
+/PowerShell.MemoryAnalysis/bin/publish/
+/PowerShell.MemoryAnalysis/publish/
+/publish/
 *.dll
 *.exe
 *.pdb
