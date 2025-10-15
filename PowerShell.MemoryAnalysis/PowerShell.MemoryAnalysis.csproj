@@ -31,4 +31,14 @@
     </None>
   </ItemGroup>
 
+  <!-- Copy module manifest and format files to output -->
+  <ItemGroup>
+    <None Include="MemoryAnalysis.psd1">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="MemoryAnalysis.Format.ps1xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
