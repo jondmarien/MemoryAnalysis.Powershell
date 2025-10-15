@@ -156,12 +156,22 @@ jobs:
         run: |
           cp rust-bridge/target/release/librust_bridge.dylib PowerShell.MemoryAnalysis/publish/
       
+      - name: Install PowerShell 7.6 Preview
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri https://github.com/PowerShell/PowerShell/releases/download/v7.6.0-preview.5/PowerShell-7.6.0-preview.5-win-x64.msi -OutFile pwsh.msi
+          Start-Process msiexec.exe -ArgumentList '/i', 'pwsh.msi', '/qn', '/norestart' -NoNewWindow -Wait
+          Remove-Item pwsh.msi
+      
       - name: Generate MAML Help
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
-          Install-Module -Name platyPS -Force -Scope CurrentUser
-          ./scripts/Generate-Help.ps1
+          & "C:\Program Files\PowerShell\7\pwsh.exe" -Command "
+            Install-Module -Name platyPS -Force -Scope CurrentUser
+            ./scripts/Generate-Help.ps1
+          "
       
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
