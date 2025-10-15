@@ -1,6 +1,4 @@
-using System;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
@@ -39,7 +37,19 @@ public class RustInteropService : IDisposable
     private static extern void rust_bridge_free_string(IntPtr ptr);
 
     [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    private static extern IntPtr rust_bridge_list_processes([MarshalAs(UnmanagedType.LPStr)] string dumpPath);
+    private static extern IntPtr rust_bridge_list_processes([MarshalAs(UnmanagedType.LPWStr)] string dumpPath);
+
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+    private static extern IntPtr rust_bridge_get_command_lines([MarshalAs(UnmanagedType.LPWStr)] string dumpPath);
+
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+    private static extern IntPtr rust_bridge_list_dlls([MarshalAs(UnmanagedType.LPWStr)] string dumpPath, uint pid);
+
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+    private static extern IntPtr rust_bridge_scan_network_connections([MarshalAs(UnmanagedType.LPWStr)] string dumpPath);
+
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+    private static extern IntPtr rust_bridge_detect_malware([MarshalAs(UnmanagedType.LPWStr)] string dumpPath);
 
     #endregion
 
@@ -68,10 +78,12 @@ public class RustInteropService : IDisposable
         }
         catch (DllNotFoundException ex)
         {
-            _logger.LogError(ex, "Failed to load Rust bridge library '{LibraryName}.dll'. Ensure it's in the module directory.", LibraryName);
+            if (_logger.IsEnabled(LogLevel.Error))
+            {
+                _logger.LogError(ex, "Failed to load Rust bridge library '{LibraryName}.dll'. Ensure it's in the module directory.", LibraryName);
+            }
             throw new InvalidOperationException(
-                $"Could not load the Rust bridge library ({LibraryName}.dll). " +
-                "Please ensure the native library is present in the module directory.", ex);
+                string.Format("Could not load the Rust bridge library ({0}.dll). Please ensure the native library is present in the module directory.", LibraryName), ex);
         }
         catch (Exception ex)
         {
@@ -162,8 +174,11 @@ public class RustInteropService : IDisposable
         IntPtr ptr = IntPtr.Zero;
         try
         {
-            _logger.LogInformation("Listing processes from dump: {DumpPath}", dumpPath);
-            
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation("Listing processes from dump: {DumpPath}", dumpPath);
+            }
+
             ptr = rust_bridge_list_processes(dumpPath);
             if (ptr == IntPtr.Zero)
             {
@@ -172,12 +187,242 @@ public class RustInteropService : IDisposable
 
             string json = MarshalStringFromRust(ptr);
             var processes = JsonSerializer.Deserialize<ProcessInfo[]>(json) ?? throw new InvalidOperationException("Failed to deserialize process information");
-            _logger.LogInformation("Found {ProcessCount} processes in dump", processes.Length);
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation("Found {ProcessCount} processes in dump", processes.Length);
+            }
             return processes;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error listing processes from dump: {DumpPath}", dumpPath);
+            if (_logger.IsEnabled(LogLevel.Error))
+            {
+                _logger.LogError(ex, "Error listing processes from dump: {DumpPath}", dumpPath);
+            }
+            throw;
+        }
+        finally
+        {
+            if (ptr != IntPtr.Zero)
+            {
+                rust_bridge_free_string(ptr);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Get command line arguments for processes in a memory dump.
+    /// </summary>
+    /// <param name="dumpPath">Path to the memory dump file</param>
+    /// <returns>Array of command line information</returns>
+    public Models.CommandLineInfo[] GetCommandLines(string dumpPath)
+    {
+        EnsureInitialized();
+
+        if (string.IsNullOrWhiteSpace(dumpPath))
+        {
+            throw new ArgumentException("Dump path cannot be null or empty", nameof(dumpPath));
+        }
+
+        if (!File.Exists(dumpPath))
+        {
+            throw new FileNotFoundException($"Memory dump file not found: {dumpPath}", dumpPath);
+        }
+
+        IntPtr ptr = IntPtr.Zero;
+        try
+        {
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation("Getting command lines from dump: {DumpPath}", dumpPath);
+            }
+
+            ptr = rust_bridge_get_command_lines(dumpPath);
+            if (ptr == IntPtr.Zero)
+            {
+                throw new InvalidOperationException($"Failed to get command lines from dump: {dumpPath}");
+            }
+
+            string json = MarshalStringFromRust(ptr);
+            var commandLines = JsonSerializer.Deserialize<Models.CommandLineInfo[]>(json) ??
+                throw new InvalidOperationException("Failed to deserialize command line information");
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation("Retrieved {Count} command lines", commandLines.Length);
+            }
+            return commandLines;
+        }
+        catch (Exception ex)
+        {
+            if (_logger.IsEnabled(LogLevel.Error))
+            {
+                _logger.LogError(ex, "Error getting command lines from dump: {DumpPath}", dumpPath);
+            }
+            throw;
+        }
+        finally
+        {
+            if (ptr != IntPtr.Zero)
+            {
+                rust_bridge_free_string(ptr);
+            }
+        }
+    }
+
+    /// <summary>
+    /// List DLLs loaded by processes in a memory dump.
+    /// </summary>
+    /// <param name="dumpPath">Path to the memory dump file</param>
+    /// <param name="pid">Optional process ID to filter by (null = all processes)</param>
+    /// <returns>Array of DLL information</returns>
+    public Models.DllInfo[] ListDlls(string dumpPath, uint? pid = null)
+    {
+        EnsureInitialized();
+
+        if (string.IsNullOrWhiteSpace(dumpPath))
+        {
+            throw new ArgumentException("Dump path cannot be null or empty", nameof(dumpPath));
+        }
+
+        if (!File.Exists(dumpPath))
+        {
+            throw new FileNotFoundException($"Memory dump file not found: {dumpPath}", dumpPath);
+        }
+
+        IntPtr ptr = IntPtr.Zero;
+        try
+        {
+            var pidFilter = pid ?? 0; // 0 = no filter
+            if (pid.HasValue)
+            {
+                _logger.LogInformation("Listing DLLs from dump: {DumpPath} (filtered to PID {Pid})", dumpPath, pid.Value);
+            }
+            else
+            {
+                _logger.LogInformation("Listing DLLs from dump: {DumpPath}", dumpPath);
+            }
+
+            ptr = rust_bridge_list_dlls(dumpPath, pidFilter);
+            if (ptr == IntPtr.Zero)
+            {
+                throw new InvalidOperationException($"Failed to list DLLs from dump: {dumpPath}");
+            }
+
+            string json = MarshalStringFromRust(ptr);
+            var dlls = JsonSerializer.Deserialize<Models.DllInfo[]>(json) ??
+                throw new InvalidOperationException("Failed to deserialize DLL information");
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation("Retrieved {Count} DLLs", dlls.Length);
+            }
+            return dlls;
+        }
+        catch (Exception ex)
+        {
+            if (_logger.IsEnabled(LogLevel.Error))
+            {
+                _logger.LogError(ex, "Error listing DLLs from dump: {DumpPath}", dumpPath);
+            }
+            throw;
+        }
+        finally
+        {
+            if (ptr != IntPtr.Zero)
+            {
+                rust_bridge_free_string(ptr);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Scan network connections in a memory dump.
+    /// </summary>
+    /// <param name="dumpPath">Path to the memory dump file</param>
+    /// <returns>Array of network connection information</returns>
+    public Models.NetworkConnectionInfo[] ScanNetworkConnections(string dumpPath)
+    {
+        EnsureInitialized();
+
+        if (string.IsNullOrWhiteSpace(dumpPath))
+        {
+            throw new ArgumentException("Dump path cannot be null or empty", nameof(dumpPath));
+        }
+
+        if (!File.Exists(dumpPath))
+        {
+            throw new FileNotFoundException($"Memory dump file not found: {dumpPath}", dumpPath);
+        }
+
+        IntPtr ptr = IntPtr.Zero;
+        try
+        {
+            _logger.LogInformation("Scanning network connections from dump: {DumpPath}", dumpPath);
+
+            ptr = rust_bridge_scan_network_connections(dumpPath);
+            if (ptr == IntPtr.Zero)
+            {
+                throw new InvalidOperationException($"Failed to scan network connections from dump: {dumpPath}");
+            }
+
+            string json = MarshalStringFromRust(ptr);
+            var connections = JsonSerializer.Deserialize<Models.NetworkConnectionInfo[]>(json) ??
+                throw new InvalidOperationException("Failed to deserialize network connection information");
+            _logger.LogInformation("Retrieved {Count} network connections", connections.Length);
+            return connections;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error scanning network connections from dump: {DumpPath}", dumpPath);
+            throw;
+        }
+        finally
+        {
+            if (ptr != IntPtr.Zero)
+            {
+                rust_bridge_free_string(ptr);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Detect malware in a memory dump.
+    /// </summary>
+    /// <param name="dumpPath">Path to the memory dump file</param>
+    /// <returns>Array of malware detections</returns>
+    public Models.MalwareDetection[] DetectMalware(string dumpPath)
+    {
+        EnsureInitialized();
+
+        if (string.IsNullOrWhiteSpace(dumpPath))
+        {
+            throw new ArgumentException("Dump path cannot be null or empty", nameof(dumpPath));
+        }
+
+        if (!File.Exists(dumpPath))
+        {
+            throw new FileNotFoundException($"Memory dump file not found: {dumpPath}", dumpPath);
+        }
+
+        IntPtr ptr = IntPtr.Zero;
+        try
+        {
+            _logger.LogInformation("Detecting malware in dump: {DumpPath}", dumpPath);
+
+            ptr = rust_bridge_detect_malware(dumpPath);
+            if (ptr == IntPtr.Zero)
+            {
+                throw new InvalidOperationException($"Failed to detect malware in dump: {dumpPath}");
+            }
+
+            string json = MarshalStringFromRust(ptr);
+            var detections = JsonSerializer.Deserialize<Models.MalwareDetection[]>(json) ??
+                throw new InvalidOperationException("Failed to deserialize malware detection information");
+            _logger.LogInformation("Found {Count} potential malware detections", detections.Length);
+            return detections;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error detecting malware in dump: {DumpPath}", dumpPath);
             throw;
         }
         finally
@@ -210,7 +455,7 @@ public class RustInteropService : IDisposable
     private void EnsureInitialized()
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
-        
+
         if (!_initialized)
         {
             Initialize();
@@ -240,10 +485,10 @@ public class VersionInfo
 {
     [JsonPropertyName("rust_bridge_version")]
     public string? RustBridgeVersion { get; set; }
-    
+
     [JsonPropertyName("volatility_version")]
     public string? VolatilityVersion { get; set; }
-    
+
     [JsonPropertyName("python_version")]
     public string? PythonVersion { get; set; }
 }
@@ -255,22 +500,22 @@ public class ProcessInfo
 {
     [JsonPropertyName("pid")]
     public uint Pid { get; set; }
-    
+
     [JsonPropertyName("ppid")]
     public uint Ppid { get; set; }
-    
+
     [JsonPropertyName("name")]
     public string? Name { get; set; }
-    
+
     [JsonPropertyName("offset")]
     public string? Offset { get; set; }
-    
+
     [JsonPropertyName("threads")]
     public uint Threads { get; set; }
-    
+
     [JsonPropertyName("handles")]
     public uint Handles { get; set; }
-    
+
     [JsonPropertyName("create_time")]
     public string? CreateTime { get; set; }
 }
