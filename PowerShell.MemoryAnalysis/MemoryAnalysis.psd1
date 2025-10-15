@@ -36,6 +36,9 @@
     CmdletsToExport = @(
         'Get-MemoryDump'
         'Test-ProcessTree'
+        'Get-ProcessCommandLine'
+        'Get-ProcessDll'
+        'Get-NetworkConnection'
         'Find-Malware'
     )
     
