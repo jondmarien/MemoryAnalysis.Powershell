@@ -156,32 +156,42 @@ jobs:
         run: |
           cp rust-bridge/target/release/librust_bridge.dylib PowerShell.MemoryAnalysis/publish/
       
-      - name: Install PowerShell 7.6 Preview
+      - name: Install PowerShell 7.6 Preview (Windows)
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
-          Invoke-WebRequest -Uri https://github.com/PowerShell/PowerShell/releases/download/v7.6.0-preview.5/PowerShell-7.6.0-preview.5-win-x64.msi -OutFile pwsh.msi
-          Start-Process msiexec.exe -ArgumentList '/i', 'pwsh.msi', '/qn', '/norestart' -NoNewWindow -Wait
-          Remove-Item pwsh.msi
-          # Verify installation
-          $pwshPath = "C:\Program Files\PowerShell\7-preview\pwsh.exe"
-          if (Test-Path $pwshPath) {
-            & $pwshPath -Version
-          } else {
-            Write-Host "PowerShell 7.6 preview not found at expected location"
-            Get-ChildItem "C:\Program Files\PowerShell" -Recurse -Filter pwsh.exe | Select-Object FullName
+          winget install --id Microsoft.PowerShell.Preview --version 7.6.0.5 --silent --accept-source-agreements --accept-package-agreements
+          # Refresh PATH to pick up pwsh-preview
+          $env:PATH = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+          pwsh-preview -Version
+      
+      - name: Install PowerShell 7.6 Preview (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew install --cask powershell@preview
+      
+      - name: Install PowerShell 7.6 Preview (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          wget https://github.com/PowerShell/PowerShell/releases/download/v7.6.0-preview.5/powershell-preview_7.6.0-preview.5-1.deb_amd64.deb
+          sudo dpkg -i powershell-preview_7.6.0-preview.5-1.deb_amd64.deb
+          sudo apt-get install -f -y
+      
+      - name: Generate MAML Help (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          pwsh-preview -Command {
+            Install-Module -Name platyPS -Force -Scope CurrentUser
+            Set-Location "$env:GITHUB_WORKSPACE"
+            ./scripts/Generate-Help.ps1
           }
       
-      - name: Generate MAML Help
-        if: matrix.os == 'windows-latest'
+      - name: Generate MAML Help (macOS/Linux)
+        if: matrix.os != 'windows-latest'
         shell: pwsh
         run: |
-          $pwsh = "C:\Program Files\PowerShell\7-preview\pwsh.exe"
-          if (-not (Test-Path $pwsh)) {
-            Write-Error "PowerShell 7.6 preview not found"
-            exit 1
-          }
-          & $pwsh -Command {
+          pwsh -Command {
             Install-Module -Name platyPS -Force -Scope CurrentUser
             Set-Location "$env:GITHUB_WORKSPACE"
             ./scripts/Generate-Help.ps1
@@ -212,9 +222,9 @@ jobs:
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
-          Invoke-WebRequest -Uri https://github.com/PowerShell/PowerShell/releases/download/v7.6.0-preview.5/PowerShell-7.6.0-preview.5-win-x64.msi -OutFile pwsh.msi
-          Start-Process msiexec.exe -ArgumentList '/i', 'pwsh.msi', '/qn', '/norestart' -NoNewWindow -Wait
-          Remove-Item pwsh.msi
+          winget install --id Microsoft.PowerShell.Preview --version 7.6.0.5 --silent --accept-source-agreements --accept-package-agreements
+          # Refresh PATH
+          $env:PATH = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
       
       - name: Install PowerShell 7.6 Preview (macOS)
         if: matrix.os == 'macos-latest'
@@ -228,10 +238,17 @@ jobs:
           sudo dpkg -i powershell-preview_7.6.0-preview.5-1.deb_amd64.deb
           sudo apt-get install -f -y
       
-      - name: Setup PowerShell
+      - name: Verify PowerShell Installation (Windows)
+        if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
           pwsh-preview -Version
+      
+      - name: Verify PowerShell Installation (macOS/Linux)
+        if: matrix.os != 'windows-latest'
+        shell: pwsh
+        run: |
+          pwsh -Version
       
       - name: Install Pester
         shell: pwsh
@@ -244,10 +261,21 @@ jobs:
           name: MemoryAnalysis-${{ matrix.os }}
           path: PowerShell.MemoryAnalysis/publish/
       
-      - name: Run Integration Tests
+      - name: Run Integration Tests (Windows)
+        if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
           pwsh-preview -Command {
+            Import-Module Pester -MinimumVersion 5.0
+            Set-Location "$env:GITHUB_WORKSPACE"
+            Invoke-Pester -Path tests/integration-tests/Module.Tests.ps1 -CI
+          }
+      
+      - name: Run Integration Tests (macOS/Linux)
+        if: matrix.os != 'windows-latest'
+        shell: pwsh
+        run: |
+          pwsh -Command {
             Import-Module Pester -MinimumVersion 5.0
             Set-Location "$env:GITHUB_WORKSPACE"
             Invoke-Pester -Path tests/integration-tests/Module.Tests.ps1 -CI
@@ -275,9 +303,9 @@ jobs:
       - name: Install PowerShell 7.6 Preview
         shell: pwsh
         run: |
-          Invoke-WebRequest -Uri https://github.com/PowerShell/PowerShell/releases/download/v7.6.0-preview.5/PowerShell-7.6.0-preview.5-win-x64.msi -OutFile pwsh.msi
-          Start-Process msiexec.exe -ArgumentList '/i', 'pwsh.msi', '/qn', '/norestart' -NoNewWindow -Wait
-          Remove-Item pwsh.msi
+          winget install --id Microsoft.PowerShell.Preview --version 7.6.0.5 --silent --accept-source-agreements --accept-package-agreements
+          # Refresh PATH
+          $env:PATH = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
       
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4
@@ -288,7 +316,7 @@ jobs:
       - name: Run Benchmarks
         shell: pwsh
         run: |
-          & "C:\Program Files\PowerShell\7-preview\pwsh.exe" -Command {
+          pwsh-preview -Command {
             Set-Location "$env:GITHUB_WORKSPACE"
             ./benchmarks/Measure-Performance.ps1
           }
