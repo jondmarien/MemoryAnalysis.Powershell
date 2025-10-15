@@ -163,15 +163,29 @@ jobs:
           Invoke-WebRequest -Uri https://github.com/PowerShell/PowerShell/releases/download/v7.6.0-preview.5/PowerShell-7.6.0-preview.5-win-x64.msi -OutFile pwsh.msi
           Start-Process msiexec.exe -ArgumentList '/i', 'pwsh.msi', '/qn', '/norestart' -NoNewWindow -Wait
           Remove-Item pwsh.msi
+          # Verify installation
+          $pwshPath = "C:\Program Files\PowerShell\7-preview\pwsh.exe"
+          if (Test-Path $pwshPath) {
+            & $pwshPath -Version
+          } else {
+            Write-Host "PowerShell 7.6 preview not found at expected location"
+            Get-ChildItem "C:\Program Files\PowerShell" -Recurse -Filter pwsh.exe | Select-Object FullName
+          }
       
       - name: Generate MAML Help
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
-          & "C:\Program Files\PowerShell\7\pwsh.exe" -Command "
+          $pwsh = "C:\Program Files\PowerShell\7-preview\pwsh.exe"
+          if (-not (Test-Path $pwsh)) {
+            Write-Error "PowerShell 7.6 preview not found"
+            exit 1
+          }
+          & $pwsh -Command {
             Install-Module -Name platyPS -Force -Scope CurrentUser
+            Set-Location "$env:GITHUB_WORKSPACE"
             ./scripts/Generate-Help.ps1
-          "
+          }
       
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
