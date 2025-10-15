@@ -80,7 +80,11 @@ This document tracks the completion status of the PowerShell Memory Analysis Mod
   - C# deserialization fixed with `[JsonPropertyName]` attributes
 
 #### 🔄 In Progress:
-- ⏳ **Command line extraction** (`windows.cmdline.CmdLine` plugin)
+- ✅ **Command line extraction** (`windows.cmdline.CmdLine` plugin) - **RUST COMPLETE**
+  - ✅ Rust implementation in `process_analysis.rs`
+  - ✅ `CommandLineInfo` struct added to `types.rs`
+  - ✅ FFI export `rust_bridge_get_command_lines` added
+  - ⏳ C# wrapper in RustInteropService (next)
 - ⏳ **DLL listing** (`windows.dlllist.DllList` plugin)
 - ⏳ **Network connections** (`windows.netscan.NetScan` plugin)
 - ⏳ **Malware detection plugins:**
