@@ -106,7 +106,10 @@ public class GetMemoryDumpCommand : PSCmdlet
         }
         catch (Exception ex)
         {
-            _logger?.LogError(ex, "Error processing memory dump path: {Path}", Path);
+            if (_logger?.IsEnabled(LogLevel.Error) == true)
+            {
+                _logger.LogError(ex, "Error processing memory dump path: {Path}", Path);
+            }
             WriteError(new ErrorRecord(
                 ex,
                 "MemoryDumpProcessingFailed",
@@ -120,14 +123,19 @@ public class GetMemoryDumpCommand : PSCmdlet
     /// </summary>
     private void ProcessMemoryDump(string filePath)
     {
-        _logger?.LogInformation("Loading memory dump: {FilePath}", filePath);
+        if (_logger?.IsEnabled(LogLevel.Information) == true)
+        {
+            _logger.LogInformation("Loading memory dump: {FilePath}", filePath);
+        }
 
         // Show progress
         var progressRecord = new ProgressRecord(
             1,
             "Loading Memory Dump",
-            $"Processing {System.IO.Path.GetFileName(filePath)}");
-        progressRecord.PercentComplete = 0;
+            $"Processing {System.IO.Path.GetFileName(filePath)}")
+        {
+            PercentComplete = 0
+        };
         WriteProgress(progressRecord);
 
         try
@@ -183,14 +191,20 @@ public class GetMemoryDumpCommand : PSCmdlet
             progressRecord.StatusDescription = "Complete";
             WriteProgress(progressRecord);
 
-            _logger?.LogInformation("Successfully loaded memory dump: {FileName} ({Size})",
-                memoryDump.FileName, memoryDump.Size);
+            if (_logger?.IsEnabled(LogLevel.Information) == true)
+            {
+                _logger.LogInformation("Successfully loaded memory dump: {FileName} ({Size})",
+                    memoryDump.FileName, memoryDump.Size);
+            }
 
             WriteObject(memoryDump);
         }
         catch (Exception ex)
         {
-            _logger?.LogError(ex, "Failed to load memory dump: {FilePath}", filePath);
+            if (_logger?.IsEnabled(LogLevel.Error) == true)
+            {
+                _logger.LogError(ex, "Failed to load memory dump: {FilePath}", filePath);
+            }
             WriteError(new ErrorRecord(
                 ex,
                 "MemoryDumpLoadFailed",
@@ -237,7 +251,10 @@ public class GetMemoryDumpCommand : PSCmdlet
         }
         catch (Exception ex)
         {
-            _logger?.LogWarning(ex, "Failed to validate dump: {Path}", dump.Path);
+            if (_logger?.IsEnabled(LogLevel.Warning) == true)
+            {
+                _logger.LogWarning(ex, "Failed to validate dump: {Path}", dump.Path);
+            }
             WriteWarning($"Validation failed: {ex.Message}");
             dump.IsValidated = false;
         }

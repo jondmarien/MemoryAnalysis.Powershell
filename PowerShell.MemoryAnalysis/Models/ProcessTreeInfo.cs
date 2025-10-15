@@ -56,7 +56,7 @@ public class ProcessTreeInfo
     /// <summary>
     /// Child processes.
     /// </summary>
-    public List<ProcessTreeInfo> Children { get; set; } = new();
+    public List<ProcessTreeInfo> Children { get; set; } = [];
 
     /// <summary>
     /// Whether this process is suspicious.
@@ -66,7 +66,7 @@ public class ProcessTreeInfo
     /// <summary>
     /// Reasons why this process is flagged as suspicious.
     /// </summary>
-    public List<string> SuspiciousReasons { get; set; } = new();
+    public List<string> SuspiciousReasons { get; set; } = [];
 
     /// <summary>
     /// Get a tree-formatted string representation.

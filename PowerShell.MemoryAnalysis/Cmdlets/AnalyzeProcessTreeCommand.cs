@@ -33,6 +33,11 @@ namespace PowerShell.MemoryAnalysis.Cmdlets;
 [OutputType(typeof(ProcessTreeInfo))]
 public class AnalyzeProcessTreeCommand : PSCmdlet
 {
+    private static readonly System.Text.Json.JsonSerializerOptions JsonOptions = new()
+    {
+        WriteIndented = true
+    };
+
     private ILogger<AnalyzeProcessTreeCommand>? _logger;
     private RustInteropService? _rustInterop;
 
@@ -128,14 +133,19 @@ public class AnalyzeProcessTreeCommand : PSCmdlet
 
         try
         {
-            _logger?.LogInformation("Analyzing process tree for dump: {DumpPath}", MemoryDump.Path);
+            if (_logger?.IsEnabled(LogLevel.Information) == true)
+            {
+                _logger.LogInformation("Analyzing process tree for dump: {DumpPath}", MemoryDump.Path);
+            }
 
             // Show progress
             var progressRecord = new ProgressRecord(
                 1,
                 "Analyzing Process Tree",
-                $"Processing {MemoryDump.FileName}");
-            progressRecord.PercentComplete = 0;
+                $"Processing {MemoryDump.FileName}")
+            {
+                PercentComplete = 0
+            };
             WriteProgress(progressRecord);
 
             // Get process list from Rust
@@ -184,7 +194,10 @@ public class AnalyzeProcessTreeCommand : PSCmdlet
             progressRecord.StatusDescription = "Complete";
             WriteProgress(progressRecord);
 
-            _logger?.LogInformation("Process tree analysis completed. Found {ProcessCount} processes", processes.Count);
+            if (_logger?.IsEnabled(LogLevel.Information) == true)
+            {
+                _logger.LogInformation("Process tree analysis completed. Found {ProcessCount} processes", processes.Count);
+            }
         }
         catch (Exception ex)
         {
@@ -200,7 +213,7 @@ public class AnalyzeProcessTreeCommand : PSCmdlet
     /// <summary>
     /// Convert raw process info to ProcessTreeInfo objects.
     /// </summary>
-    private List<ProcessTreeInfo> ConvertToProcessTreeInfo(ProcessInfo[] rawProcesses)
+    private static List<ProcessTreeInfo> ConvertToProcessTreeInfo(ProcessInfo[] rawProcesses)
     {
         var processes = rawProcesses.Select(p => new ProcessTreeInfo
         {
@@ -217,9 +230,8 @@ public class AnalyzeProcessTreeCommand : PSCmdlet
         var processDict = processes.ToDictionary(p => p.Pid);
         foreach (var process in processes)
         {
-            if (process.Ppid != 0 && processDict.ContainsKey(process.Ppid))
+            if (process.Ppid != 0 && processDict.TryGetValue(process.Ppid, out ProcessTreeInfo? parent))
             {
-                var parent = processDict[process.Ppid];
                 parent.Children.Add(process);
                 process.Depth = parent.Depth + 1;
             }
@@ -251,13 +263,13 @@ public class AnalyzeProcessTreeCommand : PSCmdlet
             filtered = filtered.Where(p => p.Ppid == ParentPid.Value);
         }
 
-        return filtered.ToList();
+        return [.. filtered];
     }
 
     /// <summary>
     /// Check if a process is a descendant of another process.
     /// </summary>
-    private bool IsDescendantOf(ProcessTreeInfo process, uint ancestorPid, List<ProcessTreeInfo> allProcesses)
+    private static bool IsDescendantOf(ProcessTreeInfo process, uint ancestorPid, List<ProcessTreeInfo> allProcesses)
     {
         var current = process;
         while (current.Ppid != 0)
@@ -275,7 +287,7 @@ public class AnalyzeProcessTreeCommand : PSCmdlet
     /// <summary>
     /// Flag suspicious processes based on heuristics.
     /// </summary>
-    private void FlagSuspiciousProcesses(List<ProcessTreeInfo> processes)
+    private static void FlagSuspiciousProcesses(List<ProcessTreeInfo> processes)
     {
         foreach (var process in processes)
         {
@@ -369,10 +381,7 @@ public class AnalyzeProcessTreeCommand : PSCmdlet
     /// </summary>
     private void OutputJsonFormat(List<ProcessTreeInfo> processes)
     {
-        var json = System.Text.Json.JsonSerializer.Serialize(processes, new System.Text.Json.JsonSerializerOptions
-        {
-            WriteIndented = true
-        });
+        var json = System.Text.Json.JsonSerializer.Serialize(processes, JsonOptions);
         WriteObject(json);
     }
 
