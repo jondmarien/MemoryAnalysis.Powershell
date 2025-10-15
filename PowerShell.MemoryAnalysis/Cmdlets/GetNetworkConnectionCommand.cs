@@ -58,9 +58,17 @@ public class GetNetworkConnectionCommand : PSCmdlet
 
         try
         {
+            var progress = new ProgressRecord(1, "Scanning Network Connections", 
+                $"Analyzing {MemoryDump.FileName} (may take 1-2 minutes)...") { PercentComplete = -1 };
+            WriteProgress(progress);
+            
             _logger.LogInformation("Scanning network connections from: {Path}", MemoryDump.Path);
 
             var connections = _rustInterop.ScanNetworkConnections(MemoryDump.Path);
+            
+            progress.StatusDescription = $"Processing {connections.Length} connections...";
+            progress.PercentComplete = 100;
+            WriteProgress(progress);
 
             // Apply filters
             var filtered = connections.AsEnumerable();
@@ -84,6 +92,9 @@ public class GetNetworkConnectionCommand : PSCmdlet
             {
                 WriteObject(connection);
             }
+            
+            progress.RecordType = ProgressRecordType.Completed;
+            WriteProgress(progress);
         }
         catch (Exception ex)
         {

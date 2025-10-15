@@ -37,19 +37,19 @@ public class RustInteropService : IDisposable
     private static extern void rust_bridge_free_string(IntPtr ptr);
 
     [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    private static extern IntPtr rust_bridge_list_processes([MarshalAs(UnmanagedType.LPWStr)] string dumpPath);
+    private static extern IntPtr rust_bridge_list_processes([MarshalAs(UnmanagedType.LPUTF8Str)] string dumpPath);
 
     [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    private static extern IntPtr rust_bridge_get_command_lines([MarshalAs(UnmanagedType.LPWStr)] string dumpPath);
+    private static extern IntPtr rust_bridge_get_command_lines([MarshalAs(UnmanagedType.LPUTF8Str)] string dumpPath);
 
     [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    private static extern IntPtr rust_bridge_list_dlls([MarshalAs(UnmanagedType.LPWStr)] string dumpPath, uint pid);
+    private static extern IntPtr rust_bridge_list_dlls([MarshalAs(UnmanagedType.LPUTF8Str)] string dumpPath, uint pid);
 
     [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    private static extern IntPtr rust_bridge_scan_network_connections([MarshalAs(UnmanagedType.LPWStr)] string dumpPath);
+    private static extern IntPtr rust_bridge_scan_network_connections([MarshalAs(UnmanagedType.LPUTF8Str)] string dumpPath);
 
     [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    private static extern IntPtr rust_bridge_detect_malware([MarshalAs(UnmanagedType.LPWStr)] string dumpPath);
+    private static extern IntPtr rust_bridge_detect_malware([MarshalAs(UnmanagedType.LPUTF8Str)] string dumpPath);
 
     #endregion
 

@@ -53,9 +53,18 @@ public class GetProcessCommandLineCommand : PSCmdlet
 
         try
         {
+            // Show progress
+            var progress = new ProgressRecord(1, "Extracting Command Lines", 
+                $"Analyzing {MemoryDump.FileName}...") { PercentComplete = -1 };
+            WriteProgress(progress);
+            
             _logger.LogInformation("Extracting command lines from: {Path}", MemoryDump.Path);
 
             var commandLines = _rustInterop.GetCommandLines(MemoryDump.Path);
+            
+            progress.StatusDescription = $"Processing {commandLines.Length} command lines...";
+            progress.PercentComplete = 100;
+            WriteProgress(progress);
 
             // Apply filters
             var filtered = commandLines.AsEnumerable();
@@ -75,6 +84,10 @@ public class GetProcessCommandLineCommand : PSCmdlet
             {
                 WriteObject(cmdLine);
             }
+            
+            // Complete progress
+            progress.RecordType = ProgressRecordType.Completed;
+            WriteProgress(progress);
         }
         catch (Exception ex)
         {

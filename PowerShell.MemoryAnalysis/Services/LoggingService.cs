@@ -28,9 +28,8 @@ public static class LoggingService
             _loggerFactory = LoggerFactory.Create(builder =>
             {
                 builder
-                    .SetMinimumLevel(LogLevel.Information)
-                    .AddConsole()
-                    .AddDebug();
+                    .SetMinimumLevel(LogLevel.Warning) // Only show warnings and errors
+                    .AddDebug(); // Only log to debug output, not console
 
                 configureLogging?.Invoke(builder);
             });
