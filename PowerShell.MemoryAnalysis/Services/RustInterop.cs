@@ -293,13 +293,16 @@ public class RustInteropService : IDisposable
         try
         {
             var pidFilter = pid ?? 0; // 0 = no filter
-            if (pid.HasValue)
+            if (_logger.IsEnabled(LogLevel.Information))
             {
-                _logger.LogInformation("Listing DLLs from dump: {DumpPath} (filtered to PID {Pid})", dumpPath, pid.Value);
-            }
-            else
-            {
-                _logger.LogInformation("Listing DLLs from dump: {DumpPath}", dumpPath);
+                if (pid.HasValue)
+                {
+                    _logger.LogInformation("Listing DLLs from dump: {DumpPath} (filtered to PID {Pid})", dumpPath, pid.Value);
+                }
+                else
+                {
+                    _logger.LogInformation("Listing DLLs from dump: {DumpPath}", dumpPath);
+                }
             }
 
             ptr = rust_bridge_list_dlls(dumpPath, pidFilter);
@@ -356,7 +359,10 @@ public class RustInteropService : IDisposable
         IntPtr ptr = IntPtr.Zero;
         try
         {
-            _logger.LogInformation("Scanning network connections from dump: {DumpPath}", dumpPath);
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation("Scanning network connections from dump: {DumpPath}", dumpPath);
+            }
 
             ptr = rust_bridge_scan_network_connections(dumpPath);
             if (ptr == IntPtr.Zero)
@@ -367,12 +373,18 @@ public class RustInteropService : IDisposable
             string json = MarshalStringFromRust(ptr);
             var connections = JsonSerializer.Deserialize<Models.NetworkConnectionInfo[]>(json) ??
                 throw new InvalidOperationException("Failed to deserialize network connection information");
-            _logger.LogInformation("Retrieved {Count} network connections", connections.Length);
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation("Retrieved {Count} network connections", connections.Length);
+            }
             return connections;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error scanning network connections from dump: {DumpPath}", dumpPath);
+            if (_logger.IsEnabled(LogLevel.Error))
+            {
+                _logger.LogError(ex, "Error scanning network connections from dump: {DumpPath}", dumpPath);
+            }
             throw;
         }
         finally
@@ -406,7 +418,10 @@ public class RustInteropService : IDisposable
         IntPtr ptr = IntPtr.Zero;
         try
         {
-            _logger.LogInformation("Detecting malware in dump: {DumpPath}", dumpPath);
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation("Detecting malware in dump: {DumpPath}", dumpPath);
+            }
 
             ptr = rust_bridge_detect_malware(dumpPath);
             if (ptr == IntPtr.Zero)
@@ -417,12 +432,18 @@ public class RustInteropService : IDisposable
             string json = MarshalStringFromRust(ptr);
             var detections = JsonSerializer.Deserialize<Models.MalwareDetection[]>(json) ??
                 throw new InvalidOperationException("Failed to deserialize malware detection information");
-            _logger.LogInformation("Found {Count} potential malware detections", detections.Length);
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation("Found {Count} potential malware detections", detections.Length);
+            }
             return detections;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error detecting malware in dump: {DumpPath}", dumpPath);
+            if (_logger.IsEnabled(LogLevel.Error))
+            {
+                _logger.LogError(ex, "Error detecting malware in dump: {DumpPath}", dumpPath);
+            }
             throw;
         }
         finally
