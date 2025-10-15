@@ -62,9 +62,9 @@ public class GetNetworkConnectionCommand : PSCmdlet
                 $"Analyzing {MemoryDump.FileName} (may take 1-2 minutes)...") { PercentComplete = -1 };
             WriteProgress(progress);
             
-            _logger.LogInformation("Scanning network connections from: {Path}", MemoryDump.Path);
+            _logger?.LogInformation("Scanning network connections from: {Path}", MemoryDump.Path);
 
-            var connections = _rustInterop.ScanNetworkConnections(MemoryDump.Path);
+            var connections = _rustInterop!.ScanNetworkConnections(MemoryDump.Path);
             
             progress.StatusDescription = $"Processing {connections.Length} connections...";
             progress.PercentComplete = 100;
@@ -98,7 +98,7 @@ public class GetNetworkConnectionCommand : PSCmdlet
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error scanning network connections");
+            _logger?.LogError(ex, "Error scanning network connections");
             WriteError(new ErrorRecord(
                 ex,
                 "NetworkScanFailed",

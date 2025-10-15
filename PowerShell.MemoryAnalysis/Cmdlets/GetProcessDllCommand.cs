@@ -64,9 +64,9 @@ public class GetProcessDllCommand : PSCmdlet
                 $"Scanning {MemoryDump.FileName}...") { PercentComplete = -1 };
             WriteProgress(progress);
             
-            _logger.LogInformation("Listing DLLs from: {Path}", MemoryDump.Path);
+            _logger?.LogInformation("Listing DLLs from: {Path}", MemoryDump.Path);
 
-            var dlls = _rustInterop.ListDlls(MemoryDump.Path, Pid);
+            var dlls = _rustInterop!.ListDlls(MemoryDump.Path, Pid);
             
             progress.StatusDescription = $"Processing {dlls.Length} DLLs...";
             progress.PercentComplete = 100;
@@ -97,7 +97,7 @@ public class GetProcessDllCommand : PSCmdlet
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error listing DLLs");
+            _logger?.LogError(ex, "Error listing DLLs");
             WriteError(new ErrorRecord(
                 ex,
                 "DllListingFailed",

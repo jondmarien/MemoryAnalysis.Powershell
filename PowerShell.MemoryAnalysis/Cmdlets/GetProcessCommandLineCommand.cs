@@ -58,9 +58,9 @@ public class GetProcessCommandLineCommand : PSCmdlet
                 $"Analyzing {MemoryDump.FileName}...") { PercentComplete = -1 };
             WriteProgress(progress);
             
-            _logger.LogInformation("Extracting command lines from: {Path}", MemoryDump.Path);
+            _logger?.LogInformation("Extracting command lines from: {Path}", MemoryDump.Path);
 
-            var commandLines = _rustInterop.GetCommandLines(MemoryDump.Path);
+            var commandLines = _rustInterop!.GetCommandLines(MemoryDump.Path);
             
             progress.StatusDescription = $"Processing {commandLines.Length} command lines...";
             progress.PercentComplete = 100;
@@ -91,7 +91,7 @@ public class GetProcessCommandLineCommand : PSCmdlet
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error extracting command lines");
+            _logger?.LogError(ex, "Error extracting command lines");
             WriteError(new ErrorRecord(
                 ex,
                 "CommandLineExtractionFailed",
