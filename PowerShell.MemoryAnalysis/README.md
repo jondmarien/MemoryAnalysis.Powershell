@@ -37,7 +37,7 @@ PowerShell Pipeline
 
 ## Project Structure
 
-```
+```tree
 PowerShell.MemoryAnalysis/
 ├── Cmdlets/
 │   ├── GetMemoryDumpCommand.cs           # ✅ Get-MemoryDump
@@ -102,6 +102,7 @@ public class GetMemoryDumpCommand : PSCmdlet
 ```
 
 **Parameters:**
+
 - `Path` (mandatory) - Path to memory dump file
 - `Validate` - Validate dump integrity
 - `DetectProfile` - Auto-detect OS profile
@@ -120,6 +121,7 @@ public class AnalyzeProcessTreeCommand : PSCmdlet
 ```
 
 **Parameters:**
+
 - `MemoryDump` (mandatory, pipeline) - Memory dump to analyze
 - `ProcessName` - Filter by process name (wildcards)
 - `Pid` - Filter by specific PID
@@ -135,6 +137,7 @@ public class AnalyzeProcessTreeCommand : PSCmdlet
 Extracts command line arguments for processes.
 
 **Integration Steps:**
+
 1. Add `CommandLineInfo.cs` model
 2. Add P/Invoke declaration in `RustInterop.cs`
 3. Add wrapper method `GetCommandLines()`
@@ -150,6 +153,7 @@ Extracts command line arguments for processes.
 Lists DLLs loaded by processes.
 
 **Integration Steps:**
+
 1. Add `DllInfo.cs` model
 2. Add P/Invoke declaration in `RustInterop.cs`
 3. Add wrapper method `ListDlls()`
@@ -262,6 +266,7 @@ logger.LogError(exception, "Error message");
 ### Output
 
 Logs go to:
+
 - PowerShell Verbose stream (`Write-Verbose`)
 - Debug output (`Write-Debug`)
 - Rust bridge debug log (if enabled)
@@ -357,4 +362,4 @@ Copyright (c) 2025. All rights reserved.
 
 - **Main Project:** [MemoryAnalysis.Powershell](https://github.com/jondmarien/MemoryAnalysis.Powershell.git)
 - **Rust Bridge:** [rust-bridge](https://github.com/jondmarien/rust-bridge.git)
-- **Volatility 3:** https://github.com/volatilityfoundation/volatility3
+- **Volatility 3:** <https://github.com/volatilityfoundation/volatility3>
