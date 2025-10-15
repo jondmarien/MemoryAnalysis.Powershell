@@ -2,6 +2,18 @@
 
 A high-performance PowerShell module for memory dump forensics using the Volatility 3 framework with a Rust/Python bridge.
 
+> **Current Status:** 🔄 In Development - Phase 1 (Rust-Python Bridge) 85% complete  
+> See [PROJECT_STATUS.md](docs/PROJECT_STATUS.md) for detailed progress tracking.
+
+## Repository Structure
+
+This is a **monorepo** with a Git submodule:
+
+- **Main Repository:** [MemoryAnalysis.Powershell](https://github.com/jondmarien/MemoryAnalysis.Powershell.git) - PowerShell module and documentation
+- **Submodule:** [rust-bridge](https://github.com/jondmarien/rust-bridge.git) - Rust PyO3 bridge to Volatility 3
+
+The Rust bridge is maintained as a separate repository but linked as a submodule for seamless development.
+
 ## Features
 
 - 🚀 **High Performance** - Rust-based bridge with sub-100ms overhead
@@ -20,17 +32,30 @@ A high-performance PowerShell module for memory dump forensics using the Volatil
 
 ## Installation
 
-1. Clone the repository:
+1. Clone the repository with submodules:
 
 ```powershell
-git clone https://github.com/jondmarien/MemoryAnalysis.Powershell.git
+# Clone with submodules in one command
+git clone --recurse-submodules https://github.com/jondmarien/MemoryAnalysis.Powershell.git
 cd MemoryAnalysis
+
+# OR if already cloned without submodules:
+git submodule init
+git submodule update
 ```
 
-2. Build the project:
+2. Build the Rust bridge:
 
 ```powershell
-dotnet publish PowerShell.MemoryAnalysis\PowerShell.MemoryAnalysis.csproj -o PowerShell.MemoryAnalysis\publish
+cd rust-bridge
+cargo build --release
+cd ..
+```
+
+3. Build the PowerShell module:
+
+```powershell
+dotnet publish PowerShell.MemoryAnalysis\PowerShell.MemoryAnalysis.csproj -c Release -o PowerShell.MemoryAnalysis\publish
 ```
 
 3. Import the module:
@@ -41,7 +66,7 @@ Import-Module .\PowerShell.MemoryAnalysis\publish\MemoryAnalysis.psd1
 
 ## Cmdlets
 
-### Get-MemoryDump
+### ✅ Get-MemoryDump (Available)
 
 Loads a memory dump file for analysis.
 
@@ -56,9 +81,11 @@ $dump = Get-MemoryDump -Path C:\dumps\memory.raw -Validate
 $dump = Get-MemoryDump -Path C:\dumps\memory.dmp -DetectProfile
 ```
 
-### Test-ProcessTree (Analyze-ProcessTree)
+### ✅ Test-ProcessTree (Available)
 
 Analyzes process hierarchies in a memory dump.
+
+**Alias:** `Analyze-ProcessTree`
 
 ```powershell
 # Analyze all processes
@@ -77,7 +104,49 @@ Test-ProcessTree -MemoryDump $dump -Pid 1234
 Test-ProcessTree -MemoryDump $dump -Format JSON
 ```
 
-### Find-Malware
+### 🔄 Get-ProcessCommandLine (In Development - Rust Complete)
+
+Extracts command line arguments for processes.
+
+```powershell
+# Get all command lines
+Get-MemoryDump -Path memory.vmem | Get-ProcessCommandLine
+
+# Filter by process name
+Get-ProcessCommandLine -MemoryDump $dump -ProcessName "powershell*"
+
+# Get for specific PID
+Get-ProcessCommandLine -MemoryDump $dump -Pid 1234
+```
+
+### 🔄 Get-ProcessDll (In Development - Rust Complete)
+
+Lists DLLs loaded by processes.
+
+```powershell
+# Get all DLLs
+Get-MemoryDump -Path memory.vmem | Get-ProcessDll
+
+# DLLs for specific process
+Get-ProcessDll -MemoryDump $dump -Pid 1234
+
+# Find suspicious DLLs
+Get-ProcessDll -MemoryDump $dump -DllName "*malware*"
+```
+
+### ⏳ Get-NetworkConnection (Planned)
+
+Extracts network connections from memory.
+
+```powershell
+# Get all connections
+Get-MemoryDump -Path memory.vmem | Get-NetworkConnection
+
+# Filter by state
+Get-NetworkConnection -MemoryDump $dump -State ESTABLISHED
+```
+
+### ⏳ Find-Malware (Planned)
 
 Detects potential malware in memory dumps.
 
@@ -90,9 +159,6 @@ Find-Malware -MemoryDump $dump -QuickScan -MinimumConfidence 75
 
 # Filter by severity
 Find-Malware -MemoryDump $dump -Severity High,Critical
-
-# Generate detailed report
-Find-Malware -MemoryDump $dump -GenerateReport -ReportPath analysis.txt
 ```
 
 ## Examples
@@ -199,8 +265,9 @@ cargo test
 ## Project Structure
 
 ```tree
-MemoryAnalysis/
-├── rust-bridge/              # Rust PyO3 bridge
+MemoryAnalysis/ (main repo)
+├── .gitmodules              # Submodule configuration
+├── rust-bridge/             # 🔗 Git submodule (separate repo)
 │   ├── src/
 │   │   ├── lib.rs           # FFI exports
 │   │   ├── python_manager.rs
@@ -208,15 +275,23 @@ MemoryAnalysis/
 │   │   ├── process_analysis.rs
 │   │   ├── types.rs
 │   │   └── error.rs
-│   └── Cargo.toml
+│   ├── Cargo.toml
+│   └── README.md
 ├── PowerShell.MemoryAnalysis/
 │   ├── Cmdlets/             # PowerShell cmdlets
 │   ├── Models/              # Data models
 │   ├── Services/            # Business logic
 │   ├── MemoryAnalysis.psd1  # Module manifest
-│   └── MemoryAnalysis.Format.ps1xml
-├── docs/                    # Documentation
-└── tests/                   # Test scripts
+│   ├── MemoryAnalysis.Format.ps1xml
+│   └── README.md
+├── docs/
+│   ├── PROJECT_STATUS.md    # Development progress tracker
+│   ├── PHASE2_CMDLINE_INTEGRATION.md
+│   ├── PHASE2_DLL_INTEGRATION.md
+│   └── plans/
+├── .kiro/steering/          # Project steering docs
+├── scripts/                 # Test and verification scripts
+└── WARP.md                  # AI agent guidance
 ```
 
 ## Performance
