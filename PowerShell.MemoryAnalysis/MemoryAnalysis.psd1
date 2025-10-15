@@ -21,7 +21,7 @@
     Copyright = '(c) 2025. All rights reserved.'
     
     # Description of the functionality provided by this module
-    Description = 'PowerShell module for memory dump analysis using Volatility 3 framework with high-performance Rust/Python bridge'
+    Description = 'PowerShell module for memory dump analysis using Volatility 3 framework with high-performance Rust/Python bridge. Note: Network scanning and malware detection are not supported on Windows 11 Build 26100 due to Volatility 3 compatibility issues.'
     
     # Minimum version of the PowerShell engine required by this module
     PowerShellVersion = '7.6.0'
@@ -38,8 +38,8 @@
         'Test-ProcessTree'
         'Get-ProcessCommandLine'
         'Get-ProcessDll'
-        'Get-NetworkConnection'
-        'Find-Malware'
+        # 'Get-NetworkConnection'  # Disabled: Not compatible with Windows 11 Build 26100
+        # 'Find-Malware'           # Disabled: Not compatible with Windows 11 Build 26100
     )
     
     # Variables to export from this module
@@ -87,9 +87,11 @@ Version 0.1.0
 - Initial release
 - Get-MemoryDump cmdlet for loading memory dumps
 - Test-ProcessTree cmdlet for process hierarchy analysis
-- Find-Malware cmdlet for malware detection
+- Get-ProcessCommandLine cmdlet for command line extraction
+- Get-ProcessDll cmdlet for DLL enumeration
 - Integration with Volatility 3 framework
 - High-performance Rust/Python bridge
+- Note: Network and malware scanning disabled for Windows 11 Build 26100 compatibility
 '@
             
             # Prerelease string of this module
