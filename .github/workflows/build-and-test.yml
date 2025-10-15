@@ -55,9 +55,7 @@ jobs:
       
       - name: Run Rust Tests
         working-directory: rust-bridge
-        run: |
-          cargo test --verbose
-          cargo test --test types_tests --test error_tests
+        run: cargo test --verbose
       
       - name: Run Clippy
         working-directory: rust-bridge
