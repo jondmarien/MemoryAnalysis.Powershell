@@ -102,6 +102,7 @@ jobs:
     name: Build PowerShell Module
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
     needs: [rust-tests, csharp-tests]
@@ -187,11 +188,19 @@ jobs:
             ./scripts/Generate-Help.ps1
           }
       
-      - name: Generate MAML Help (macOS/Linux)
-        if: matrix.os != 'windows-latest'
-        shell: pwsh
+      - name: Generate MAML Help (macOS)
+        if: matrix.os == 'macos-latest'
         run: |
-          pwsh -Command {
+          /usr/local/bin/pwsh-preview -Command {
+            Install-Module -Name platyPS -Force -Scope CurrentUser
+            Set-Location "$env:GITHUB_WORKSPACE"
+            ./scripts/Generate-Help.ps1
+          }
+      
+      - name: Generate MAML Help (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          pwsh-preview -Command {
             Install-Module -Name platyPS -Force -Scope CurrentUser
             Set-Location "$env:GITHUB_WORKSPACE"
             ./scripts/Generate-Help.ps1
@@ -244,11 +253,15 @@ jobs:
         run: |
           pwsh-preview -Version
       
-      - name: Verify PowerShell Installation (macOS/Linux)
-        if: matrix.os != 'windows-latest'
-        shell: pwsh
+      - name: Verify PowerShell Installation (macOS)
+        if: matrix.os == 'macos-latest'
         run: |
-          pwsh -Version
+          /usr/local/bin/pwsh-preview -Version
+      
+      - name: Verify PowerShell Installation (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          pwsh-preview -Version
       
       - name: Install Pester
         shell: pwsh
@@ -271,11 +284,19 @@ jobs:
             Invoke-Pester -Path tests/integration-tests/Module.Tests.ps1 -CI
           }
       
-      - name: Run Integration Tests (macOS/Linux)
-        if: matrix.os != 'windows-latest'
-        shell: pwsh
+      - name: Run Integration Tests (macOS)
+        if: matrix.os == 'macos-latest'
         run: |
-          pwsh -Command {
+          /usr/local/bin/pwsh-preview -Command {
+            Import-Module Pester -MinimumVersion 5.0
+            Set-Location "$env:GITHUB_WORKSPACE"
+            Invoke-Pester -Path tests/integration-tests/Module.Tests.ps1 -CI
+          }
+      
+      - name: Run Integration Tests (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          pwsh-preview -Command {
             Import-Module Pester -MinimumVersion 5.0
             Set-Location "$env:GITHUB_WORKSPACE"
             Invoke-Pester -Path tests/integration-tests/Module.Tests.ps1 -CI
