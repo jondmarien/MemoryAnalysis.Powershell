@@ -1,0 +1,3 @@
+[submodule "rust-bridge"]
+	path = rust-bridge
+	url = https://github.com/jondmarien/rust-bridge.git

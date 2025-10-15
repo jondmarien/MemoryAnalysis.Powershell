@@ -1,6 +1,6 @@
 # PowerShell Memory Analysis Module - Project Status
 
-**Last Updated:** 2025-10-15 03:53 UTC  
+**Last Updated:** 2025-10-15 04:01 UTC  
 **Current Phase:** Phase 1 - Rust-Python Bridge (Task 1.4 in progress)
 
 ## Overview
@@ -67,9 +67,9 @@ This document tracks the completion status of the PowerShell Memory Analysis Mod
 
 ### 🔄 Task 1.4: Memory Analysis Functions - **IN PROGRESS** 
 
-**Status:** 🔄 75% Complete  
+**Status:** 🔄 50% Complete (2 of 4 features implemented at Rust layer)  
 **Started:** 2025-10-14  
-**Current Focus:** Adding additional Volatility plugins
+**Current Focus:** Network connections and malware detection plugins
 
 #### ✅ Completed:
 - ✅ **Process list analysis** (`windows.pslist.PsList` plugin)
@@ -79,28 +79,38 @@ This document tracks the completion status of the PowerShell Memory Analysis Mod
   - JSON serialization working
   - C# deserialization fixed with `[JsonPropertyName]` attributes
 
-#### 🔄 In Progress:
+#### 🔄 Rust Layer Complete (Pending C# Integration):
 - ✅ **Command line extraction** (`windows.cmdline.CmdLine` plugin) - **RUST COMPLETE**
   - ✅ Rust implementation in `process_analysis.rs`
   - ✅ `CommandLineInfo` struct added to `types.rs`
   - ✅ FFI export `rust_bridge_get_command_lines` added
-  - ⏳ C# wrapper in RustInteropService (next)
-- ⏳ **DLL listing** (`windows.dlllist.DllList` plugin)
+  - ✅ Builds successfully
+  - ⏳ C# integration documented in `docs/PHASE2_CMDLINE_INTEGRATION.md`
+  
+- ✅ **DLL listing** (`windows.dlllist.DllList` plugin) - **RUST COMPLETE**
+  - ✅ Rust implementation in `process_analysis.rs`
+  - ✅ `DllInfo` struct added to `types.rs`
+  - ✅ FFI export `rust_bridge_list_dlls` added
+  - ✅ Supports optional PID filtering (pass 0 for all, or specific PID)
+  - ✅ Builds successfully (1.4s compile time)
+  - ⏳ C# integration documented in `docs/PHASE2_DLL_INTEGRATION.md`
+
+#### ⏳ Still TODO:
 - ⏳ **Network connections** (`windows.netscan.NetScan` plugin)
 - ⏳ **Malware detection plugins:**
   - ⏳ `windows.malfind.Malfind` (code injection detection)
   - ⏳ `windows.psxview.PsXview` (hidden process detection)
 
-**Files to Update:**
-- `rust-bridge/src/process_analysis.rs` - Add new plugin functions
-- `rust-bridge/src/types.rs` - Add new data structures
-- `rust-bridge/src/lib.rs` - Add FFI exports
+**Files Updated:**
+- ✅ `rust-bridge/src/process_analysis.rs` - Added `get_command_lines()` and `list_dlls()`
+- ✅ `rust-bridge/src/types.rs` - Added `CommandLineInfo` and `DllInfo` structs
+- ✅ `rust-bridge/src/lib.rs` - Added FFI exports for both features
 
 **Next Actions:**
-1. Implement `get_command_lines()` function
-2. Implement `list_dlls()` function  
-3. Implement `scan_network_connections()` function
-4. Implement `detect_malware()` function with multiple techniques
+1. ✅ ~~Implement `get_command_lines()` function~~ **DONE**
+2. ✅ ~~Implement `list_dlls()` function~~ **DONE**
+3. ⏳ Implement `scan_network_connections()` function (NEXT)
+4. ⏳ Implement `detect_malware()` function with multiple techniques
 
 ---
 
