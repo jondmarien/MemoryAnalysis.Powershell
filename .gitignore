@@ -61,3 +61,4 @@ verification-results-*.json
 *.raw
 *.dmp
 *.mem
+samples/
