@@ -10,19 +10,18 @@ A high-performance PowerShell module for memory dump forensics using the Volatil
 <!-- LOC-START -->## 📊 Lines of Code Statistics
 
 | Language | Code Lines | Comments | Blanks | Total Lines |
-|----------|------------|----------|---------|-------------|
+|----------|:----------:|:--------:|:------:|:-----------:|
 
 | C# | 2,743 | 924 | 558 | 4,225 |
-| YAML | 2,219 | 0 | 0 | 2,219 |
 | PowerShell | 2,205 | 365 | 424 | 2,994 |
 | MSBuild | 57 | 3 | 10 | 70 |
 | Python | 52 | 0 | 1 | 53 |
 | Rust | 28 | 4 | 8 | 40 |
 | JSON | 0 | 0 | 0 | 0 |
-| Markdown | 0 | 4,762 | 1,816 | 6,578 |
-| **Total** | **7,304** | **6,058** | **2,817** | **16,179** |
+| Markdown | 0 | 4,774 | 1,797 | 6,571 |
+| **Total** | **5,085** | **6,070** | **2,798** | **13,953** |
 
-*Last updated: October 16, 2025 at 07:44 UTC*
+*Last updated: October 16, 2025 at 07:48 UTC*
 <!-- LOC-END -->
 
 
