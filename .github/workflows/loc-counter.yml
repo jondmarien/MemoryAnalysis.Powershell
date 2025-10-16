@@ -1,0 +1,131 @@
+name: Update Lines of Code Statistics
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:  # Manual trigger
+  schedule:
+    - cron: '0 0 * * *'  # Daily at midnight UTC
+
+permissions:
+  contents: write  # Needed to push changes back to repo
+
+jobs:
+  update-loc:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Setup Rust toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+        
+    - name: Install tokei
+      run: cargo install tokei
+      
+    - name: Generate LOC statistics
+      run: |
+        echo "Generating LOC statistics..."
+        tokei . -o json > loc-stats.json
+        
+    - name: Parse LOC data and update README
+      run: |
+        python3 << 'EOF'
+        import json
+        import re
+        from datetime import datetime
+        
+        # Read the tokei JSON output
+        with open('loc-stats.json', 'r') as f:
+            data = json.load(f)
+        
+        # Create markdown table
+        markdown_table = """
+## 📊 Lines of Code Statistics
+
+| Language | Code Lines | Comments | Blanks | Total Lines |
+|----------|------------|----------|---------|-------------|"""
+        
+        # Sort languages by code lines (descending)
+        languages = {k: v for k, v in data.items() if k != 'Total' and isinstance(v, dict)}
+        sorted_languages = sorted(languages.items(), key=lambda x: x[1]['code'], reverse=True)
+        
+        # Add each language row
+        for lang, stats in sorted_languages:
+            code = f"{stats['code']:,}"
+            comments = f"{stats['comments']:,}"
+            blanks = f"{stats['blanks']:,}"
+            total = f"{stats['lines']:,}"
+            markdown_table += f"\n| {lang} | {code} | {comments} | {blanks} | {total} |"
+        
+        # Add total row
+        if 'Total' in data:
+            total_stats = data['Total']
+            code = f"{total_stats['code']:,}"
+            comments = f"{total_stats['comments']:,}"
+            blanks = f"{total_stats['blanks']:,}"
+            total = f"{total_stats['lines']:,}"
+            markdown_table += f"\n| **Total** | **{code}** | **{comments}** | **{blanks}** | **{total}** |"
+        
+        # Add timestamp
+        timestamp = datetime.now().strftime("%B %d, %Y at %H:%M UTC")
+        markdown_table += f"\n\n*Last updated: {timestamp}*\n"
+        
+        # Read current README
+        try:
+            with open('README.md', 'r') as f:
+                readme_content = f.read()
+        except FileNotFoundError:
+            print("README.md not found, creating new one...")
+            readme_content = """# Project Name
+        
+        <!-- LOC-START -->
+        <!-- LOC-END -->
+        """
+        
+        # Replace content between markers
+        pattern = r'<!-- LOC-START -->.*?<!-- LOC-END -->'
+        replacement = f'<!-- LOC-START -->{markdown_table}<!-- LOC-END -->'
+        
+        if '<!-- LOC-START -->' in readme_content and '<!-- LOC-END -->' in readme_content:
+            new_content = re.sub(pattern, replacement, readme_content, flags=re.DOTALL)
+        else:
+            # Add markers at the end if they don't exist
+            new_content = readme_content.rstrip() + '\n\n' + replacement + '\n'
+        
+        # Write updated README
+        with open('README.md', 'w') as f:
+            f.write(new_content)
+            
+        print("README.md updated successfully!")
+        
+        # Create total LOC for badge (optional)
+        if 'Total' in data:
+            total_loc = data['Total']['code']
+            with open('total-loc.txt', 'w') as f:
+                f.write(str(total_loc))
+            print(f"Total LOC: {total_loc:,}")
+        EOF
+        
+    - name: Commit and push changes
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: "📊 Update LOC statistics [automated]"
+        file_pattern: "README.md"
+        commit_user_name: "github-actions[bot]"
+        commit_user_email: "github-actions[bot]@users.noreply.github.com"
+        
+    - name: Clean up temporary files
+      run: |
+        rm -f loc-stats.json total-loc.txt
+        
+    - name: Display summary
+      run: |
+        echo "✅ LOC statistics updated successfully!"
+        echo "📈 Check your README.md for the latest statistics."

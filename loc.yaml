@@ -1,0 +1,2219 @@
+---
+"C#":
+  blanks: 558
+  children: {}
+  code: 2743
+  comments: 924
+  inaccurate: false
+  reports:
+    - name: ".\\tests\\MemoryAnalysis.Tests\\CmdletTests\\GetMemoryDumpCommandTests.cs"
+      stats:
+        blanks: 12
+        blobs: {}
+        code: 51
+        comments: 12
+    - name: ".\\tests\\MemoryAnalysis.Tests\\CmdletTests\\FindMalwareCommandTests.cs"
+      stats:
+        blanks: 13
+        blobs: {}
+        code: 81
+        comments: 13
+    - name: ".\\tests\\MemoryAnalysis.Tests\\UnitTest1.cs"
+      stats:
+        blanks: 2
+        blobs: {}
+        code: 8
+        comments: 0
+    - name: ".\\tests\\MemoryAnalysis.Tests\\ModelTests\\NetworkConnectionInfoTests.cs"
+      stats:
+        blanks: 12
+        blobs: {}
+        code: 101
+        comments: 12
+    - name: ".\\tests\\MemoryAnalysis.Tests\\RustInteropServiceTests.cs"
+      stats:
+        blanks: 22
+        blobs: {}
+        code: 127
+        comments: 22
+    - name: ".\\PowerShell.MemoryAnalysis\\Services\\LoggingService.cs"
+      stats:
+        blanks: 10
+        blobs: {}
+        code: 49
+        comments: 21
+    - name: ".\\PowerShell.MemoryAnalysis\\Models\\ProcessTreeInfo.cs"
+      stats:
+        blanks: 18
+        blobs: {}
+        code: 38
+        comments: 48
+    - name: ".\\PowerShell.MemoryAnalysis\\Models\\NetworkConnectionInfo.cs"
+      stats:
+        blanks: 12
+        blobs: {}
+        code: 25
+        comments: 36
+    - name: ".\\PowerShell.MemoryAnalysis\\Models\\MemoryDump.cs"
+      stats:
+        blanks: 14
+        blobs: {}
+        code: 31
+        comments: 36
+    - name: ".\\PowerShell.MemoryAnalysis\\Models\\MalwareResult.cs"
+      stats:
+        blanks: 22
+        blobs: {}
+        code: 33
+        comments: 69
+    - name: ".\\PowerShell.MemoryAnalysis\\Models\\MalwareDetection.cs"
+      stats:
+        blanks: 9
+        blobs: {}
+        code: 28
+        comments: 27
+    - name: ".\\PowerShell.MemoryAnalysis\\Models\\CommandLineInfo.cs"
+      stats:
+        blanks: 4
+        blobs: {}
+        code: 11
+        comments: 12
+    - name: ".\\PowerShell.MemoryAnalysis\\Models\\DllInfo.cs"
+      stats:
+        blanks: 8
+        blobs: {}
+        code: 29
+        comments: 24
+    - name: ".\\PowerShell.MemoryAnalysis\\Services\\CacheInvalidationService.cs"
+      stats:
+        blanks: 45
+        blobs: {}
+        code: 220
+        comments: 62
+    - name: ".\\PowerShell.MemoryAnalysis\\Cmdlets\\GetProcessDllCommand.cs"
+      stats:
+        blanks: 18
+        blobs: {}
+        code: 82
+        comments: 20
+    - name: ".\\PowerShell.MemoryAnalysis\\Cmdlets\\GetProcessCommandLineCommand.cs"
+      stats:
+        blanks: 17
+        blobs: {}
+        code: 77
+        comments: 19
+    - name: ".\\PowerShell.MemoryAnalysis\\Cmdlets\\GetNetworkConnectionCommand.cs"
+      stats:
+        blanks: 19
+        blobs: {}
+        code: 75
+        comments: 20
+    - name: ".\\PowerShell.MemoryAnalysis\\Cmdlets\\ClearCacheCommand.cs"
+      stats:
+        blanks: 9
+        blobs: {}
+        code: 56
+        comments: 17
+    - name: ".\\PowerShell.MemoryAnalysis\\Cmdlets\\FindMalwareCommand.cs"
+      stats:
+        blanks: 20
+        blobs: {}
+        code: 86
+        comments: 21
+    - name: ".\\PowerShell.MemoryAnalysis\\Cmdlets\\WatchCacheFileCommand.cs"
+      stats:
+        blanks: 36
+        blobs: {}
+        code: 192
+        comments: 63
+    - name: ".\\PowerShell.MemoryAnalysis\\Cmdlets\\GetCacheInfoCommand.cs"
+      stats:
+        blanks: 19
+        blobs: {}
+        code: 94
+        comments: 40
+    - name: ".\\PowerShell.MemoryAnalysis\\Services\\CachingService.cs"
+      stats:
+        blanks: 61
+        blobs: {}
+        code: 303
+        comments: 118
+    - name: ".\\PowerShell.MemoryAnalysis\\Services\\RustInterop.cs"
+      stats:
+        blanks: 69
+        blobs: {}
+        code: 415
+        comments: 58
+    - name: ".\\PowerShell.MemoryAnalysis\\Cmdlets\\GetMemoryDumpCommand.cs"
+      stats:
+        blanks: 34
+        blobs: {}
+        code: 227
+        comments: 62
+    - name: ".\\PowerShell.MemoryAnalysis\\Cmdlets\\AnalyzeProcessTreeCommand.cs"
+      stats:
+        blanks: 53
+        blobs: {}
+        code: 304
+        comments: 92
+MSBuild:
+  blanks: 10
+  children: {}
+  code: 57
+  comments: 3
+  inaccurate: false
+  reports:
+    - name: ".\\tests\\MemoryAnalysis.Tests\\MemoryAnalysis.Tests.csproj"
+      stats:
+        blanks: 5
+        blobs: {}
+        code: 20
+        comments: 0
+    - name: ".\\PowerShell.MemoryAnalysis\\PowerShell.MemoryAnalysis.csproj"
+      stats:
+        blanks: 5
+        blobs: {}
+        code: 37
+        comments: 3
+Markdown:
+  blanks: 1941
+  children:
+    Bash:
+      - name: ".\\rust-bridge\\tests\\README.md"
+        stats:
+          blanks: 2
+          blobs: {}
+          code: 11
+          comments: 4
+      - name: ".\\tests\\MemoryAnalysis.Tests\\README.md"
+        stats:
+          blanks: 1
+          blobs: {}
+          code: 5
+          comments: 2
+      - name: ".\\rust-bridge\\README.md"
+        stats:
+          blanks: 5
+          blobs: {}
+          code: 7
+          comments: 7
+      - name: ".\\docs\\plans\\powershell-memory-analysis-development-plan.md"
+        stats:
+          blanks: 7
+          blobs: {}
+          code: 16
+          comments: 15
+      - name: ".\\docs\\plans\\MASTER_DEVELOPMENT_PLAN.md"
+        stats:
+          blanks: 1
+          blobs: {}
+          code: 3
+          comments: 2
+    Dockerfile:
+      - name: ".\\docs\\plans\\powershell-memory-analysis-development-plan.md"
+        stats:
+          blanks: 0
+          blobs: {}
+          code: 3
+          comments: 0
+      - name: ".\\docs\\plans\\MASTER_DEVELOPMENT_PLAN.md"
+        stats:
+          blanks: 5
+          blobs: {}
+          code: 9
+          comments: 5
+    Json:
+      - name: ".\\benchmarks\\README.md"
+        stats:
+          blanks: 0
+          blobs: {}
+          code: 8
+          comments: 0
+      - name: ".\\rust-bridge\\README.md"
+        stats:
+          blanks: 0
+          blobs: {}
+          code: 41
+          comments: 0
+    Markdown:
+      - name: ".\\docs\\plans\\powershell-memory-analysis-development-plan.md"
+        stats:
+          blanks: 1
+          blobs: {}
+          code: 0
+          comments: 8
+      - name: ".\\docs\\plans\\MASTER_DEVELOPMENT_PLAN.md"
+        stats:
+          blanks: 3
+          blobs: {}
+          code: 0
+          comments: 28
+    PowerShell:
+      - name: ".\\docs\\SETUP_COMPLETE.md"
+        stats:
+          blanks: 0
+          blobs: {}
+          code: 7
+          comments: 0
+      - name: ".\\README.md"
+        stats:
+          blanks: 28
+          blobs: {}
+          code: 71
+          comments: 39
+      - name: ".\\docs\\SESSION_SUMMARY_FINAL.md"
+        stats:
+          blanks: 3
+          blobs: {}
+          code: 29
+          comments: 9
+      - name: ".\\docs\\SETUP.md"
+        stats:
+          blanks: 0
+          blobs: {}
+          code: 10
+          comments: 0
+      - name: ".\\docs\\PROJECT_STATUS.md"
+        stats:
+          blanks: 5
+          blobs: {}
+          code: 13
+          comments: 8
+      - name: ".\\docs\\HOW_TO_FILE_BUG_REPORT.md"
+        stats:
+          blanks: 0
+          blobs: {}
+          code: 10
+          comments: 0
+      - name: ".\\docs\\SESSION_SUMMARY.md"
+        stats:
+          blanks: 3
+          blobs: {}
+          code: 15
+          comments: 3
+      - name: ".\\docs\\PHASE2_DLL_INTEGRATION.md"
+        stats:
+          blanks: 9
+          blobs: {}
+          code: 34
+          comments: 1
+      - name: ".\\docs\\PHASE2_CMDLINE_INTEGRATION.md"
+        stats:
+          blanks: 7
+          blobs: {}
+          code: 21
+          comments: 1
+      - name: ".\\tests\\integration-tests\\README.md"
+        stats:
+          blanks: 7
+          blobs: {}
+          code: 27
+          comments: 14
+      - name: ".\\docs\\help\\Get-ProcessDll.md"
+        stats:
+          blanks: 0
+          blobs: {}
+          code: 1
+          comments: 0
+      - name: ".\\WARP.md"
+        stats:
+          blanks: 12
+          blobs: {}
+          code: 33
+          comments: 24
+      - name: ".\\docs\\DUMP_REQUIREMENTS.md"
+        stats:
+          blanks: 1
+          blobs: {}
+          code: 7
+          comments: 7
+      - name: ".\\docs\\help\\Get-ProcessCommandLine.md"
+        stats:
+          blanks: 0
+          blobs: {}
+          code: 1
+          comments: 0
+      - name: ".\\docs\\help\\Test-ProcessTree.md"
+        stats:
+          blanks: 0
+          blobs: {}
+          code: 1
+          comments: 0
+      - name: ".\\benchmarks\\README.md"
+        stats:
+          blanks: 0
+          blobs: {}
+          code: 2
+          comments: 0
+      - name: ".\\docs\\help\\Get-MemoryDump.md"
+        stats:
+          blanks: 0
+          blobs: {}
+          code: 1
+          comments: 0
+      - name: ".\\rust-bridge\\README.md"
+        stats:
+          blanks: 0
+          blobs: {}
+          code: 1
+          comments: 0
+      - name: ".\\docs\\DEBUG_LOGGING.md"
+        stats:
+          blanks: 16
+          blobs: {}
+          code: 28
+          comments: 25
+      - name: ".\\PowerShell.MemoryAnalysis\\README.md"
+        stats:
+          blanks: 12
+          blobs: {}
+          code: 30
+          comments: 17
+      - name: ".\\docs\\plans\\powershell-memory-analysis-development-plan.md"
+        stats:
+          blanks: 0
+          blobs: {}
+          code: 7
+          comments: 3
+      - name: ".\\docs\\plans\\MASTER_DEVELOPMENT_PLAN.md"
+        stats:
+          blanks: 14
+          blobs: {}
+          code: 83
+          comments: 5
+    Python:
+      - name: ".\\docs\\SESSION_SUMMARY_FINAL.md"
+        stats:
+          blanks: 0
+          blobs: {}
+          code: 3
+          comments: 0
+      - name: ".\\docs\\SESSION_SUMMARY.md"
+        stats:
+          blanks: 0
+          blobs: {}
+          code: 5
+          comments: 1
+    Rust:
+      - name: ".\\rust-bridge\\tests\\README.md"
+        stats:
+          blanks: 1
+          blobs: {}
+          code: 5
+          comments: 1
+      - name: ".\\docs\\PHASE3_STATUS.md"
+        stats:
+          blanks: 5
+          blobs: {}
+          code: 13
+          comments: 7
+      - name: ".\\docs\\SESSION_SUMMARY_FINAL.md"
+        stats:
+          blanks: 2
+          blobs: {}
+          code: 16
+          comments: 4
+      - name: ".\\docs\\PROJECT_STATUS.md"
+        stats:
+          blanks: 1
+          blobs: {}
+          code: 4
+          comments: 2
+      - name: ".\\docs\\SESSION_SUMMARY.md"
+        stats:
+          blanks: 2
+          blobs: {}
+          code: 14
+          comments: 0
+      - name: ".\\rust-bridge\\README.md"
+        stats:
+          blanks: 7
+          blobs: {}
+          code: 21
+          comments: 9
+      - name: ".\\docs\\plans\\powershell-memory-analysis-development-plan.md"
+        stats:
+          blanks: 11
+          blobs: {}
+          code: 58
+          comments: 5
+      - name: ".\\docs\\plans\\MASTER_DEVELOPMENT_PLAN.md"
+        stats:
+          blanks: 7
+          blobs: {}
+          code: 48
+          comments: 4
+    Toml:
+      - name: ".\\rust-bridge\\README.md"
+        stats:
+          blanks: 0
+          blobs: {}
+          code: 7
+          comments: 0
+      - name: ".\\docs\\plans\\powershell-memory-analysis-development-plan.md"
+        stats:
+          blanks: 0
+          blobs: {}
+          code: 6
+          comments: 1
+    Xml:
+      - name: ".\\WARP.md"
+        stats:
+          blanks: 0
+          blobs: {}
+          code: 2
+          comments: 0
+      - name: ".\\PowerShell.MemoryAnalysis\\README.md"
+        stats:
+          blanks: 0
+          blobs: {}
+          code: 18
+          comments: 1
+    Yaml:
+      - name: ".\\tests\\MemoryAnalysis.Tests\\README.md"
+        stats:
+          blanks: 1
+          blobs: {}
+          code: 6
+          comments: 0
+      - name: ".\\tests\\integration-tests\\README.md"
+        stats:
+          blanks: 0
+          blobs: {}
+          code: 4
+          comments: 0
+      - name: ".\\docs\\help\\Get-ProcessDll.md"
+        stats:
+          blanks: 5
+          blobs: {}
+          code: 40
+          comments: 0
+      - name: ".\\docs\\help\\Get-ProcessCommandLine.md"
+        stats:
+          blanks: 4
+          blobs: {}
+          code: 32
+          comments: 0
+      - name: ".\\docs\\help\\Test-ProcessTree.md"
+        stats:
+          blanks: 9
+          blobs: {}
+          code: 73
+          comments: 0
+      - name: ".\\docs\\help\\Get-MemoryDump.md"
+        stats:
+          blanks: 5
+          blobs: {}
+          code: 40
+          comments: 0
+      - name: ".\\docs\\plans\\MASTER_DEVELOPMENT_PLAN.md"
+        stats:
+          blanks: 23
+          blobs: {}
+          code: 89
+          comments: 0
+  code: 0
+  comments: 5017
+  inaccurate: false
+  reports:
+    - name: ".\\docs\\VOLATILITY_BUG_REPORT.md"
+      stats:
+        blanks: 29
+        blobs: {}
+        code: 0
+        comments: 99
+    - name: ".\\docs\\SETUP_COMPLETE.md"
+      stats:
+        blanks: 43
+        blobs:
+          PowerShell:
+            blanks: 0
+            blobs: {}
+            code: 7
+            comments: 0
+        code: 0
+        comments: 112
+    - name: ".\\rust-bridge\\tests\\README.md"
+      stats:
+        blanks: 33
+        blobs:
+          Bash:
+            blanks: 2
+            blobs: {}
+            code: 11
+            comments: 4
+          Rust:
+            blanks: 1
+            blobs: {}
+            code: 5
+            comments: 1
+        code: 0
+        comments: 67
+    - name: ".\\README.md"
+      stats:
+        blanks: 97
+        blobs:
+          PowerShell:
+            blanks: 28
+            blobs: {}
+            code: 71
+            comments: 39
+        code: 0
+        comments: 182
+    - name: ".\\docs\\PHASE3_STATUS.md"
+      stats:
+        blanks: 41
+        blobs:
+          Rust:
+            blanks: 5
+            blobs: {}
+            code: 13
+            comments: 7
+        code: 0
+        comments: 139
+    - name: ".\\docs\\SESSION_SUMMARY_FINAL.md"
+      stats:
+        blanks: 169
+        blobs:
+          PowerShell:
+            blanks: 3
+            blobs: {}
+            code: 29
+            comments: 9
+          Python:
+            blanks: 0
+            blobs: {}
+            code: 3
+            comments: 0
+          Rust:
+            blanks: 2
+            blobs: {}
+            code: 16
+            comments: 4
+        code: 0
+        comments: 567
+    - name: ".\\docs\\SETUP.md"
+      stats:
+        blanks: 42
+        blobs:
+          PowerShell:
+            blanks: 0
+            blobs: {}
+            code: 10
+            comments: 0
+        code: 0
+        comments: 68
+    - name: ".\\docs\\PROJECT_STATUS.md"
+      stats:
+        blanks: 131
+        blobs:
+          PowerShell:
+            blanks: 5
+            blobs: {}
+            code: 13
+            comments: 8
+          Rust:
+            blanks: 1
+            blobs: {}
+            code: 4
+            comments: 2
+        code: 0
+        comments: 491
+    - name: ".\\docs\\HOW_TO_FILE_BUG_REPORT.md"
+      stats:
+        blanks: 26
+        blobs:
+          PowerShell:
+            blanks: 0
+            blobs: {}
+            code: 10
+            comments: 0
+        code: 0
+        comments: 49
+    - name: ".\\docs\\SESSION_SUMMARY.md"
+      stats:
+        blanks: 41
+        blobs:
+          PowerShell:
+            blanks: 3
+            blobs: {}
+            code: 15
+            comments: 3
+          Python:
+            blanks: 0
+            blobs: {}
+            code: 5
+            comments: 1
+          Rust:
+            blanks: 2
+            blobs: {}
+            code: 14
+            comments: 0
+        code: 0
+        comments: 132
+    - name: ".\\docs\\PHASE2_DLL_INTEGRATION.md"
+      stats:
+        blanks: 87
+        blobs:
+          PowerShell:
+            blanks: 9
+            blobs: {}
+            code: 34
+            comments: 1
+        code: 0
+        comments: 280
+    - name: ".\\docs\\PHASE2_CMDLINE_INTEGRATION.md"
+      stats:
+        blanks: 87
+        blobs:
+          PowerShell:
+            blanks: 7
+            blobs: {}
+            code: 21
+            comments: 1
+        code: 0
+        comments: 269
+    - name: ".\\tests\\MemoryAnalysis.Tests\\README.md"
+      stats:
+        blanks: 54
+        blobs:
+          Bash:
+            blanks: 1
+            blobs: {}
+            code: 5
+            comments: 2
+          Yaml:
+            blanks: 1
+            blobs: {}
+            code: 6
+            comments: 0
+        code: 0
+        comments: 184
+    - name: ".\\tests\\integration-tests\\README.md"
+      stats:
+        blanks: 80
+        blobs:
+          PowerShell:
+            blanks: 7
+            blobs: {}
+            code: 27
+            comments: 14
+          Yaml:
+            blanks: 0
+            blobs: {}
+            code: 4
+            comments: 0
+        code: 0
+        comments: 152
+    - name: ".\\docs\\help\\Get-ProcessDll.md"
+      stats:
+        blanks: 32
+        blobs:
+          PowerShell:
+            blanks: 0
+            blobs: {}
+            code: 1
+            comments: 0
+          Yaml:
+            blanks: 5
+            blobs: {}
+            code: 40
+            comments: 0
+        code: 0
+        comments: 50
+    - name: ".\\WARP.md"
+      stats:
+        blanks: 74
+        blobs:
+          PowerShell:
+            blanks: 12
+            blobs: {}
+            code: 33
+            comments: 24
+          Xml:
+            blanks: 0
+            blobs: {}
+            code: 2
+            comments: 0
+        code: 0
+        comments: 174
+    - name: ".\\docs\\DUMP_REQUIREMENTS.md"
+      stats:
+        blanks: 26
+        blobs:
+          PowerShell:
+            blanks: 1
+            blobs: {}
+            code: 7
+            comments: 7
+        code: 0
+        comments: 73
+    - name: ".\\docs\\help\\Get-ProcessCommandLine.md"
+      stats:
+        blanks: 29
+        blobs:
+          PowerShell:
+            blanks: 0
+            blobs: {}
+            code: 1
+            comments: 0
+          Yaml:
+            blanks: 4
+            blobs: {}
+            code: 32
+            comments: 0
+        code: 0
+        comments: 46
+    - name: ".\\docs\\help\\Test-ProcessTree.md"
+      stats:
+        blanks: 44
+        blobs:
+          PowerShell:
+            blanks: 0
+            blobs: {}
+            code: 1
+            comments: 0
+          Yaml:
+            blanks: 9
+            blobs: {}
+            code: 73
+            comments: 0
+        code: 0
+        comments: 67
+    - name: ".\\benchmarks\\README.md"
+      stats:
+        blanks: 33
+        blobs:
+          Json:
+            blanks: 0
+            blobs: {}
+            code: 8
+            comments: 0
+          PowerShell:
+            blanks: 0
+            blobs: {}
+            code: 2
+            comments: 0
+        code: 0
+        comments: 87
+    - name: ".\\docs\\help\\Get-MemoryDump.md"
+      stats:
+        blanks: 32
+        blobs:
+          PowerShell:
+            blanks: 0
+            blobs: {}
+            code: 1
+            comments: 0
+          Yaml:
+            blanks: 5
+            blobs: {}
+            code: 40
+            comments: 0
+        code: 0
+        comments: 50
+    - name: ".\\rust-bridge\\README.md"
+      stats:
+        blanks: 98
+        blobs:
+          Bash:
+            blanks: 5
+            blobs: {}
+            code: 7
+            comments: 7
+          Json:
+            blanks: 0
+            blobs: {}
+            code: 41
+            comments: 0
+          PowerShell:
+            blanks: 0
+            blobs: {}
+            code: 1
+            comments: 0
+          Rust:
+            blanks: 7
+            blobs: {}
+            code: 21
+            comments: 9
+          Toml:
+            blanks: 0
+            blobs: {}
+            code: 7
+            comments: 0
+        code: 0
+        comments: 190
+    - name: ".\\docs\\DEBUG_LOGGING.md"
+      stats:
+        blanks: 59
+        blobs:
+          PowerShell:
+            blanks: 16
+            blobs: {}
+            code: 28
+            comments: 25
+        code: 0
+        comments: 87
+    - name: ".\\PowerShell.MemoryAnalysis\\README.md"
+      stats:
+        blanks: 111
+        blobs:
+          PowerShell:
+            blanks: 12
+            blobs: {}
+            code: 30
+            comments: 17
+          Xml:
+            blanks: 0
+            blobs: {}
+            code: 18
+            comments: 1
+        code: 0
+        comments: 244
+    - name: ".\\docs\\plans\\powershell-memory-analysis-development-plan.md"
+      stats:
+        blanks: 287
+        blobs:
+          Bash:
+            blanks: 7
+            blobs: {}
+            code: 16
+            comments: 15
+          Dockerfile:
+            blanks: 0
+            blobs: {}
+            code: 3
+            comments: 0
+          Markdown:
+            blanks: 1
+            blobs: {}
+            code: 0
+            comments: 8
+          PowerShell:
+            blanks: 0
+            blobs: {}
+            code: 7
+            comments: 3
+          Rust:
+            blanks: 11
+            blobs: {}
+            code: 58
+            comments: 5
+          Toml:
+            blanks: 0
+            blobs: {}
+            code: 6
+            comments: 1
+        code: 0
+        comments: 691
+    - name: ".\\docs\\plans\\MASTER_DEVELOPMENT_PLAN.md"
+      stats:
+        blanks: 156
+        blobs:
+          Bash:
+            blanks: 1
+            blobs: {}
+            code: 3
+            comments: 2
+          Dockerfile:
+            blanks: 5
+            blobs: {}
+            code: 9
+            comments: 5
+          Markdown:
+            blanks: 3
+            blobs: {}
+            code: 0
+            comments: 28
+          PowerShell:
+            blanks: 14
+            blobs: {}
+            code: 83
+            comments: 5
+          Rust:
+            blanks: 7
+            blobs: {}
+            code: 48
+            comments: 4
+          Yaml:
+            blanks: 23
+            blobs: {}
+            code: 89
+            comments: 0
+        code: 0
+        comments: 467
+PowerShell:
+  blanks: 424
+  children: {}
+  code: 2205
+  comments: 365
+  inaccurate: false
+  reports:
+    - name: ".\\scripts\\test-with-stderr.ps1"
+      stats:
+        blanks: 2
+        blobs: {}
+        code: 3
+        comments: 0
+    - name: ".\\scripts\\test-process-tree.ps1"
+      stats:
+        blanks: 5
+        blobs: {}
+        code: 10
+        comments: 0
+    - name: ".\\scripts\\Test-PhysmemDump.ps1"
+      stats:
+        blanks: 11
+        blobs: {}
+        code: 38
+        comments: 10
+    - name: ".\\tests\\integration-tests\\Module.Tests.ps1"
+      stats:
+        blanks: 34
+        blobs: {}
+        code: 140
+        comments: 9
+    - name: ".\\scripts\\Test-RustInterop.ps1"
+      stats:
+        blanks: 7
+        blobs: {}
+        code: 19
+        comments: 5
+    - name: ".\\scripts\\Test-Module-Complete.ps1"
+      stats:
+        blanks: 9
+        blobs: {}
+        code: 61
+        comments: 8
+    - name: ".\\scripts\\Test-NetworkConnectionsExtraction.ps1"
+      stats:
+        blanks: 6
+        blobs: {}
+        code: 47
+        comments: 7
+    - name: ".\\scripts\\Test-CommandLineExtraction.ps1"
+      stats:
+        blanks: 13
+        blobs: {}
+        code: 35
+        comments: 9
+    - name: ".\\scripts\\Test-GetMemoryDump.ps1"
+      stats:
+        blanks: 12
+        blobs: {}
+        code: 54
+        comments: 9
+    - name: ".\\scripts\\Test-CacheIntegration.ps1"
+      stats:
+        blanks: 9
+        blobs: {}
+        code: 55
+        comments: 7
+    - name: ".\\scripts\\Rebuild-And-Test.ps1"
+      stats:
+        blanks: 12
+        blobs: {}
+        code: 40
+        comments: 6
+    - name: ".\\scripts\\Generate-Help.ps1"
+      stats:
+        blanks: 14
+        blobs: {}
+        code: 36
+        comments: 19
+    - name: ".\\scripts\\Create-MemoryDump.ps1"
+      stats:
+        blanks: 14
+        blobs: {}
+        code: 100
+        comments: 5
+    - name: ".\\scripts\\Test-MalwareDetection.ps1"
+      stats:
+        blanks: 6
+        blobs: {}
+        code: 55
+        comments: 7
+    - name: ".\\scripts\\Build.ps1"
+      stats:
+        blanks: 16
+        blobs: {}
+        code: 119
+        comments: 9
+    - name: ".\\scripts\\Test-CachePerformance.ps1"
+      stats:
+        blanks: 32
+        blobs: {}
+        code: 122
+        comments: 34
+    - name: ".\\scripts\\Test-ParallelProcessing.ps1"
+      stats:
+        blanks: 27
+        blobs: {}
+        code: 114
+        comments: 32
+    - name: ".\\scripts\\Verify-Setup.ps1"
+      stats:
+        blanks: 47
+        blobs: {}
+        code: 274
+        comments: 44
+    - name: ".\\scripts\\Test-AllCmdlets.ps1"
+      stats:
+        blanks: 24
+        blobs: {}
+        code: 137
+        comments: 20
+    - name: ".\\scripts\\Test-DllListingExtraction.ps1"
+      stats:
+        blanks: 6
+        blobs: {}
+        code: 39
+        comments: 7
+    - name: ".\\PowerShell.MemoryAnalysis\\MemoryAnalysis.Format.ps1xml"
+      stats:
+        blanks: 6
+        blobs: {}
+        code: 257
+        comments: 0
+    - name: ".\\PowerShell.MemoryAnalysis\\MemoryAnalysis.psd1"
+      stats:
+        blanks: 24
+        blobs: {}
+        code: 67
+        comments: 28
+    - name: ".\\scripts\\Test-CachingSystem.ps1"
+      stats:
+        blanks: 54
+        blobs: {}
+        code: 262
+        comments: 53
+    - name: ".\\benchmarks\\Measure-Performance.ps1"
+      stats:
+        blanks: 34
+        blobs: {}
+        code: 121
+        comments: 37
+Python:
+  blanks: 1
+  children: {}
+  code: 52
+  comments: 0
+  inaccurate: false
+  reports:
+    - name: ".\\scripts\\test_vol_path.py"
+      stats:
+        blanks: 1
+        blobs: {}
+        code: 52
+        comments: 0
+Rust:
+  blanks: 513
+  children:
+    Markdown:
+      - name: ".\\rust-bridge\\src\\volatility.rs"
+        stats:
+          blanks: 3
+          blobs: {}
+          code: 0
+          comments: 12
+      - name: ".\\rust-bridge\\src\\error.rs"
+        stats:
+          blanks: 0
+          blobs: {}
+          code: 0
+          comments: 8
+      - name: ".\\rust-bridge\\src\\types.rs"
+        stats:
+          blanks: 1
+          blobs: {}
+          code: 0
+          comments: 28
+      - name: ".\\rust-bridge\\src\\python_manager.rs"
+        stats:
+          blanks: 3
+          blobs: {}
+          code: 0
+          comments: 12
+      - name: ".\\rust-bridge\\src\\cache_invalidation.rs"
+        stats:
+          blanks: 4
+          blobs: {}
+          code: 0
+          comments: 29
+      - name: ".\\rust-bridge\\src\\lib.rs"
+        stats:
+          blanks: 14
+          blobs: {}
+          code: 0
+          comments: 62
+      - name: ".\\rust-bridge\\src\\process_analysis.rs"
+        stats:
+          blanks: 12
+          blobs: {}
+          code: 0
+          comments: 30
+      - name: ".\\rust-bridge\\src\\cached_analyzer.rs"
+        stats:
+          blanks: 24
+          blobs: {}
+          code: 0
+          comments: 61
+      - name: ".\\rust-bridge\\src\\cache.rs"
+        stats:
+          blanks: 43
+          blobs: {}
+          code: 0
+          comments: 124
+  code: 2661
+  comments: 164
+  inaccurate: false
+  reports:
+    - name: ".\\scripts\\test-volatility-real.rs"
+      stats:
+        blanks: 8
+        blobs: {}
+        code: 28
+        comments: 4
+    - name: ".\\rust-bridge\\tests\\error_tests.rs"
+      stats:
+        blanks: 7
+        blobs: {}
+        code: 45
+        comments: 0
+    - name: ".\\rust-bridge\\tests\\types_tests.rs"
+      stats:
+        blanks: 26
+        blobs: {}
+        code: 175
+        comments: 7
+    - name: ".\\rust-bridge\\src\\volatility.rs"
+      stats:
+        blanks: 27
+        blobs:
+          Markdown:
+            blanks: 3
+            blobs: {}
+            code: 0
+            comments: 12
+        code: 134
+        comments: 12
+    - name: ".\\rust-bridge\\src\\error.rs"
+      stats:
+        blanks: 12
+        blobs:
+          Markdown:
+            blanks: 0
+            blobs: {}
+            code: 0
+            comments: 8
+        code: 51
+        comments: 1
+    - name: ".\\rust-bridge\\src\\types.rs"
+      stats:
+        blanks: 56
+        blobs:
+          Markdown:
+            blanks: 1
+            blobs: {}
+            code: 0
+            comments: 28
+        code: 272
+        comments: 6
+    - name: ".\\rust-bridge\\src\\python_manager.rs"
+      stats:
+        blanks: 27
+        blobs:
+          Markdown:
+            blanks: 3
+            blobs: {}
+            code: 0
+            comments: 12
+        code: 99
+        comments: 13
+    - name: ".\\rust-bridge\\build.rs"
+      stats:
+        blanks: 2
+        blobs: {}
+        code: 4
+        comments: 5
+    - name: ".\\rust-bridge\\src\\cache_invalidation.rs"
+      stats:
+        blanks: 56
+        blobs:
+          Markdown:
+            blanks: 4
+            blobs: {}
+            code: 0
+            comments: 29
+        code: 221
+        comments: 5
+    - name: ".\\rust-bridge\\src\\lib.rs"
+      stats:
+        blanks: 71
+        blobs:
+          Markdown:
+            blanks: 14
+            blobs: {}
+            code: 0
+            comments: 62
+        code: 411
+        comments: 21
+    - name: ".\\rust-bridge\\src\\process_analysis.rs"
+      stats:
+        blanks: 102
+        blobs:
+          Markdown:
+            blanks: 12
+            blobs: {}
+            code: 0
+            comments: 30
+        code: 700
+        comments: 72
+    - name: ".\\rust-bridge\\benches\\performance.rs"
+      stats:
+        blanks: 20
+        blobs: {}
+        code: 93
+        comments: 4
+    - name: ".\\rust-bridge\\src\\cached_analyzer.rs"
+      stats:
+        blanks: 40
+        blobs:
+          Markdown:
+            blanks: 24
+            blobs: {}
+            code: 0
+            comments: 61
+        code: 166
+        comments: 5
+    - name: ".\\rust-bridge\\src\\cache.rs"
+      stats:
+        blanks: 59
+        blobs:
+          Markdown:
+            blanks: 43
+            blobs: {}
+            code: 0
+            comments: 124
+        code: 262
+        comments: 9
+TOML:
+  blanks: 5
+  children: {}
+  code: 21
+  comments: 1
+  inaccurate: false
+  reports:
+    - name: ".\\rust-bridge\\Cargo.toml"
+      stats:
+        blanks: 5
+        blobs: {}
+        code: 21
+        comments: 1
+Total:
+  blanks: 3452
+  children:
+    CSharp:
+      - name: ".\\tests\\MemoryAnalysis.Tests\\CmdletTests\\GetMemoryDumpCommandTests.cs"
+        stats:
+          blanks: 12
+          blobs: {}
+          code: 51
+          comments: 12
+      - name: ".\\tests\\MemoryAnalysis.Tests\\CmdletTests\\FindMalwareCommandTests.cs"
+        stats:
+          blanks: 13
+          blobs: {}
+          code: 81
+          comments: 13
+      - name: ".\\tests\\MemoryAnalysis.Tests\\UnitTest1.cs"
+        stats:
+          blanks: 2
+          blobs: {}
+          code: 8
+          comments: 0
+      - name: ".\\tests\\MemoryAnalysis.Tests\\ModelTests\\NetworkConnectionInfoTests.cs"
+        stats:
+          blanks: 12
+          blobs: {}
+          code: 101
+          comments: 12
+      - name: ".\\tests\\MemoryAnalysis.Tests\\RustInteropServiceTests.cs"
+        stats:
+          blanks: 22
+          blobs: {}
+          code: 127
+          comments: 22
+      - name: ".\\PowerShell.MemoryAnalysis\\Services\\LoggingService.cs"
+        stats:
+          blanks: 10
+          blobs: {}
+          code: 49
+          comments: 21
+      - name: ".\\PowerShell.MemoryAnalysis\\Models\\ProcessTreeInfo.cs"
+        stats:
+          blanks: 18
+          blobs: {}
+          code: 38
+          comments: 48
+      - name: ".\\PowerShell.MemoryAnalysis\\Models\\NetworkConnectionInfo.cs"
+        stats:
+          blanks: 12
+          blobs: {}
+          code: 25
+          comments: 36
+      - name: ".\\PowerShell.MemoryAnalysis\\Models\\MemoryDump.cs"
+        stats:
+          blanks: 14
+          blobs: {}
+          code: 31
+          comments: 36
+      - name: ".\\PowerShell.MemoryAnalysis\\Models\\MalwareResult.cs"
+        stats:
+          blanks: 22
+          blobs: {}
+          code: 33
+          comments: 69
+      - name: ".\\PowerShell.MemoryAnalysis\\Models\\MalwareDetection.cs"
+        stats:
+          blanks: 9
+          blobs: {}
+          code: 28
+          comments: 27
+      - name: ".\\PowerShell.MemoryAnalysis\\Models\\CommandLineInfo.cs"
+        stats:
+          blanks: 4
+          blobs: {}
+          code: 11
+          comments: 12
+      - name: ".\\PowerShell.MemoryAnalysis\\Models\\DllInfo.cs"
+        stats:
+          blanks: 8
+          blobs: {}
+          code: 29
+          comments: 24
+      - name: ".\\PowerShell.MemoryAnalysis\\Services\\CacheInvalidationService.cs"
+        stats:
+          blanks: 45
+          blobs: {}
+          code: 220
+          comments: 62
+      - name: ".\\PowerShell.MemoryAnalysis\\Cmdlets\\GetProcessDllCommand.cs"
+        stats:
+          blanks: 18
+          blobs: {}
+          code: 82
+          comments: 20
+      - name: ".\\PowerShell.MemoryAnalysis\\Cmdlets\\GetProcessCommandLineCommand.cs"
+        stats:
+          blanks: 17
+          blobs: {}
+          code: 77
+          comments: 19
+      - name: ".\\PowerShell.MemoryAnalysis\\Cmdlets\\GetNetworkConnectionCommand.cs"
+        stats:
+          blanks: 19
+          blobs: {}
+          code: 75
+          comments: 20
+      - name: ".\\PowerShell.MemoryAnalysis\\Cmdlets\\ClearCacheCommand.cs"
+        stats:
+          blanks: 9
+          blobs: {}
+          code: 56
+          comments: 17
+      - name: ".\\PowerShell.MemoryAnalysis\\Cmdlets\\FindMalwareCommand.cs"
+        stats:
+          blanks: 20
+          blobs: {}
+          code: 86
+          comments: 21
+      - name: ".\\PowerShell.MemoryAnalysis\\Cmdlets\\WatchCacheFileCommand.cs"
+        stats:
+          blanks: 36
+          blobs: {}
+          code: 192
+          comments: 63
+      - name: ".\\PowerShell.MemoryAnalysis\\Cmdlets\\GetCacheInfoCommand.cs"
+        stats:
+          blanks: 19
+          blobs: {}
+          code: 94
+          comments: 40
+      - name: ".\\PowerShell.MemoryAnalysis\\Services\\CachingService.cs"
+        stats:
+          blanks: 61
+          blobs: {}
+          code: 303
+          comments: 118
+      - name: ".\\PowerShell.MemoryAnalysis\\Services\\RustInterop.cs"
+        stats:
+          blanks: 69
+          blobs: {}
+          code: 415
+          comments: 58
+      - name: ".\\PowerShell.MemoryAnalysis\\Cmdlets\\GetMemoryDumpCommand.cs"
+        stats:
+          blanks: 34
+          blobs: {}
+          code: 227
+          comments: 62
+      - name: ".\\PowerShell.MemoryAnalysis\\Cmdlets\\AnalyzeProcessTreeCommand.cs"
+        stats:
+          blanks: 53
+          blobs: {}
+          code: 304
+          comments: 92
+    Markdown:
+      - name: ".\\docs\\VOLATILITY_BUG_REPORT.md"
+        stats:
+          blanks: 29
+          blobs: {}
+          code: 0
+          comments: 99
+      - name: ".\\docs\\SETUP_COMPLETE.md"
+        stats:
+          blanks: 43
+          blobs:
+            PowerShell:
+              blanks: 0
+              blobs: {}
+              code: 7
+              comments: 0
+          code: 0
+          comments: 112
+      - name: ".\\rust-bridge\\tests\\README.md"
+        stats:
+          blanks: 33
+          blobs:
+            Bash:
+              blanks: 2
+              blobs: {}
+              code: 11
+              comments: 4
+            Rust:
+              blanks: 1
+              blobs: {}
+              code: 5
+              comments: 1
+          code: 0
+          comments: 67
+      - name: ".\\README.md"
+        stats:
+          blanks: 97
+          blobs:
+            PowerShell:
+              blanks: 28
+              blobs: {}
+              code: 71
+              comments: 39
+          code: 0
+          comments: 182
+      - name: ".\\docs\\PHASE3_STATUS.md"
+        stats:
+          blanks: 41
+          blobs:
+            Rust:
+              blanks: 5
+              blobs: {}
+              code: 13
+              comments: 7
+          code: 0
+          comments: 139
+      - name: ".\\docs\\SESSION_SUMMARY_FINAL.md"
+        stats:
+          blanks: 169
+          blobs:
+            PowerShell:
+              blanks: 3
+              blobs: {}
+              code: 29
+              comments: 9
+            Python:
+              blanks: 0
+              blobs: {}
+              code: 3
+              comments: 0
+            Rust:
+              blanks: 2
+              blobs: {}
+              code: 16
+              comments: 4
+          code: 0
+          comments: 567
+      - name: ".\\docs\\SETUP.md"
+        stats:
+          blanks: 42
+          blobs:
+            PowerShell:
+              blanks: 0
+              blobs: {}
+              code: 10
+              comments: 0
+          code: 0
+          comments: 68
+      - name: ".\\docs\\PROJECT_STATUS.md"
+        stats:
+          blanks: 131
+          blobs:
+            PowerShell:
+              blanks: 5
+              blobs: {}
+              code: 13
+              comments: 8
+            Rust:
+              blanks: 1
+              blobs: {}
+              code: 4
+              comments: 2
+          code: 0
+          comments: 491
+      - name: ".\\docs\\HOW_TO_FILE_BUG_REPORT.md"
+        stats:
+          blanks: 26
+          blobs:
+            PowerShell:
+              blanks: 0
+              blobs: {}
+              code: 10
+              comments: 0
+          code: 0
+          comments: 49
+      - name: ".\\docs\\SESSION_SUMMARY.md"
+        stats:
+          blanks: 41
+          blobs:
+            PowerShell:
+              blanks: 3
+              blobs: {}
+              code: 15
+              comments: 3
+            Python:
+              blanks: 0
+              blobs: {}
+              code: 5
+              comments: 1
+            Rust:
+              blanks: 2
+              blobs: {}
+              code: 14
+              comments: 0
+          code: 0
+          comments: 132
+      - name: ".\\docs\\PHASE2_DLL_INTEGRATION.md"
+        stats:
+          blanks: 87
+          blobs:
+            PowerShell:
+              blanks: 9
+              blobs: {}
+              code: 34
+              comments: 1
+          code: 0
+          comments: 280
+      - name: ".\\docs\\PHASE2_CMDLINE_INTEGRATION.md"
+        stats:
+          blanks: 87
+          blobs:
+            PowerShell:
+              blanks: 7
+              blobs: {}
+              code: 21
+              comments: 1
+          code: 0
+          comments: 269
+      - name: ".\\tests\\MemoryAnalysis.Tests\\README.md"
+        stats:
+          blanks: 54
+          blobs:
+            Bash:
+              blanks: 1
+              blobs: {}
+              code: 5
+              comments: 2
+            Yaml:
+              blanks: 1
+              blobs: {}
+              code: 6
+              comments: 0
+          code: 0
+          comments: 184
+      - name: ".\\tests\\integration-tests\\README.md"
+        stats:
+          blanks: 80
+          blobs:
+            PowerShell:
+              blanks: 7
+              blobs: {}
+              code: 27
+              comments: 14
+            Yaml:
+              blanks: 0
+              blobs: {}
+              code: 4
+              comments: 0
+          code: 0
+          comments: 152
+      - name: ".\\docs\\help\\Get-ProcessDll.md"
+        stats:
+          blanks: 32
+          blobs:
+            PowerShell:
+              blanks: 0
+              blobs: {}
+              code: 1
+              comments: 0
+            Yaml:
+              blanks: 5
+              blobs: {}
+              code: 40
+              comments: 0
+          code: 0
+          comments: 50
+      - name: ".\\WARP.md"
+        stats:
+          blanks: 74
+          blobs:
+            PowerShell:
+              blanks: 12
+              blobs: {}
+              code: 33
+              comments: 24
+            Xml:
+              blanks: 0
+              blobs: {}
+              code: 2
+              comments: 0
+          code: 0
+          comments: 174
+      - name: ".\\docs\\DUMP_REQUIREMENTS.md"
+        stats:
+          blanks: 26
+          blobs:
+            PowerShell:
+              blanks: 1
+              blobs: {}
+              code: 7
+              comments: 7
+          code: 0
+          comments: 73
+      - name: ".\\docs\\help\\Get-ProcessCommandLine.md"
+        stats:
+          blanks: 29
+          blobs:
+            PowerShell:
+              blanks: 0
+              blobs: {}
+              code: 1
+              comments: 0
+            Yaml:
+              blanks: 4
+              blobs: {}
+              code: 32
+              comments: 0
+          code: 0
+          comments: 46
+      - name: ".\\docs\\help\\Test-ProcessTree.md"
+        stats:
+          blanks: 44
+          blobs:
+            PowerShell:
+              blanks: 0
+              blobs: {}
+              code: 1
+              comments: 0
+            Yaml:
+              blanks: 9
+              blobs: {}
+              code: 73
+              comments: 0
+          code: 0
+          comments: 67
+      - name: ".\\benchmarks\\README.md"
+        stats:
+          blanks: 33
+          blobs:
+            Json:
+              blanks: 0
+              blobs: {}
+              code: 8
+              comments: 0
+            PowerShell:
+              blanks: 0
+              blobs: {}
+              code: 2
+              comments: 0
+          code: 0
+          comments: 87
+      - name: ".\\docs\\help\\Get-MemoryDump.md"
+        stats:
+          blanks: 32
+          blobs:
+            PowerShell:
+              blanks: 0
+              blobs: {}
+              code: 1
+              comments: 0
+            Yaml:
+              blanks: 5
+              blobs: {}
+              code: 40
+              comments: 0
+          code: 0
+          comments: 50
+      - name: ".\\rust-bridge\\README.md"
+        stats:
+          blanks: 98
+          blobs:
+            Bash:
+              blanks: 5
+              blobs: {}
+              code: 7
+              comments: 7
+            Json:
+              blanks: 0
+              blobs: {}
+              code: 41
+              comments: 0
+            PowerShell:
+              blanks: 0
+              blobs: {}
+              code: 1
+              comments: 0
+            Rust:
+              blanks: 7
+              blobs: {}
+              code: 21
+              comments: 9
+            Toml:
+              blanks: 0
+              blobs: {}
+              code: 7
+              comments: 0
+          code: 0
+          comments: 190
+      - name: ".\\docs\\DEBUG_LOGGING.md"
+        stats:
+          blanks: 59
+          blobs:
+            PowerShell:
+              blanks: 16
+              blobs: {}
+              code: 28
+              comments: 25
+          code: 0
+          comments: 87
+      - name: ".\\PowerShell.MemoryAnalysis\\README.md"
+        stats:
+          blanks: 111
+          blobs:
+            PowerShell:
+              blanks: 12
+              blobs: {}
+              code: 30
+              comments: 17
+            Xml:
+              blanks: 0
+              blobs: {}
+              code: 18
+              comments: 1
+          code: 0
+          comments: 244
+      - name: ".\\docs\\plans\\powershell-memory-analysis-development-plan.md"
+        stats:
+          blanks: 287
+          blobs:
+            Bash:
+              blanks: 7
+              blobs: {}
+              code: 16
+              comments: 15
+            Dockerfile:
+              blanks: 0
+              blobs: {}
+              code: 3
+              comments: 0
+            Markdown:
+              blanks: 1
+              blobs: {}
+              code: 0
+              comments: 8
+            PowerShell:
+              blanks: 0
+              blobs: {}
+              code: 7
+              comments: 3
+            Rust:
+              blanks: 11
+              blobs: {}
+              code: 58
+              comments: 5
+            Toml:
+              blanks: 0
+              blobs: {}
+              code: 6
+              comments: 1
+          code: 0
+          comments: 691
+      - name: ".\\docs\\plans\\MASTER_DEVELOPMENT_PLAN.md"
+        stats:
+          blanks: 156
+          blobs:
+            Bash:
+              blanks: 1
+              blobs: {}
+              code: 3
+              comments: 2
+            Dockerfile:
+              blanks: 5
+              blobs: {}
+              code: 9
+              comments: 5
+            Markdown:
+              blanks: 3
+              blobs: {}
+              code: 0
+              comments: 28
+            PowerShell:
+              blanks: 14
+              blobs: {}
+              code: 83
+              comments: 5
+            Rust:
+              blanks: 7
+              blobs: {}
+              code: 48
+              comments: 4
+            Yaml:
+              blanks: 23
+              blobs: {}
+              code: 89
+              comments: 0
+          code: 0
+          comments: 467
+    MsBuild:
+      - name: ".\\tests\\MemoryAnalysis.Tests\\MemoryAnalysis.Tests.csproj"
+        stats:
+          blanks: 5
+          blobs: {}
+          code: 20
+          comments: 0
+      - name: ".\\PowerShell.MemoryAnalysis\\PowerShell.MemoryAnalysis.csproj"
+        stats:
+          blanks: 5
+          blobs: {}
+          code: 37
+          comments: 3
+    PowerShell:
+      - name: ".\\scripts\\test-with-stderr.ps1"
+        stats:
+          blanks: 2
+          blobs: {}
+          code: 3
+          comments: 0
+      - name: ".\\scripts\\test-process-tree.ps1"
+        stats:
+          blanks: 5
+          blobs: {}
+          code: 10
+          comments: 0
+      - name: ".\\scripts\\Test-PhysmemDump.ps1"
+        stats:
+          blanks: 11
+          blobs: {}
+          code: 38
+          comments: 10
+      - name: ".\\tests\\integration-tests\\Module.Tests.ps1"
+        stats:
+          blanks: 34
+          blobs: {}
+          code: 140
+          comments: 9
+      - name: ".\\scripts\\Test-RustInterop.ps1"
+        stats:
+          blanks: 7
+          blobs: {}
+          code: 19
+          comments: 5
+      - name: ".\\scripts\\Test-Module-Complete.ps1"
+        stats:
+          blanks: 9
+          blobs: {}
+          code: 61
+          comments: 8
+      - name: ".\\scripts\\Test-NetworkConnectionsExtraction.ps1"
+        stats:
+          blanks: 6
+          blobs: {}
+          code: 47
+          comments: 7
+      - name: ".\\scripts\\Test-CommandLineExtraction.ps1"
+        stats:
+          blanks: 13
+          blobs: {}
+          code: 35
+          comments: 9
+      - name: ".\\scripts\\Test-GetMemoryDump.ps1"
+        stats:
+          blanks: 12
+          blobs: {}
+          code: 54
+          comments: 9
+      - name: ".\\scripts\\Test-CacheIntegration.ps1"
+        stats:
+          blanks: 9
+          blobs: {}
+          code: 55
+          comments: 7
+      - name: ".\\scripts\\Rebuild-And-Test.ps1"
+        stats:
+          blanks: 12
+          blobs: {}
+          code: 40
+          comments: 6
+      - name: ".\\scripts\\Generate-Help.ps1"
+        stats:
+          blanks: 14
+          blobs: {}
+          code: 36
+          comments: 19
+      - name: ".\\scripts\\Create-MemoryDump.ps1"
+        stats:
+          blanks: 14
+          blobs: {}
+          code: 100
+          comments: 5
+      - name: ".\\scripts\\Test-MalwareDetection.ps1"
+        stats:
+          blanks: 6
+          blobs: {}
+          code: 55
+          comments: 7
+      - name: ".\\scripts\\Build.ps1"
+        stats:
+          blanks: 16
+          blobs: {}
+          code: 119
+          comments: 9
+      - name: ".\\scripts\\Test-CachePerformance.ps1"
+        stats:
+          blanks: 32
+          blobs: {}
+          code: 122
+          comments: 34
+      - name: ".\\scripts\\Test-ParallelProcessing.ps1"
+        stats:
+          blanks: 27
+          blobs: {}
+          code: 114
+          comments: 32
+      - name: ".\\scripts\\Verify-Setup.ps1"
+        stats:
+          blanks: 47
+          blobs: {}
+          code: 274
+          comments: 44
+      - name: ".\\scripts\\Test-AllCmdlets.ps1"
+        stats:
+          blanks: 24
+          blobs: {}
+          code: 137
+          comments: 20
+      - name: ".\\scripts\\Test-DllListingExtraction.ps1"
+        stats:
+          blanks: 6
+          blobs: {}
+          code: 39
+          comments: 7
+      - name: ".\\PowerShell.MemoryAnalysis\\MemoryAnalysis.Format.ps1xml"
+        stats:
+          blanks: 6
+          blobs: {}
+          code: 257
+          comments: 0
+      - name: ".\\PowerShell.MemoryAnalysis\\MemoryAnalysis.psd1"
+        stats:
+          blanks: 24
+          blobs: {}
+          code: 67
+          comments: 28
+      - name: ".\\scripts\\Test-CachingSystem.ps1"
+        stats:
+          blanks: 54
+          blobs: {}
+          code: 262
+          comments: 53
+      - name: ".\\benchmarks\\Measure-Performance.ps1"
+        stats:
+          blanks: 34
+          blobs: {}
+          code: 121
+          comments: 37
+    Python:
+      - name: ".\\scripts\\test_vol_path.py"
+        stats:
+          blanks: 1
+          blobs: {}
+          code: 52
+          comments: 0
+    Rust:
+      - name: ".\\scripts\\test-volatility-real.rs"
+        stats:
+          blanks: 8
+          blobs: {}
+          code: 28
+          comments: 4
+      - name: ".\\rust-bridge\\tests\\error_tests.rs"
+        stats:
+          blanks: 7
+          blobs: {}
+          code: 45
+          comments: 0
+      - name: ".\\rust-bridge\\tests\\types_tests.rs"
+        stats:
+          blanks: 26
+          blobs: {}
+          code: 175
+          comments: 7
+      - name: ".\\rust-bridge\\src\\volatility.rs"
+        stats:
+          blanks: 27
+          blobs:
+            Markdown:
+              blanks: 3
+              blobs: {}
+              code: 0
+              comments: 12
+          code: 134
+          comments: 12
+      - name: ".\\rust-bridge\\src\\error.rs"
+        stats:
+          blanks: 12
+          blobs:
+            Markdown:
+              blanks: 0
+              blobs: {}
+              code: 0
+              comments: 8
+          code: 51
+          comments: 1
+      - name: ".\\rust-bridge\\src\\types.rs"
+        stats:
+          blanks: 56
+          blobs:
+            Markdown:
+              blanks: 1
+              blobs: {}
+              code: 0
+              comments: 28
+          code: 272
+          comments: 6
+      - name: ".\\rust-bridge\\src\\python_manager.rs"
+        stats:
+          blanks: 27
+          blobs:
+            Markdown:
+              blanks: 3
+              blobs: {}
+              code: 0
+              comments: 12
+          code: 99
+          comments: 13
+      - name: ".\\rust-bridge\\build.rs"
+        stats:
+          blanks: 2
+          blobs: {}
+          code: 4
+          comments: 5
+      - name: ".\\rust-bridge\\src\\cache_invalidation.rs"
+        stats:
+          blanks: 56
+          blobs:
+            Markdown:
+              blanks: 4
+              blobs: {}
+              code: 0
+              comments: 29
+          code: 221
+          comments: 5
+      - name: ".\\rust-bridge\\src\\lib.rs"
+        stats:
+          blanks: 71
+          blobs:
+            Markdown:
+              blanks: 14
+              blobs: {}
+              code: 0
+              comments: 62
+          code: 411
+          comments: 21
+      - name: ".\\rust-bridge\\src\\process_analysis.rs"
+        stats:
+          blanks: 102
+          blobs:
+            Markdown:
+              blanks: 12
+              blobs: {}
+              code: 0
+              comments: 30
+          code: 700
+          comments: 72
+      - name: ".\\rust-bridge\\benches\\performance.rs"
+        stats:
+          blanks: 20
+          blobs: {}
+          code: 93
+          comments: 4
+      - name: ".\\rust-bridge\\src\\cached_analyzer.rs"
+        stats:
+          blanks: 40
+          blobs:
+            Markdown:
+              blanks: 24
+              blobs: {}
+              code: 0
+              comments: 61
+          code: 166
+          comments: 5
+      - name: ".\\rust-bridge\\src\\cache.rs"
+        stats:
+          blanks: 59
+          blobs:
+            Markdown:
+              blanks: 43
+              blobs: {}
+              code: 0
+              comments: 124
+          code: 262
+          comments: 9
+    Toml:
+      - name: ".\\rust-bridge\\Cargo.toml"
+        stats:
+          blanks: 5
+          blobs: {}
+          code: 21
+          comments: 1
+    Yaml:
+      - name: ".\\loc.yaml"
+        stats:
+          blanks: 0
+          blobs: {}
+          code: 0
+          comments: 0
+  code: 7739
+  comments: 6474
+  inaccurate: false
+  reports: []
+YAML:
+  blanks: 0
+  children: {}
+  code: 0
+  comments: 0
+  inaccurate: false
+  reports:
+    - name: ".\\loc.yaml"
+      stats:
+        blanks: 0
+        blobs: {}
+        code: 0
+        comments: 0

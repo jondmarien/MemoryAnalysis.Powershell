@@ -7,6 +7,14 @@ A high-performance PowerShell module for memory dump forensics using the Volatil
 > **Note:** Network analysis and malware detection disabled on Windows 11 Build 26100 due to Volatility 3 compatibility issues.  
 > See [PROJECT_STATUS.md](docs/PROJECT_STATUS.md) for detailed progress tracking.
 
+<!-- LOC-START -->
+
+
+
+
+<!-- LOC-END -->
+
+
 ## Repository Structure
 
 This is a **monorepo** with a Git submodule:
