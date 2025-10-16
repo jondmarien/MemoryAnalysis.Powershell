@@ -1,57 +1,69 @@
-<svg width="900" height="290" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    text { font-family: 'Courier New', monospace; font-size: 12px; }
-    .header { font-weight: bold; fill: white; }
-    .row { fill: #2d2d2d; }
-    .total { font-weight: bold; fill: #ffd700; }
-  </style>
+<svg width="950" height="305" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color:#222;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#444;stop-opacity:1" />
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e3a8a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1e40af;stop-opacity:1" />
     </linearGradient>
+    <linearGradient id="totalGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#78350f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#92400e;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
   </defs>
-  <rect width="900" height="290" fill="url(#grad1)"/>
-  <rect y="0" width="900" height="30" fill="#333"/>
-  <text x="10" y="20" class="header">Language</text>
-  <text x="200" y="20" class="header">Code</text>
-  <text x="350" y="20" class="header">Comments</text>
-  <text x="520" y="20" class="header">Blanks</text>
-  <text x="680" y="20" class="header">Total</text>
-  <text x="10" y="50" class="row">C#</text>
-  <text x="200" y="50" class="row" text-anchor="end">2,743</text>
-  <text x="350" y="50" class="row" text-anchor="end">924</text>
-  <text x="520" y="50" class="row" text-anchor="end">558</text>
-  <text x="680" y="50" class="row" text-anchor="end">4,225</text>
-  <text x="10" y="80" class="row">PowerShell</text>
-  <text x="200" y="80" class="row" text-anchor="end">2,205</text>
-  <text x="350" y="80" class="row" text-anchor="end">365</text>
-  <text x="520" y="80" class="row" text-anchor="end">424</text>
-  <text x="680" y="80" class="row" text-anchor="end">2,994</text>
-  <text x="10" y="110" class="row">MSBuild</text>
-  <text x="200" y="110" class="row" text-anchor="end">57</text>
-  <text x="350" y="110" class="row" text-anchor="end">3</text>
-  <text x="520" y="110" class="row" text-anchor="end">10</text>
-  <text x="680" y="110" class="row" text-anchor="end">70</text>
-  <text x="10" y="140" class="row">SVG</text>
-  <text x="200" y="140" class="row" text-anchor="end">54</text>
-  <text x="350" y="140" class="row" text-anchor="end">0</text>
-  <text x="520" y="140" class="row" text-anchor="end">0</text>
-  <text x="680" y="140" class="row" text-anchor="end">54</text>
-  <text x="10" y="170" class="row">Python</text>
-  <text x="200" y="170" class="row" text-anchor="end">52</text>
-  <text x="350" y="170" class="row" text-anchor="end">0</text>
-  <text x="520" y="170" class="row" text-anchor="end">1</text>
-  <text x="680" y="170" class="row" text-anchor="end">53</text>
-  <text x="10" y="200" class="row">Rust</text>
-  <text x="200" y="200" class="row" text-anchor="end">28</text>
-  <text x="350" y="200" class="row" text-anchor="end">4</text>
-  <text x="520" y="200" class="row" text-anchor="end">8</text>
-  <text x="680" y="200" class="row" text-anchor="end">40</text>
-  <rect y="220" width="900" height="30" fill="#444"/>
-  <text x="10" y="230" class="total">Total</text>
-  <text x="200" y="230" class="total" text-anchor="end">5,139</text>
-  <text x="350" y="230" class="total" text-anchor="end">6,058</text>
-  <text x="520" y="230" class="total" text-anchor="end">2,796</text>
-  <text x="680" y="230" class="total" text-anchor="end">13,993</text>
+  
+  <!-- Background -->
+  <rect width="950" height="305" fill="#f8fafc" rx="8"/>
+  
+  <!-- Header -->
+  <rect y="0" width="950" height="40" fill="url(#headerGrad)" rx="8" ry="8" filter="url(#shadow)"/>
+  <text x="20" y="28" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="bold" fill="#ffffff">Language</text>
+  <text x="300" y="28" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="end">Code Lines</text>
+  <text x="520" y="28" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="end">Comments</text>
+  <text x="720" y="28" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="end">Blanks</text>
+  <text x="920" y="28" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="end">Total</text>
+  <rect y="40" width="950" height="35" fill="#ffffff"/>
+  <text x="20" y="64" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" font-weight="500">C#</text>
+  <text x="300" y="64" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">2,743</text>
+  <text x="520" y="64" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">924</text>
+  <text x="720" y="64" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">558</text>
+  <text x="920" y="64" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">4,225</text>
+  <rect y="75" width="950" height="35" fill="#f3f4f6"/>
+  <text x="20" y="99" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" font-weight="500">PowerShell</text>
+  <text x="300" y="99" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">2,205</text>
+  <text x="520" y="99" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">365</text>
+  <text x="720" y="99" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">424</text>
+  <text x="920" y="99" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">2,994</text>
+  <rect y="110" width="950" height="35" fill="#ffffff"/>
+  <text x="20" y="134" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" font-weight="500">MSBuild</text>
+  <text x="300" y="134" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">57</text>
+  <text x="520" y="134" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">3</text>
+  <text x="720" y="134" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">10</text>
+  <text x="920" y="134" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">70</text>
+  <rect y="145" width="950" height="35" fill="#f3f4f6"/>
+  <text x="20" y="169" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" font-weight="500">SVG</text>
+  <text x="300" y="169" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">57</text>
+  <text x="520" y="169" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">0</text>
+  <text x="720" y="169" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">0</text>
+  <text x="920" y="169" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">57</text>
+  <rect y="180" width="950" height="35" fill="#ffffff"/>
+  <text x="20" y="204" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" font-weight="500">Python</text>
+  <text x="300" y="204" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">52</text>
+  <text x="520" y="204" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">0</text>
+  <text x="720" y="204" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">1</text>
+  <text x="920" y="204" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">53</text>
+  <rect y="215" width="950" height="35" fill="#f3f4f6"/>
+  <text x="20" y="239" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" font-weight="500">Rust</text>
+  <text x="300" y="239" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">28</text>
+  <text x="520" y="239" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">4</text>
+  <text x="720" y="239" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">8</text>
+  <text x="920" y="239" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">40</text>
+  <line x1="10" y1="250" x2="940" y2="250" stroke="#e5e7eb" stroke-width="1"/>
+  <rect y="255" width="950" height="35" fill="url(#totalGrad)" filter="url(#shadow)"/>
+  <text x="20" y="279" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="bold" fill="#ffffff">Total</text>
+  <text x="300" y="279" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="bold" fill="#ffffff" text-anchor="end">5,142</text>
+  <text x="520" y="279" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="bold" fill="#ffffff" text-anchor="end">6,058</text>
+  <text x="720" y="279" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="bold" fill="#ffffff" text-anchor="end">2,796</text>
+  <text x="920" y="279" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="bold" fill="#ffffff" text-anchor="end">13,996</text>
 </svg>
