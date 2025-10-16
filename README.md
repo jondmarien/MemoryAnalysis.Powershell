@@ -7,22 +7,9 @@ A high-performance PowerShell module for memory dump forensics using the Volatil
 > **Note:** Network analysis and malware detection disabled on Windows 11 Build 26100 due to Volatility 3 compatibility issues.  
 > See [PROJECT_STATUS.md](docs/PROJECT_STATUS.md) for detailed progress tracking.
 
-<!-- LOC-START -->## 📊 Lines of Code Statistics
+## 📊 Lines of Code Statistics
 
-| Language | Code Lines | Comments | Blanks | Total Lines |
-|----------|:----------:|:--------:|:------:|:-----------:|
-
-| C# | 2,743 | 924 | 558 | 4,225 |
-| PowerShell | 2,205 | 365 | 424 | 2,994 |
-| MSBuild | 57 | 3 | 10 | 70 |
-| Python | 52 | 0 | 1 | 53 |
-| Rust | 28 | 4 | 8 | 40 |
-| JSON | 0 | 0 | 0 | 0 |
-| Markdown | 0 | 4,774 | 1,797 | 6,571 |
-| **Total** | **5,085** | **6,070** | **2,798** | **13,953** |
-
-*Last updated: October 16, 2025 at 07:48 UTC*
-<!-- LOC-END -->
+![LOC Statistics](loc-stats.svg)
 
 
 ## Repository Structure

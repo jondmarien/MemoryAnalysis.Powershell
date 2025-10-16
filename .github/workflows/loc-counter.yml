@@ -34,19 +34,15 @@ jobs:
         echo "Generating LOC statistics..."
         tokei . -o json > loc-stats.json
         
-    - name: Parse LOC data and update README
+    - name: Generate LOC SVG table
       run: |
         python3 << 'EOF'
         import json
-        import re
         from datetime import datetime
-        from pathlib import Path
         
-        # Read the tokei JSON output
         with open('loc-stats.json', 'r') as f:
             data = json.load(f)
         
-        # Generate SVG table
         languages = {k: v for k, v in data.items() if k != 'Total' and isinstance(v, dict) and v.get('code', 0) > 0}
         sorted_languages = sorted(languages.items(), key=lambda x: x[1]['code'], reverse=True)
         
@@ -59,8 +55,6 @@ jobs:
             .header {{ font-weight: bold; fill: white; }}
             .row {{ fill: #2d2d2d; }}
             .total {{ font-weight: bold; fill: #ffd700; }}
-            rect.header {{ fill: #333; }}
-            rect.alt {{ fill: #1a1a1a; }}
           </style>
           <defs>
             <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -83,7 +77,6 @@ jobs:
             comments = stats['comments']
             blanks = stats['blanks']
             total = code + comments + blanks
-            
             svg += f'''  <text x="10" y="{y_pos}" class="row">{lang}</text>
           <text x="200" y="{y_pos}" class="row" text-anchor="end">{code:,}</text>
           <text x="350" y="{y_pos}" class="row" text-anchor="end">{comments:,}</text>
@@ -92,14 +85,12 @@ jobs:
         '''
             y_pos += 30
         
-        # Add total row
         if 'Total' in data:
             total_stats = data['Total']
             code = total_stats['code']
             comments = total_stats['comments']
             blanks = total_stats['blanks']
             total = code + comments + blanks
-            
             svg += f'''  <rect y="{y_pos - 10}" width="{svg_width}" height="30" fill="#444"/>
           <text x="10" y="{y_pos}" class="total">Total</text>
           <text x="200" y="{y_pos}" class="total" text-anchor="end">{code:,}</text>
@@ -109,98 +100,25 @@ jobs:
         '''
         
         svg += '</svg>'
-        
         with open('loc-stats.svg', 'w') as f:
             f.write(svg)
         
-        print("LOC statistics SVG generated!")
-        EOF
-        python3 << 'EOF'
-        import json
-        import re
-        from datetime import datetime
-        
-        # Read the tokei JSON output
-        with open('loc-stats.json', 'r') as f:
-            data = json.load(f)
-        
-        # Create markdown table
-        markdown_table = "## 📊 Lines of Code Statistics\n\n"
-        markdown_table += "| Language | Code Lines | Comments | Blanks | Total Lines |\n"
-        markdown_table += "|----------|:----------:|:--------:|:------:|:-----------:|\n"
-        languages = {k: v for k, v in data.items() if k != 'Total' and isinstance(v, dict)}
-        sorted_languages = sorted(languages.items(), key=lambda x: x[1]['code'], reverse=True)
-        
-        # Add each language row
-        for lang, stats in sorted_languages:
-            code = stats['code']
-            comments = stats['comments']
-            blanks = stats['blanks']
-            total = code + comments + blanks
-            markdown_table += f"\n| {lang} | {code:,} | {comments:,} | {blanks:,} | {total:,} |"
-        
-        # Add total row
-        if 'Total' in data:
-            total_stats = data['Total']
-            code = total_stats['code']
-            comments = total_stats['comments']
-            blanks = total_stats['blanks']
-            total = code + comments + blanks
-            markdown_table += f"\n| **Total** | **{code:,}** | **{comments:,}** | **{blanks:,}** | **{total:,}** |"
-        
-        # Add timestamp
-        timestamp = datetime.now().strftime("%B %d, %Y at %H:%M UTC")
-        markdown_table += f"\n\n*Last updated: {timestamp}*\n"
-        
-        # Read current README
-        try:
-            with open('README.md', 'r') as f:
-                readme_content = f.read()
-        except FileNotFoundError:
-            print("README.md not found, creating new one...")
-            readme_content = """# Project Name
-        
-        <!-- LOC-START -->
-        <!-- LOC-END -->
-        """
-        
-        # Replace content between markers
-        pattern = r'<!-- LOC-START -->.*?<!-- LOC-END -->'
-        replacement = f'<!-- LOC-START -->{markdown_table}<!-- LOC-END -->'
-        
-        if '<!-- LOC-START -->' in readme_content and '<!-- LOC-END -->' in readme_content:
-            new_content = re.sub(pattern, replacement, readme_content, flags=re.DOTALL)
-        else:
-            # Add markers at the end if they don't exist
-            new_content = readme_content.rstrip() + '\n\n' + replacement + '\n'
-        
-        # Write updated README
-        with open('README.md', 'w') as f:
-            f.write(new_content)
-            
-        print("README.md updated successfully!")
-        
-        # Create total LOC for badge (optional)
-        if 'Total' in data:
-            total_loc = data['Total']['code']
-            with open('total-loc.txt', 'w') as f:
-                f.write(str(total_loc))
-            print(f"Total LOC: {total_loc:,}")
+        print("✅ LOC statistics SVG generated!")
         EOF
         
     - name: Commit and push changes
       uses: stefanzweifel/git-auto-commit-action@v5
       with:
         commit_message: "📊 Update LOC statistics [automated]"
-        file_pattern: "README.md loc-stats.svg"
+        file_pattern: "loc-stats.svg"
         commit_user_name: "github-actions[bot]"
         commit_user_email: "github-actions[bot]@users.noreply.github.com"
         
     - name: Clean up temporary files
       run: |
-        rm -f total-loc.txt
+        rm -f loc-stats.json
         
     - name: Display summary
       run: |
-        echo "✅ LOC statistics updated successfully!"
-        echo "📈 Check your README.md for the latest statistics."
+        echo "✅ LOC statistics SVG table generated!"
+        echo "📊 View loc-stats.svg in your repository."
