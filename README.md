@@ -18,10 +18,10 @@ A high-performance PowerShell module for memory dump forensics using the Volatil
 | Python | 52 | 0 | 1 | 53 |
 | Rust | 28 | 4 | 8 | 40 |
 | JSON | 0 | 0 | 0 | 0 |
-| Markdown | 0 | 4,774 | 1,797 | 6,571 |
-| **Total** | **5,085** | **6,070** | **2,798** | **13,953** |
+| Markdown | 0 | 4,773 | 1,797 | 6,570 |
+| **Total** | **5,085** | **6,069** | **2,798** | **13,952** |
 
-*Last updated: October 16, 2025 at 07:48 UTC*
+*Last updated: October 16, 2025 at 07:59 UTC*
 <!-- LOC-END -->
 
 
