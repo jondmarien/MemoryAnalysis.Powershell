@@ -55,7 +55,9 @@ PowerShell.MemoryAnalysis/
 │   ├── NetworkConnectionInfo.cs          # ⚠️ Disabled (Win11 26100)
 │   └── MalwareDetection.cs               # ⚠️ Disabled (Win11 26100)
 ├── Services/
-│   ├── RustInterop.cs                    # P/Invoke to Rust bridge
+│   ├── RustInteropService.cs             # P/Invoke to Rust bridge
+│   ├── CachingService.cs                 # LRU cache management
+│   ├── CacheInvalidationService.cs       # File monitoring & TTL
 │   └── LoggingService.cs                 # Logging configuration
 ├── MemoryAnalysis.psd1                   # Module manifest
 ├── MemoryAnalysis.Format.ps1xml          # Custom formatting
@@ -174,6 +176,55 @@ Extracts network connections from memory dumps.
 Multi-technique malware detection.
 
 **Issue:** Returns zero detections on Windows 11 Build 26100.
+
+### ⚡ Get-CacheInfo
+
+**Status:** Production Ready - NEW
+
+Displays cache statistics for all cache types.
+
+**Usage:**
+```powershell
+Get-CacheInfo
+
+# Output shows:
+# - Cache type (Processes, CommandLines, DLLs, etc.)
+# - Number of entries vs max entries
+# - Total accesses, cache hits, and misses
+# - Hit rate percentage
+```
+
+### ⚡ Clear-Cache
+
+**Status:** Production Ready - NEW
+
+Clears all in-memory caches.
+
+**Usage:**
+```powershell
+# With confirmation
+Clear-Cache
+
+# Force without confirmation
+Clear-Cache -Force -Confirm:$false
+```
+
+### ⚡ Watch-MemoryDumpFile
+
+**Status:** Production Ready - NEW
+
+Monitors a memory dump file and automatically invalidates cache when file changes.
+
+**Usage:**
+```powershell
+Watch-MemoryDumpFile -Path F:\physmem.raw
+```
+
+### ⚡ Additional Cache Cmdlets
+
+- `Stop-WatchingMemoryDumpFile` - Stop monitoring a file
+- `Get-WatchedMemoryDumpFiles` - List all monitored files
+- `Test-CacheValidity` - Validate cache against file changes
 
 ## P/Invoke Pattern
 
