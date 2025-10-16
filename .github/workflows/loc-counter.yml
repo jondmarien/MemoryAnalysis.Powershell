@@ -51,8 +51,6 @@ jobs:
 
 | Language | Code Lines | Comments | Blanks | Total Lines |
 |----------|------------|----------|---------|-------------|"""
-        
-        # Sort languages by code lines (descending)
         languages = {k: v for k, v in data.items() if k != 'Total' and isinstance(v, dict)}
         sorted_languages = sorted(languages.items(), key=lambda x: x[1]['code'], reverse=True)
         
