@@ -38,6 +38,12 @@
         'Test-ProcessTree'
         'Get-ProcessCommandLine'
         'Get-ProcessDll'
+        'Get-CacheInfo'
+        'Clear-Cache'
+        'Watch-MemoryDumpFile'
+        'Stop-WatchingMemoryDumpFile'
+        'Get-WatchedMemoryDumpFiles'
+        'Test-CacheValidity'
         # 'Get-NetworkConnection'  # Disabled: Not compatible with Windows 11 Build 26100
         # 'Find-Malware'           # Disabled: Not compatible with Windows 11 Build 26100
     )

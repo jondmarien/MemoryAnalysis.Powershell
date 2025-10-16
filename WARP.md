@@ -259,3 +259,50 @@ When modifying code:
 - `PowerShell.MemoryAnalysis/Services/RustInterop.cs` - P/Invoke declarations and C# marshaling
 - `PowerShell.MemoryAnalysis/MemoryAnalysis.psd1` - Module manifest with exported cmdlets
 - `PowerShell.MemoryAnalysis/PowerShell.MemoryAnalysis.csproj` - Build configuration and DLL copy rules
+
+## Caching & Performance Optimization
+
+### Cache System Overview
+
+The module implements a multi-layer LRU (Least Recently Used) caching system with automatic invalidation:
+
+- **C# Layer:** `CachingService` with separate `LruCache<T>` for each analysis type
+- **Rust Layer:** `CachedProcessAnalyzer` wrapper around `ProcessAnalyzer`
+- **Invalidation:** `CacheInvalidationService` with `FileSystemWatcher` for file change detection
+- **Performance Target:** <2 seconds for cached operations, >80% cache hit rate
+
+### Cache Management Cmdlets
+
+```powershell
+# View cache statistics
+Get-CacheInfo
+
+# Clear all caches
+Clear-Cache -Force -Confirm:$false
+
+# Watch file for changes (invalidates cache on modification)
+Watch-MemoryDumpFile -Path F:\physmem.raw
+
+# Stop watching file
+Stop-WatchingMemoryDumpFile -Path F:\physmem.raw
+
+# List currently watched files
+Get-WatchedMemoryDumpFiles
+
+# Validate cache and trigger invalidation if file changed
+Test-CacheValidity
+```
+
+### Performance Benchmarking
+
+```powershell
+# Run cache performance tests
+.\scripts\Test-CachePerformance.ps1 -DumpPath F:\physmem.raw -Iterations 5
+
+# This script measures:
+# - Sequential analysis (cache misses)
+# - Cached analysis (cache hits) 
+# - Speed improvement factor
+# - Hit rate percentage
+# - Performance vs. targets (<2s, >80%)
+```

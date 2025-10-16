@@ -20,6 +20,7 @@ public class GetProcessDllCommand : PSCmdlet
 {
     private ILogger<GetProcessDllCommand>? _logger;
     private RustInteropService? _rustInterop;
+    private CachingService? _cachingService;
 
     /// <summary>
     /// Memory dump to analyze.
@@ -52,6 +53,7 @@ public class GetProcessDllCommand : PSCmdlet
     {
         _logger = LoggingService.GetLogger<GetProcessDllCommand>();
         _rustInterop = new RustInteropService();
+        _cachingService = new CachingService();
     }
 
     protected override void ProcessRecord()
@@ -60,14 +62,19 @@ public class GetProcessDllCommand : PSCmdlet
 
         try
         {
-            var progress = new ProgressRecord(1, "Listing DLLs", 
-                $"Scanning {MemoryDump.FileName}...") { PercentComplete = -1 };
+            var progress = new ProgressRecord(1, "Listing DLLs",
+                $"Scanning {MemoryDump.FileName}...")
+            { PercentComplete = -1 };
             WriteProgress(progress);
-            
+
             _logger?.LogInformation("Listing DLLs from: {Path}", MemoryDump.Path);
 
-            var dlls = _rustInterop!.ListDlls(MemoryDump.Path, Pid);
-            
+            var dlls = _cachingService?.GetOrCacheDlls(
+                MemoryDump.Path,
+                Pid,
+                () => _rustInterop!.ListDlls(MemoryDump.Path, Pid)
+            ) ?? [];
+
             progress.StatusDescription = $"Processing {dlls.Length} DLLs...";
             progress.PercentComplete = 100;
             WriteProgress(progress);
@@ -91,7 +98,7 @@ public class GetProcessDllCommand : PSCmdlet
             {
                 WriteObject(dll);
             }
-            
+
             progress.RecordType = ProgressRecordType.Completed;
             WriteProgress(progress);
         }

@@ -40,6 +40,7 @@ public class AnalyzeProcessTreeCommand : PSCmdlet
 
     private ILogger<AnalyzeProcessTreeCommand>? _logger;
     private RustInteropService? _rustInterop;
+    private CachingService? _cachingService;
 
     /// <summary>
     /// <para type="description">Memory dump to analyze.</para>
@@ -116,11 +117,12 @@ public class AnalyzeProcessTreeCommand : PSCmdlet
         try
         {
             _rustInterop = new RustInteropService();
+            _cachingService = new CachingService();
             if (DebugMode.IsPresent)
             {
-                WriteVerbose("Rust interop service initialized");
+                WriteVerbose("Rust interop and caching services initialized");
             }
-            _logger.LogDebug("Rust interop service initialized");
+            _logger.LogDebug("Rust interop and caching services initialized");
         }
         catch (Exception ex)
         {
@@ -165,15 +167,31 @@ public class AnalyzeProcessTreeCommand : PSCmdlet
             };
             WriteProgress(progressRecord);
 
-            // Get process list from Rust
+            // Get process list from Rust (with caching)
             progressRecord.PercentComplete = 25;
             progressRecord.StatusDescription = "Retrieving process list...";
             WriteProgress(progressRecord);
 
-            var rawProcesses = _rustInterop?.ListProcesses(MemoryDump.Path);
+            // Get raw process data from cache (which wraps RustInteropService)
+            // Cache stores ProcessInfo[] directly from Rust, not ProcessTreeInfo[]
+            var rawProcesses = _cachingService?.GetOrCacheProcesses(
+                MemoryDump.Path,
+                () => _rustInterop!.ListProcesses(MemoryDump.Path).Select(p => new ProcessInfo
+                {
+                    Pid = p.Pid,
+                    Ppid = p.Ppid,
+                    Name = p.Name,
+                    Offset = p.Offset,
+                    Threads = p.Threads,
+                    Handles = p.Handles,
+                    CreateTime = p.CreateTime
+                }).ToArray()
+            );
             if (DebugMode.IsPresent)
             {
-                WriteVerbose($"Retrieved {rawProcesses?.Length ?? 0} raw process entries from Rust bridge");
+                var cacheStats = _cachingService?.GetAllCacheStatistics();
+                var procStats = cacheStats?["Processes"];
+                WriteVerbose($"Retrieved {rawProcesses?.Length ?? 0} processes - Cache hits: {procStats?.CacheHits}, misses: {procStats?.CacheMisses}");
             }
             
             if (rawProcesses == null || rawProcesses.Length == 0)

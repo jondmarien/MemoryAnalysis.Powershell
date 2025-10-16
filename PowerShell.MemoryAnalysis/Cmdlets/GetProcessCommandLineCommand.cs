@@ -20,6 +20,7 @@ public class GetProcessCommandLineCommand : PSCmdlet
 {
     private ILogger<GetProcessCommandLineCommand>? _logger;
     private RustInteropService? _rustInterop;
+    private CachingService? _cachingService;
 
     /// <summary>
     /// Memory dump to analyze.
@@ -45,6 +46,7 @@ public class GetProcessCommandLineCommand : PSCmdlet
     {
         _logger = LoggingService.GetLogger<GetProcessCommandLineCommand>();
         _rustInterop = new RustInteropService();
+        _cachingService = new CachingService();
     }
 
     protected override void ProcessRecord()
@@ -54,14 +56,18 @@ public class GetProcessCommandLineCommand : PSCmdlet
         try
         {
             // Show progress
-            var progress = new ProgressRecord(1, "Extracting Command Lines", 
-                $"Analyzing {MemoryDump.FileName}...") { PercentComplete = -1 };
+            var progress = new ProgressRecord(1, "Extracting Command Lines",
+                $"Analyzing {MemoryDump.FileName}...")
+            { PercentComplete = -1 };
             WriteProgress(progress);
-            
+
             _logger?.LogInformation("Extracting command lines from: {Path}", MemoryDump.Path);
 
-            var commandLines = _rustInterop!.GetCommandLines(MemoryDump.Path);
-            
+            var commandLines = _cachingService?.GetOrCacheCommandLines(
+                MemoryDump.Path,
+                () => _rustInterop!.GetCommandLines(MemoryDump.Path)
+            ) ?? [];
+
             progress.StatusDescription = $"Processing {commandLines.Length} command lines...";
             progress.PercentComplete = 100;
             WriteProgress(progress);
@@ -84,7 +90,7 @@ public class GetProcessCommandLineCommand : PSCmdlet
             {
                 WriteObject(cmdLine);
             }
-            
+
             // Complete progress
             progress.RecordType = ProgressRecordType.Completed;
             WriteProgress(progress);
