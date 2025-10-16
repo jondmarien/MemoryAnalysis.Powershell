@@ -57,7 +57,7 @@ jobs:
             code = f"{stats['code']:,}"
             comments = f"{stats['comments']:,}"
             blanks = f"{stats['blanks']:,}"
-            total = f"{stats['lines']:,}"
+            total = f"{stats['code'] + stats['comments'] + stats['blanks']:,}"
             markdown_table += f"\n| {lang} | {code} | {comments} | {blanks} | {total} |"
         
         # Add total row
@@ -66,7 +66,7 @@ jobs:
             code = f"{total_stats['code']:,}"
             comments = f"{total_stats['comments']:,}"
             blanks = f"{total_stats['blanks']:,}"
-            total = f"{total_stats['lines']:,}"
+            total = f"{total_stats['code'] + total_stats['comments'] + total_stats['blanks']:,}"
             markdown_table += f"\n| **Total** | **{code}** | **{comments}** | **{blanks}** | **{total}** |"
         
         # Add timestamp
