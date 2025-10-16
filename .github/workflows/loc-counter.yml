@@ -48,26 +48,26 @@ jobs:
         # Create markdown table
         markdown_table = "## 📊 Lines of Code Statistics\n\n"
         markdown_table += "| Language | Code Lines | Comments | Blanks | Total Lines |\n"
-        markdown_table += "|----------|------------|----------|---------|-------------|\n"
+        markdown_table += "|----------|:----------:|:--------:|:------:|:-----------:|\n"
         languages = {k: v for k, v in data.items() if k != 'Total' and isinstance(v, dict)}
         sorted_languages = sorted(languages.items(), key=lambda x: x[1]['code'], reverse=True)
         
         # Add each language row
         for lang, stats in sorted_languages:
-            code = f"{stats['code']:,}"
-            comments = f"{stats['comments']:,}"
-            blanks = f"{stats['blanks']:,}"
-            total = f"{stats['code'] + stats['comments'] + stats['blanks']:,}"
-            markdown_table += f"\n| {lang} | {code} | {comments} | {blanks} | {total} |"
+            code = stats['code']
+            comments = stats['comments']
+            blanks = stats['blanks']
+            total = code + comments + blanks
+            markdown_table += f"\n| {lang} | {code:,} | {comments:,} | {blanks:,} | {total:,} |"
         
         # Add total row
         if 'Total' in data:
             total_stats = data['Total']
-            code = f"{total_stats['code']:,}"
-            comments = f"{total_stats['comments']:,}"
-            blanks = f"{total_stats['blanks']:,}"
-            total = f"{total_stats['code'] + total_stats['comments'] + total_stats['blanks']:,}"
-            markdown_table += f"\n| **Total** | **{code}** | **{comments}** | **{blanks}** | **{total}** |"
+            code = total_stats['code']
+            comments = total_stats['comments']
+            blanks = total_stats['blanks']
+            total = code + comments + blanks
+            markdown_table += f"\n| **Total** | **{code:,}** | **{comments:,}** | **{blanks:,}** | **{total:,}** |"
         
         # Add timestamp
         timestamp = datetime.now().strftime("%B %d, %Y at %H:%M UTC")
