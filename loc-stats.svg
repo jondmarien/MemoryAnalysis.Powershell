@@ -43,10 +43,10 @@
   <text x="920" y="134" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">2,994</text>
   <rect y="145" width="950" height="35" fill="#f3f4f6"/>
   <text x="20" y="169" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" font-weight="500">SVG</text>
-  <text x="300" y="169" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">65</text>
+  <text x="300" y="169" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">77</text>
   <text x="520" y="169" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">2</text>
   <text x="720" y="169" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">2</text>
-  <text x="920" y="169" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">69</text>
+  <text x="920" y="169" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">81</text>
   <rect y="180" width="950" height="35" fill="#ffffff"/>
   <text x="20" y="204" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" font-weight="500">MSBuild</text>
   <text x="300" y="204" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="end">57</text>
@@ -74,8 +74,8 @@
   <line x1="10" y1="320" x2="940" y2="320" stroke="#e5e7eb" stroke-width="1"/>
   <rect y="325" width="950" height="35" fill="url(#totalGrad)" filter="url(#shadow)"/>
   <text x="20" y="349" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="bold" fill="#ffffff">Total</text>
-  <text x="300" y="349" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="bold" fill="#ffffff" text-anchor="end">7,805</text>
-  <text x="520" y="349" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="bold" fill="#ffffff" text-anchor="end">6,478</text>
-  <text x="720" y="349" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="bold" fill="#ffffff" text-anchor="end">3,439</text>
-  <text x="920" y="349" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="bold" fill="#ffffff" text-anchor="end">17,722</text>
+  <text x="300" y="349" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="bold" fill="#ffffff" text-anchor="end">7,817</text>
+  <text x="520" y="349" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="bold" fill="#ffffff" text-anchor="end">6,481</text>
+  <text x="720" y="349" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="bold" fill="#ffffff" text-anchor="end">3,441</text>
+  <text x="920" y="349" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="bold" fill="#ffffff" text-anchor="end">17,739</text>
 </svg>
