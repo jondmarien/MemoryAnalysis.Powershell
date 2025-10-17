@@ -70,14 +70,14 @@ jobs:
       
       - name: Generate Rust Coverage
         working-directory: rust-bridge
-        run: cargo tarpaulin --out xml --output-dir ../target/coverage
+        run: cargo tarpaulin --out xml --output-dir ./coverage --exclude-files ../PowerShell.MemoryAnalysis
       
       - name: Upload Rust Coverage to Codecov
         uses: codecov/codecov-action@v4
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
-          files: target/coverage/cobertura.xml
+          files: ./rust-bridge/coverage/cobertura.xml
           flags: rust-tests-${{ matrix.os }}
           fail_ci_if_error: false
 
