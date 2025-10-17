@@ -75,8 +75,8 @@ Automated build, test, and release pipelines for the MemoryAnalysis PowerShell m
 Add to README.md:
 
 ```markdown
-[![Build and Test](https://github.com/jondmarien/MemoryAnalysis.Powershell/workflows/Build%20and%20Test/badge.svg?branch=main)](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/build-and-test.yml)
-[![Update Lines of Code Statistics](https://github.com/jondmarien/MemoryAnalysis.Powershell/workflows/Update%20Lines%20of%20Code%20Statistics/badge.svg?branch=main)](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/loc-counter.yml)
+[![Build and Test](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/build-and-test.yml)
+[![Update Lines of Code Statistics](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/loc-counter.yml/badge.svg)](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/loc-counter.yml)
 [![codecov](https://codecov.io/gh/jondmarien/MemoryAnalysis.Powershell/branch/main/graph/badge.svg)](https://codecov.io/gh/jondmarien/MemoryAnalysis.Powershell)
 ```
 
