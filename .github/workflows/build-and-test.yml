@@ -64,6 +64,22 @@ jobs:
       - name: Check Formatting
         working-directory: rust-bridge
         run: cargo fmt -- --check
+      
+      - name: Install tarpaulin
+        run: cargo install cargo-tarpaulin
+      
+      - name: Generate Rust Coverage
+        working-directory: rust-bridge
+        run: cargo tarpaulin --out xml --output-dir ../target/coverage
+      
+      - name: Upload Rust Coverage to Codecov
+        uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          files: target/coverage/cobertura.xml
+          flags: rust-tests-${{ matrix.os }}
+          fail_ci_if_error: false
 
   csharp-tests:
     name: C# Unit Tests
