@@ -34,8 +34,31 @@ jobs:
         echo "Generating LOC statistics..."
         # Initialize submodules to include rust-bridge
         git submodule update --init --recursive
-        # Run tokei with follow-links to include all nested projects
-        tokei . --follow-links -o json > loc-stats.json
+        # Run tokei on root and merge with rust-bridge separately
+        echo "Counting root directory..."
+        tokei . --exclude rust-bridge -o json > loc-stats-root.json
+        echo "Counting rust-bridge..."
+        tokei rust-bridge -o json > loc-stats-rust.json
+        # Merge JSON files using Python
+        python3 << 'MERGE_EOF'
+        import json
+        with open('loc-stats-root.json', 'r') as f:
+            root_data = json.load(f)
+        with open('loc-stats-rust.json', 'r') as f:
+            rust_data = json.load(f)
+        # Merge by summing stats from each language
+        merged = {}
+        for data in [root_data, rust_data]:
+            for lang, stats in data.items():
+                if lang not in merged:
+                    merged[lang] = {'code': 0, 'comments': 0, 'blanks': 0}
+                if isinstance(stats, dict) and 'code' in stats:
+                    merged[lang]['code'] += stats.get('code', 0)
+                    merged[lang]['comments'] += stats.get('comments', 0)
+                    merged[lang]['blanks'] += stats.get('blanks', 0)
+        with open('loc-stats.json', 'w') as f:
+            json.dump(merged, f, indent=2)
+        MERGE_EOF
         echo "Generated loc-stats.json:"
         cat loc-stats.json | python3 -m json.tool | head -100
         
@@ -165,7 +188,7 @@ jobs:
         
     - name: Clean up temporary files
       run: |
-        rm -f loc-stats.json
+        rm -f loc-stats-root.json loc-stats-rust.json
         
     - name: Display summary
       run: |
