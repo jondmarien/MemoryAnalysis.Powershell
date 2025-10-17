@@ -32,18 +32,44 @@ jobs:
     - name: Generate LOC statistics
       run: |
         echo "Generating LOC statistics..."
-        tokei . -o json > loc-stats.json
+        # Initialize submodules to include rust-bridge
+        git submodule update --init --recursive
+        # Run tokei with follow-links to include all nested projects
+        tokei . --follow-links -o json > loc-stats.json
+        echo "Generated loc-stats.json:"
+        cat loc-stats.json | python3 -m json.tool | head -100
         
     - name: Generate LOC SVG table
       run: |
         python3 << 'EOF'
         import json
         from datetime import datetime
+        from collections import defaultdict
         
         with open('loc-stats.json', 'r') as f:
             data = json.load(f)
         
-        languages = {k: v for k, v in data.items() if k != 'Total' and isinstance(v, dict) and v.get('code', 0) > 0}
+        # Aggregate all languages from the JSON output
+        # tokei outputs each language as a top-level key with code/comments/blanks stats
+        languages = {}
+        total_aggregated = {'code': 0, 'comments': 0, 'blanks': 0}
+        
+        for k, v in data.items():
+            # Skip Total and any non-dict entries
+            if k == 'Total' or not isinstance(v, dict):
+                continue
+            
+            # Only include languages with code lines
+            if v.get('code', 0) > 0:
+                languages[k] = v
+                total_aggregated['code'] += v.get('code', 0)
+                total_aggregated['comments'] += v.get('comments', 0)
+                total_aggregated['blanks'] += v.get('blanks', 0)
+        
+        # If there's a Total in data, use it as the source of truth
+        if 'Total' in data and isinstance(data['Total'], dict):
+            total_aggregated = data['Total']
+        
         sorted_languages = sorted(languages.items(), key=lambda x: x[1]['code'], reverse=True)
         
         svg_width = 950
@@ -100,12 +126,13 @@ jobs:
             y_pos += row_height
             row_idx += 1
         
-        if 'Total' in data:
-            total_stats = data['Total']
-            code = total_stats['code']
-            comments = total_stats['comments']
-            blanks = total_stats['blanks']
-            total = code + comments + blanks
+        # Use aggregated totals
+        code = total_aggregated['code']
+        comments = total_aggregated['comments']
+        blanks = total_aggregated['blanks']
+        total = code + comments + blanks
+        
+        if code > 0:  # Only display total if we have data
             
             # Add separator line
             svg += f'''  <line x1="10" y1="{y_pos}" x2="{svg_width - 10}" y2="{y_pos}" stroke="#e5e7eb" stroke-width="1"/>
