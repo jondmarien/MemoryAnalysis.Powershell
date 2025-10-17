@@ -9,6 +9,7 @@ A high-performance PowerShell module for memory dump forensics using the Volatil
 
 ## 🏗️ Build Status
 ![Build Status](https://github.com/YOUR_USERNAME/MemoryAnalysis/workflows/Build%20and%20Test/badge.svg)
+
 ![Coverage](https://codecov.io/gh/YOUR_USERNAME/MemoryAnalysis/branch/main/graph/badge.svg)
 
 ## 📊 Lines of Code Statistics
