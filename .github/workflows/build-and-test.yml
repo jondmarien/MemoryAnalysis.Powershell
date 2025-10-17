@@ -151,8 +151,30 @@ jobs:
       - name: Install Volatility3
         run: uv pip install --system volatility3
       
+      - name: Install sccache
+        run: cargo install sccache
+      
+      - name: Install lld (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get install -y lld
+      
+      - name: Install lld (macOS)
+        if: matrix.os == 'macos-latest'
+        run: brew install llvm
+      
+      - name: Cache sccache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/sccache
+          key: ${{ runner.os }}-sccache-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-sccache-
+      
       - name: Build Rust Bridge
         working-directory: rust-bridge
+        env:
+          RUSTC_WRAPPER: sccache
+          RUSTFLAGS: -C linker=lld
         run: cargo build --release
       
       - name: Build PowerShell Module
