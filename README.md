@@ -8,9 +8,9 @@ A high-performance PowerShell module for memory dump forensics using the Volatil
 > See [PROJECT_STATUS.md](docs/PROJECT_STATUS.md) for detailed progress tracking.
 
 ## 🏗️ Build Status
-![Build Status](https://github.com/YOUR_USERNAME/MemoryAnalysis/workflows/Build%20and%20Test/badge.svg)
+![Build Status](https://github.com/jondmarien/MemoryAnalysis/workflows/Build%20and%20Test/badge.svg)
 
-![Coverage](https://codecov.io/gh/YOUR_USERNAME/MemoryAnalysis/branch/main/graph/badge.svg)
+![Coverage](https://codecov.io/gh/jondmarien/MemoryAnalysis/branch/main/graph/badge.svg)
 
 ## 📊 Lines of Code Statistics
 
