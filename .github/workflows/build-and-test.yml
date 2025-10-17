@@ -65,12 +65,13 @@ jobs:
         working-directory: rust-bridge
         run: cargo fmt -- --check
       
-      - name: Install tarpaulin
-        run: cargo install cargo-tarpaulin
-      
       - name: Generate Rust Coverage
         working-directory: rust-bridge
-        run: cargo tarpaulin --out xml --output-dir ./coverage --exclude-files ../PowerShell.MemoryAnalysis
+        run: |
+          if ! command -v cargo-tarpaulin &> /dev/null; then
+            cargo install cargo-tarpaulin --locked
+          fi
+          cargo tarpaulin --out xml --output-dir ./coverage --exclude-files ../PowerShell.MemoryAnalysis
       
       - name: Upload Rust Coverage to Codecov
         uses: codecov/codecov-action@v4
