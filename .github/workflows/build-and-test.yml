@@ -67,6 +67,7 @@ jobs:
       
       - name: Generate Rust Coverage
         working-directory: rust-bridge
+        shell: bash
         run: |
           if ! command -v cargo-tarpaulin &> /dev/null; then
             cargo install cargo-tarpaulin --locked
