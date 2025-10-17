@@ -7,6 +7,10 @@ A high-performance PowerShell module for memory dump forensics using the Volatil
 > **Note:** Network analysis and malware detection disabled on Windows 11 Build 26100 due to Volatility 3 compatibility issues.  
 > See [PROJECT_STATUS.md](docs/PROJECT_STATUS.md) for detailed progress tracking.
 
+## 🏗️ Build Status
+![Build Status](https://github.com/YOUR_USERNAME/MemoryAnalysis/workflows/Build%20and%20Test/badge.svg)
+![Coverage](https://codecov.io/gh/YOUR_USERNAME/MemoryAnalysis/branch/main/graph/badge.svg)
+
 ## 📊 Lines of Code Statistics
 
 ![LOC Statistics](loc-stats.svg)
