@@ -36,7 +36,7 @@ jobs:
     name: Performance Benchmarks
     runs-on: windows-2025-vs2026
     needs: ci-windows
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
 
     steps:
       - uses: actions/checkout@v6
