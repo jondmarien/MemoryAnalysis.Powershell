@@ -227,7 +227,8 @@ public class ResolveMemoryDumpPathCommandTests
         var root = CreateTempDirectory();
         try
         {
-            File.WriteAllText(Path.Combine(root, "one.raw"), "a");
+            // Discovery sorts by size (desc) then time; make ordering deterministic across OSes.
+            File.WriteAllText(Path.Combine(root, "one.raw"), new string('x', 256));
             File.WriteAllText(Path.Combine(root, "two.raw"), "b");
 
             using var helper = ModuleCommandHelper.Create(new TestPSHost(readLine: "1"));
@@ -239,7 +240,7 @@ public class ResolveMemoryDumpPathCommandTests
 
             Assert.Single(results);
             var dump = Assert.IsType<DiscoveredMemoryDump>(results[0].BaseObject);
-            Assert.Contains("one.raw", dump.Path);
+            Assert.Contains("one.raw", dump.Path, StringComparison.Ordinal);
         }
         finally
         {
