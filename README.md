@@ -2,10 +2,10 @@
 
 A high-performance PowerShell module for memory dump forensics using the Volatility 3 framework with a Rust/Python bridge.
 
-> **Current Status:** ✅ Production Ready - Phases 1, 2, 3, & 5.1 + 5.2 Complete  
-> **Latest:** Task 5.2 Caching and Performance Optimization - LRU cache with TTL, file invalidation, and cache management cmdlets  
-> **Note:** Network analysis and malware detection disabled on Windows 11 Build 26100 due to Volatility 3 compatibility issues.  
-> See [PROJECT_STATUS.md](docs/PROJECT_STATUS.md) for detailed progress tracking.
+> **Current status:** Analysis cmdlets are production-ready. **Memory dump discovery** and optional **WinPMEM live acquisition** (via the [Collect-MemoryDump](https://github.com/jondmarien/Collect-MemoryDump) submodule) are integrated on Windows.  
+> **Latest:** `Resolve-MemoryDumpPath`, `Invoke-MemoryDumpAcquisition`, and `Start-MemoryAnalysis` — search case folders, prompt for acquisition, then load into Volatility.  
+> **Note:** `Get-NetworkConnection` and `Find-Malware` are not exported on Windows 11 Build 26100 (Volatility 3 compatibility).  
+> See [architecture.md](docs/architecture.md), [DUMP_REQUIREMENTS.md](docs/DUMP_REQUIREMENTS.md), and [PROJECT_STATUS.md](docs/PROJECT_STATUS.md).
 
 ## 🏗️ Build Status
 [![Build and Test](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/build-and-test.yml)
@@ -37,14 +37,14 @@ See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and [docs/plans/collect-mem
 
 ## Features
 
-- 🚀 **High Performance** - Rust-based bridge with sub-100ms overhead
-- ⚡ **Caching Layer** - LRU cache with TTL expiration and automatic invalidation
-- 🔍 **Comprehensive Analysis** - Process trees, malware detection, and more
-- 🐍 **Volatility 3 Integration** - Full access to Volatility 3 plugins
-- 💻 **PowerShell Native** - Seamless pipeline integration
-- 📊 **Custom Formatting** - Beautiful output with custom views
-- 🎯 **Malware Detection** - Multi-technique detection with confidence scoring
-- 🔄 **Parallel Processing** - TRUE parallel execution with GIL detach
+- **High performance** — Rust PyO3 bridge with sub-100ms overhead per call
+- **Memory dump discovery** — BFS search for `.raw`, `.vmem`, `.dmp` (≥100 MB), and other image extensions; default depth 1 (cwd + one subfolder)
+- **Live acquisition (Windows)** — Optional WinPMEM capture through Collect-MemoryDump (GPL-3.0 script; WinPMEM binary not redistributed)
+- **Orchestration** — `Start-MemoryAnalysis` resolves or acquires a dump, then runs `Get-MemoryDump`
+- **Caching** — LRU cache with TTL, file watching, and cache management cmdlets
+- **Volatility 3** — Process trees, command lines, DLLs, and more via the Rust bridge
+- **PowerShell native** — Pipeline-friendly cmdlets with custom formatting
+- **Parallel processing** — True parallel execution with GIL detach for multi-dump workloads
 
 ## Requirements
 
@@ -81,7 +81,9 @@ cd ..
 dotnet publish PowerShell.MemoryAnalysis\PowerShell.MemoryAnalysis.csproj -c Release -o PowerShell.MemoryAnalysis\publish
 ```
 
-3. Import the module:
+4. (Windows only) Install WinPMEM for live acquisition — download `winpmem_mini_x64_rc2.exe` into `third-party\Collect-MemoryDump\Tools\WinPMEM\` per the [Collect-MemoryDump fork README](https://github.com/jondmarien/Collect-MemoryDump).
+
+5. Import the module:
 
 ```powershell
 Import-Module .\PowerShell.MemoryAnalysis\publish\MemoryAnalysis.psd1
@@ -89,7 +91,22 @@ Import-Module .\PowerShell.MemoryAnalysis\publish\MemoryAnalysis.psd1
 
 ## Cmdlets
 
-### ✅ Get-MemoryDump (Production Ready)
+The module exports **13 cmdlets** (plus `Analyze-ProcessTree` as an alias for `Test-ProcessTree`). Markdown help: [docs/help/](docs/help/).
+
+| Cmdlet | Purpose |
+|--------|---------|
+| `Get-MemoryDump` | Load a dump into Volatility (`-Path` required) |
+| `Resolve-MemoryDumpPath` | Discover a dump or prompt for WinPMEM acquisition (Windows) |
+| `Invoke-MemoryDumpAcquisition` | Run Collect-MemoryDump / WinPMEM only |
+| `Start-MemoryAnalysis` | Discover → optional acquire → `Get-MemoryDump` |
+| `Test-ProcessTree` | Process hierarchy analysis (`Analyze-ProcessTree`) |
+| `Get-ProcessCommandLine` | Command-line extraction |
+| `Get-ProcessDll` | Loaded DLL listing |
+| `Get-CacheInfo`, `Clear-Cache`, `Watch-MemoryDumpFile`, `Stop-WatchingMemoryDumpFile`, `Get-WatchedMemoryDumpFiles`, `Test-CacheValidity` | Cache and file-watch management |
+
+`Find-Malware` and `Get-NetworkConnection` are implemented but **not exported** (Windows 11 Build 26100 Volatility limitations).
+
+### Get-MemoryDump
 
 Loads a memory dump file for analysis. `-Path` remains **mandatory** for direct loads.
 
@@ -104,13 +121,19 @@ $dump = Get-MemoryDump -Path C:\dumps\memory.raw -Validate
 $dump = Get-MemoryDump -Path C:\dumps\memory.dmp -DetectProfile
 ```
 
-### ✅ Resolve-MemoryDumpPath / Start-MemoryAnalysis (Discovery & acquisition)
+### Resolve-MemoryDumpPath, Invoke-MemoryDumpAcquisition, Start-MemoryAnalysis
 
-Find a memory image under the current directory (default: cwd + one subdirectory level) or prompt for WinPMEM capture on Windows when none is found.
+Find a memory image under a search root (default: current directory, depth `1`) or prompt for WinPMEM capture on Windows when none is found.
 
-**Search scope:** `-MaxSearchDepth` defaults to `1` (current directory + one level of subfolders). Use `0` for cwd only, or a higher value for deeper case folders.
+| Parameter | Default | Notes |
+|-----------|---------|--------|
+| `-SearchPath` | `.` | Root of the discovery scan |
+| `-MaxSearchDepth` | `1` | `0` = cwd only; increase for deep case folders |
+| `-NoAcquire` | off | Discovery only; error if no dump (also used in CI) |
+| `-Force` | off | Skip large-dump confirmation prompt |
+| `-PassThru` | off | Return path string instead of `DiscoveredMemoryDump` object |
 
-**WinPMEM:** Place `winpmem_mini_x64_rc2.exe` under `third-party/Collect-MemoryDump/Tools/WinPMEM/` per the [Collect-MemoryDump fork](https://github.com/jondmarien/Collect-MemoryDump) README. Run PowerShell **as Administrator** for live acquisition.
+**WinPMEM:** Place `winpmem_mini_x64_rc2.exe` under `third-party/Collect-MemoryDump/Tools/WinPMEM/`. Run PowerShell **as Administrator** for live acquisition. In CI (`GITHUB_ACTIONS=true`), live acquisition is blocked unless you pass `-NoAcquire` or `-Path`.
 
 ```powershell
 # Discover and load (prompts if no dump; offers WinPMEM on Windows)
@@ -121,16 +144,16 @@ $dump = Start-MemoryAnalysis -SearchPath D:\Cases\2026-001 -MaxSearchDepth 3 -No
 
 # Resolve path only (no Volatility load)
 $resolved = Resolve-MemoryDumpPath -SearchPath . -MaxSearchDepth 1
-$dump = Get-MemoryDump -Path $resolved.FullPath
+$dump = Get-MemoryDump -Path $resolved.Path
 
 # Explicit path (skips discovery)
 Resolve-MemoryDumpPath -Path C:\dumps\host.raw
 
-# Run acquisition only (Windows + WinPMEM)
-Invoke-MemoryDumpAcquisition
+# Run acquisition only (Windows + WinPMEM); returns path to discovered .raw
+$dumpPath = Invoke-MemoryDumpAcquisition -SearchPath D:\Cases\host-01
 ```
 
-### ✅ Test-ProcessTree (Production Ready)
+### Test-ProcessTree
 
 Analyzes process hierarchies in a memory dump.
 
@@ -153,7 +176,7 @@ Test-ProcessTree -MemoryDump $dump -Pid 1234
 Test-ProcessTree -MemoryDump $dump -Format JSON
 ```
 
-### ✅ Get-ProcessCommandLine (Production Ready)
+### Get-ProcessCommandLine
 
 Extracts command line arguments for processes.
 
@@ -168,7 +191,7 @@ Get-ProcessCommandLine -MemoryDump $dump -ProcessName "powershell*"
 Get-ProcessCommandLine -MemoryDump $dump -Pid 1234
 ```
 
-### ✅ Get-ProcessDll (Production Ready)
+### Get-ProcessDll
 
 Lists DLLs loaded by processes.
 
@@ -218,10 +241,23 @@ Find-Malware -MemoryDump $dump -Severity High,Critical
 
 ## Examples
 
-### Basic Memory Dump Analysis
+### Discovery-first workflow (recommended)
 
 ```powershell
-# Load and analyze a memory dump
+Import-Module .\PowerShell.MemoryAnalysis\publish\MemoryAnalysis.psd1
+
+# Search cwd + one subfolder; prompt for WinPMEM on Windows if empty
+$dump = Start-MemoryAnalysis
+
+# Or: resolve only, then load explicitly
+$found = Resolve-MemoryDumpPath -SearchPath D:\Cases\2026-001 -MaxSearchDepth 2 -NoAcquire
+$dump = Get-MemoryDump -Path $found.Path -Validate
+```
+
+### Basic memory dump analysis
+
+```powershell
+# Load and analyze a memory dump (explicit path)
 $dump = Get-MemoryDump -Path C:\evidence\suspicious.vmem -Validate
 
 # Get process tree
@@ -246,9 +282,9 @@ Get-ChildItem C:\dumps\*.vmem |
     Export-Csv malware-findings.csv
 ```
 
-### Cache Management ⚡ NEW 
+### Cache management
 
-**New cmdlets for cache statistics and management:**
+**Cache cmdlets:**
 
 ```powershell
 # View cache statistics
@@ -276,10 +312,10 @@ Test-CacheValidity
 - Automatic invalidation on file changes
 - TTL-based expiration (2 hours default)
 
-### Parallel Processing ✨ NEW
+### Parallel processing
 
 ```powershell
-# Analyze multiple dumps in parallel (true parallel execution!)
+# Analyze multiple dumps in parallel (true parallel execution)
 Get-ChildItem C:\dumps\*.vmem | ForEach-Object -ThrottleLimit 4 -Parallel {
     Import-Module MemoryAnalysis
     $dump = Get-MemoryDump -Path $_.FullName
@@ -325,24 +361,22 @@ $malware | Group-Object Severity |
 ## Architecture
 
 ```text
-┌─────────────────────────────────────────────┐
-│         PowerShell Cmdlets (C#)             │
-│   Get-MemoryDump | Test-ProcessTree         │
-│            Find-Malware                     │
-└─────────────────────────────────────────────┘
-                    │
-                    ▼
-┌─────────────────────────────────────────────┐
-│         Rust-Python Bridge (PyO3)           │
-│    High-performance FFI with P/Invoke       │
-└─────────────────────────────────────────────┘
-                    │
-                    ▼
-┌─────────────────────────────────────────────┐
-│         Volatility 3 Framework              │
-│    Memory forensics plugins and analysis    │
-└─────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│  PowerShell.MemoryAnalysis (C# / MIT)                    │
+│  Start-MemoryAnalysis → Resolve-MemoryDumpPath           │
+│  Invoke-MemoryDumpAcquisition → Get-MemoryDump           │
+│  Test-ProcessTree | Get-ProcessCommandLine | cache …     │
+└──────────────────────────────────────────────────────────┘
+         │ discovery / acquisition              │ analysis
+         ▼                                    ▼
+┌─────────────────────────┐      ┌────────────────────────────┐
+│ Collect-MemoryDump.ps1  │      │ rust-bridge (PyO3 / FFI)   │
+│ WinPMEM (GPL script;    │      │ → Volatility 3 (Python)    │
+│  binary not bundled)    │      └────────────────────────────┘
+└─────────────────────────┘
 ```
+
+Details: [docs/architecture.md](docs/architecture.md).
 
 ## Development
 
@@ -361,48 +395,46 @@ cargo build --release
 dotnet build PowerShell.MemoryAnalysis\PowerShell.MemoryAnalysis.csproj
 ```
 
-3. **Run Tests**:
+3. **Run tests**:
 
 ```powershell
-# Rust tests
-cd rust-bridge
+# Rust (from rust-bridge/)
 cargo test
+cargo clippy -- -D warnings
 
-# PowerShell tests
-.\Test-RustInterop.ps1
-.\Test-GetMemoryDump.ps1
+# C# unit tests + coverage (from repo root)
+dotnet test tests/MemoryAnalysis.Tests/MemoryAnalysis.Tests.csproj --collect:"XPlat Code Coverage"
+
+# Pester integration tests (after building/publishing the module)
+pwsh -NoProfile -Command "Invoke-Pester -Path tests/integration-tests -Output Detailed"
 ```
 
-## Project Structure
+Legacy scripts under `scripts/` (`Test-RustInterop.ps1`, `Test-GetMemoryDump.ps1`, etc.) are still available for manual checks.
 
-```tree
-MemoryAnalysis/ (main repo)
-├── .gitmodules              # Submodule configuration
-├── rust-bridge/             # 🔗 Git submodule (separate repo)
-│   ├── src/
-│   │   ├── lib.rs           # FFI exports
-│   │   ├── python_manager.rs
-│   │   ├── volatility.rs
-│   │   ├── process_analysis.rs
-│   │   ├── types.rs
-│   │   └── error.rs
-│   ├── Cargo.toml
-│   └── README.md
+## Project structure
+
+```text
+MemoryAnalysis.Powershell/          # MIT — main module
+├── .gitmodules
+├── rust-bridge/                    # Submodule — PyO3 → Volatility 3
+├── third-party/
+│   └── Collect-MemoryDump/         # Submodule — WinPMEM acquisition (GPL-3.0)
 ├── PowerShell.MemoryAnalysis/
-│   ├── Cmdlets/             # PowerShell cmdlets
-│   ├── Models/              # Data models
-│   ├── Services/            # Business logic
-│   ├── MemoryAnalysis.psd1  # Module manifest
-│   ├── MemoryAnalysis.Format.ps1xml
-│   └── README.md
+│   ├── Cmdlets/                    # Including discovery & acquisition
+│   ├── Services/                   # Discovery, Collect-MemoryDump runner/locator
+│   ├── Models/
+│   └── MemoryAnalysis.psd1
+├── tests/
+│   ├── MemoryAnalysis.Tests/       # xUnit (services, cmdlets via runspace)
+│   └── integration-tests/          # Pester (module load, discovery, help)
 ├── docs/
-│   ├── PROJECT_STATUS.md    # Development progress tracker
-│   ├── PHASE2_CMDLINE_INTEGRATION.md
-│   ├── PHASE2_DLL_INTEGRATION.md
+│   ├── architecture.md
+│   ├── DUMP_REQUIREMENTS.md
+│   ├── help/                       # platyPS markdown per cmdlet
 │   └── plans/
-├── .kiro/steering/          # Project steering docs
-├── scripts/                 # Test and verification scripts
-└── WARP.md                  # AI agent guidance
+├── benchmarks/                     # Measure-Performance.ps1 (CI per OS)
+├── scripts/                        # Build, help generation, manual tests
+└── .github/workflows/              # Parallel ci-windows / ubuntu / macos
 ```
 
 ## Performance
@@ -417,12 +449,17 @@ MemoryAnalysis/ (main repo)
 
 ## CI/CD
 
-Fully automated GitHub Actions workflow:
-- **Rust Tests**: Unit tests, clippy, formatting checks
-- **C# Tests**: Unit tests with code coverage (Codecov integration)
-- **Build**: Multi-platform builds (Windows, Ubuntu, macOS)
-- **Integration Tests**: PowerShell 7.6 integration tests with Pester
-- **Benchmarks**: Performance tracking on main branch
+GitHub Actions ([build-and-test.yml](.github/workflows/build-and-test.yml)) runs **three parallel platform pipelines** (`ci-windows`, `ci-ubuntu`, `ci-macos`). Each pipeline is sequential: Rust → C# → build artifact → Pester integration tests.
+
+| Stage | What runs |
+|-------|-----------|
+| Rust | `cargo test`, `clippy`, `rustfmt`, tarpaulin → Codecov |
+| C# | `dotnet test` with XPlat code coverage → Codecov |
+| Build | Published module artifact per runner |
+| Integration | Full `tests/integration-tests/` with Pester 5+ |
+| Benchmarks | `benchmark-windows` / `ubuntu` / `macos` after each platform CI (PRs and `main`) |
+
+See [.github/workflows/README.md](.github/workflows/README.md) for job details.
 
 ## Contributing
 
