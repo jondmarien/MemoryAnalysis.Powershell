@@ -1,7 +1,7 @@
 # Collect-MemoryDump Integration Plan
 
-**Status:** Phases 0–4 complete; Phase 5 manual validation pending  
-**Branch:** `cursor/collect-memorydump-integration-d23a`  
+**Status:** Phases 0–4 complete on `main`; Phase 5 manual validation pending  
+**Merged:** PR #4 (2026-05-29)  
 **Last updated:** 2026-05-29
 
 ## Decisions (locked)
