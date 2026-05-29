@@ -1,0 +1,325 @@
+# Reusable per-platform CI pipeline: Rust → C# → Build → Integration (sequential).
+# Invoked in parallel once per OS from build-and-test.yml.
+name: Platform Pipeline
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        description: GitHub-hosted runner label (e.g. windows-latest)
+        required: true
+        type: string
+
+env:
+  DOTNET_VERSION: '11.0.x'
+  RUST_VERSION: 'stable'
+  PYTHON_VERSION: '3.14'
+  VOLATILITY3_VERSION: '2.28.0'
+  POWERSHELL_VERSION: '7.7.0-preview.2'
+
+jobs:
+  rust-tests:
+    name: Rust Unit Tests
+    runs-on: ${{ inputs.runner }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+          components: rustfmt, clippy
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install Volatility3
+        run: uv pip install --system "volatility3==${{ env.VOLATILITY3_VERSION }}"
+
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            rust-bridge/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Run Rust Tests
+        working-directory: rust-bridge
+        env:
+          PYO3_PYTHON: python
+        run: cargo test --verbose
+
+      - name: Run Clippy
+        working-directory: rust-bridge
+        env:
+          PYO3_PYTHON: python
+        run: cargo clippy -- -D warnings
+
+      - name: Check Formatting
+        working-directory: rust-bridge
+        run: cargo fmt -- --check
+
+      - name: Generate Rust Coverage
+        working-directory: rust-bridge
+        shell: bash
+        run: |
+          if ! command -v cargo-tarpaulin &> /dev/null; then
+            cargo install cargo-tarpaulin --locked
+          fi
+          cargo tarpaulin --out xml --output-dir ./coverage --exclude-files ../PowerShell.MemoryAnalysis
+
+      - name: Upload Rust Coverage to Codecov
+        uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          files: ./rust-bridge/coverage/cobertura.xml
+          flags: rust-tests-${{ inputs.runner }}
+          fail_ci_if_error: false
+
+  csharp-tests:
+    name: C# Unit Tests
+    runs-on: ${{ inputs.runner }}
+    needs: rust-tests
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore Dependencies
+        run: dotnet restore tests/MemoryAnalysis.Tests/MemoryAnalysis.Tests.csproj
+
+      - name: Build Tests
+        run: dotnet build tests/MemoryAnalysis.Tests/MemoryAnalysis.Tests.csproj --no-restore
+
+      - name: Run C# Tests with Coverage
+        run: dotnet test tests/MemoryAnalysis.Tests/MemoryAnalysis.Tests.csproj --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./TestResults
+
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          files: ./TestResults/*/coverage.cobertura.xml
+          flags: csharp-tests-${{ inputs.runner }}
+          fail_ci_if_error: false
+
+  build-module:
+    name: Build PowerShell Module
+    runs-on: ${{ inputs.runner }}
+    needs: csharp-tests
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install Volatility3
+        run: uv pip install --system "volatility3==${{ env.VOLATILITY3_VERSION }}"
+
+      - name: Install build essentials (Linux)
+        if: inputs.runner == 'ubuntu-latest'
+        run: sudo apt-get update && sudo apt-get install -y build-essential
+
+      - name: Build Rust Bridge
+        working-directory: rust-bridge
+        env:
+          PYO3_PYTHON: python
+        run: cargo build --release
+
+      - name: Build PowerShell Module
+        working-directory: PowerShell.MemoryAnalysis
+        run: dotnet publish -c Release -o publish
+
+      - name: Copy Rust DLL (Windows)
+        if: inputs.runner == 'windows-latest'
+        run: |
+          Copy-Item rust-bridge/target/release/rust_bridge.dll PowerShell.MemoryAnalysis/publish/
+        shell: pwsh
+
+      - name: Copy Rust Library (Linux)
+        if: inputs.runner == 'ubuntu-latest'
+        run: |
+          cp rust-bridge/target/release/librust_bridge.so PowerShell.MemoryAnalysis/publish/
+
+      - name: Copy Rust Library (macOS)
+        if: inputs.runner == 'macos-latest'
+        run: |
+          cp rust-bridge/target/release/librust_bridge.dylib PowerShell.MemoryAnalysis/publish/
+
+      - name: Install PowerShell 7.7 Preview (Windows)
+        if: inputs.runner == 'windows-latest'
+        shell: pwsh
+        run: |
+          $version = '${{ env.POWERSHELL_VERSION }}'
+          $zip = "PowerShell-$version-win-x64.zip"
+          $url = "https://github.com/PowerShell/PowerShell/releases/download/v$version/$zip"
+          Invoke-WebRequest -Uri $url -OutFile $zip
+          Expand-Archive -Path $zip -DestinationPath "$env:RUNNER_TEMP\pwsh-preview" -Force
+          $pwsh = Get-ChildItem -Path "$env:RUNNER_TEMP\pwsh-preview" -Recurse -Filter pwsh.exe | Select-Object -First 1
+          echo "PWSH_PREVIEW=$($pwsh.FullName)" >> $env:GITHUB_ENV
+          & $pwsh.FullName -Version
+
+      - name: Install PowerShell 7.7 Preview (macOS)
+        if: inputs.runner == 'macos-latest'
+        run: |
+          brew install --cask powershell@preview
+
+      - name: Install PowerShell 7.7 Preview (Linux)
+        if: inputs.runner == 'ubuntu-latest'
+        run: |
+          version='${{ env.POWERSHELL_VERSION }}'
+          wget "https://github.com/PowerShell/PowerShell/releases/download/v${version}/powershell-preview_${version}-1.deb_amd64.deb"
+          sudo dpkg -i "powershell-preview_${version}-1.deb_amd64.deb"
+          sudo apt-get install -f -y
+
+      - name: Generate MAML Help (Windows)
+        if: inputs.runner == 'windows-latest'
+        shell: pwsh
+        run: |
+          & $env:PWSH_PREVIEW -Command {
+            Install-Module -Name platyPS -Force -Scope CurrentUser
+            Set-Location "$env:GITHUB_WORKSPACE"
+            ./scripts/Generate-Help.ps1
+          }
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: MemoryAnalysis-${{ inputs.runner }}
+          path: PowerShell.MemoryAnalysis/publish/
+          retention-days: 7
+
+  integration-tests:
+    name: PowerShell Integration Tests
+    runs-on: ${{ inputs.runner }}
+    needs: build-module
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install PowerShell 7.7 Preview (Windows)
+        if: inputs.runner == 'windows-latest'
+        shell: pwsh
+        run: |
+          $version = '${{ env.POWERSHELL_VERSION }}'
+          $zip = "PowerShell-$version-win-x64.zip"
+          $url = "https://github.com/PowerShell/PowerShell/releases/download/v$version/$zip"
+          Invoke-WebRequest -Uri $url -OutFile $zip
+          Expand-Archive -Path $zip -DestinationPath "$env:RUNNER_TEMP\pwsh-preview" -Force
+          $pwsh = Get-ChildItem -Path "$env:RUNNER_TEMP\pwsh-preview" -Recurse -Filter pwsh.exe | Select-Object -First 1
+          echo "PWSH_PREVIEW=$($pwsh.FullName)" >> $env:GITHUB_ENV
+
+      - name: Install PowerShell 7.7 Preview (macOS)
+        if: inputs.runner == 'macos-latest'
+        run: |
+          brew install --cask powershell@preview
+
+      - name: Install PowerShell 7.7 Preview (Linux)
+        if: inputs.runner == 'ubuntu-latest'
+        run: |
+          version='${{ env.POWERSHELL_VERSION }}'
+          wget "https://github.com/PowerShell/PowerShell/releases/download/v${version}/powershell-preview_${version}-1.deb_amd64.deb"
+          sudo dpkg -i "powershell-preview_${version}-1.deb_amd64.deb"
+          sudo apt-get install -f -y
+
+      - name: Verify PowerShell Installation (Windows)
+        if: inputs.runner == 'windows-latest'
+        shell: pwsh
+        run: |
+          pwsh-preview -Version
+
+      - name: Verify PowerShell Installation (macOS)
+        if: inputs.runner == 'macos-latest'
+        run: |
+          /usr/local/bin/pwsh-preview -Version
+
+      - name: Verify PowerShell Installation (Linux)
+        if: inputs.runner == 'ubuntu-latest'
+        run: |
+          pwsh-preview -Version
+
+      - name: Install Pester
+        shell: pwsh
+        run: |
+          Install-Module -Name Pester -Force -MinimumVersion 5.0 -Scope CurrentUser
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: MemoryAnalysis-${{ inputs.runner }}
+          path: PowerShell.MemoryAnalysis/publish/
+
+      - name: Run Integration Tests (Windows)
+        if: inputs.runner == 'windows-latest'
+        shell: pwsh
+        run: |
+          & $env:PWSH_PREVIEW -Command {
+            Import-Module Pester -MinimumVersion 5.0
+            Set-Location "$env:GITHUB_WORKSPACE"
+            Invoke-Pester -Path tests/integration-tests/Module.Tests.ps1 -CI
+          }
+
+      - name: Run Integration Tests (macOS)
+        if: inputs.runner == 'macos-latest'
+        run: |
+          /usr/local/bin/pwsh-preview -Command {
+            Import-Module Pester -MinimumVersion 5.0
+            Set-Location "$env:GITHUB_WORKSPACE"
+            Invoke-Pester -Path tests/integration-tests/Module.Tests.ps1 -CI
+          }
+
+      - name: Run Integration Tests (Linux)
+        if: inputs.runner == 'ubuntu-latest'
+        run: |
+          pwsh-preview -Command {
+            Import-Module Pester -MinimumVersion 5.0
+            Set-Location "$env:GITHUB_WORKSPACE"
+            Invoke-Pester -Path tests/integration-tests/Module.Tests.ps1 -CI
+          }
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ inputs.runner }}
+          path: tests/integration-tests/TestResults/
+          retention-days: 7
