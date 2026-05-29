@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="MemoryAnalysis.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.7.0-preview.2" />
     <PackageReference Include="System.Management.Automation" Version="7.7.0-preview.2" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.0" />

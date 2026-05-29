@@ -97,6 +97,103 @@ public class MemoryDumpDiscoveryServiceTests
         }
     }
 
+    [Fact]
+    public void Discover_ThrowsForEmptySearchRoot()
+    {
+        var service = new MemoryDumpDiscoveryService();
+        Assert.Throws<ArgumentException>(() => service.Discover("  ", 1));
+    }
+
+    [Fact]
+    public void Discover_ThrowsForNegativeDepth()
+    {
+        var root = CreateTempDirectory();
+        try
+        {
+            var service = new MemoryDumpDiscoveryService();
+            Assert.Throws<ArgumentOutOfRangeException>(() => service.Discover(root, -1));
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void Discover_ThrowsWhenDirectoryMissing()
+    {
+        var service = new MemoryDumpDiscoveryService();
+        Assert.Throws<DirectoryNotFoundException>(() =>
+            service.Discover(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString()), 0));
+    }
+
+    [Fact]
+    public void Discover_IncludesLargeDmpFiles()
+    {
+        var root = CreateTempDirectory();
+        try
+        {
+            var dump = Path.Combine(root, "full.dmp");
+            File.WriteAllBytes(dump, new byte[MemoryDumpDiscoveryService.DefaultMinDumpSizeBytes]);
+
+            var service = new MemoryDumpDiscoveryService();
+            var results = service.Discover(root, 0);
+
+            Assert.Single(results);
+            Assert.True(service.IsCandidateDumpFile(dump));
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void Discover_FindsMultipleExtensions()
+    {
+        var root = CreateTempDirectory();
+        try
+        {
+            foreach (var ext in new[] { ".vmem", ".mem", ".img" })
+            {
+                File.WriteAllText(Path.Combine(root, "f" + ext), "x");
+            }
+
+            var service = new MemoryDumpDiscoveryService();
+            var results = service.Discover(root, 0);
+
+            Assert.Equal(3, results.Count);
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void IsCandidateDumpFile_ReturnsFalseForNonDumpExtension()
+    {
+        var root = CreateTempDirectory();
+        try
+        {
+            var path = Path.Combine(root, "notes.txt");
+            File.WriteAllText(path, "hello");
+            var service = new MemoryDumpDiscoveryService();
+            Assert.False(service.IsCandidateDumpFile(path));
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void IsCandidateDumpFile_ReturnsFalseForMissingFile()
+    {
+        var service = new MemoryDumpDiscoveryService();
+        Assert.False(service.IsCandidateDumpFile(Path.Combine(Path.GetTempPath(), "missing-" + Guid.NewGuid() + ".raw")));
+    }
+
     private static string CreateTempDirectory() =>
         Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), "mad-test-" + Guid.NewGuid())).FullName;
 }
