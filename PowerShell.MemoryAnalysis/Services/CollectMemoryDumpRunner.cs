@@ -2,6 +2,8 @@ using System;
 using System.IO;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
+using System.Runtime.InteropServices;
+using Microsoft.PowerShell;
 
 namespace PowerShell.MemoryAnalysis.Services;
 
@@ -15,13 +17,21 @@ public static class CollectMemoryDumpRunner
         var scriptDir = Path.GetDirectoryName(scriptPath)
             ?? throw new InvalidOperationException("Invalid script path.");
 
+        var initialState = InitialSessionState.CreateDefault();
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            initialState.ExecutionPolicy = ExecutionPolicy.Bypass;
+        }
+
         using var ps = System.Management.Automation.PowerShell.Create();
-        ps.Runspace = RunspaceFactory.CreateRunspace();
+        ps.Runspace = RunspaceFactory.CreateRunspace(initialState);
         ps.Runspace.Open();
-        // Pass the tool flag as a quoted positional argument so scripts that parse $args[0]
-        // (Collect-MemoryDump.ps1) and minimal test stubs both work without a param() block.
-        ps.AddScript($"Set-Location -LiteralPath '{EscapeSingleQuoted(scriptDir)}'")
-            .AddScript($"& '{EscapeSingleQuoted(scriptPath)}' '{EscapeSingleQuoted(toolArgument)}'");
+
+        // Use '--' so -WinPMEM is passed into $args for scripts without a param() block.
+        // Quoted positionals alone still bind as switches on Windows PowerShell hosts.
+        ps.AddScript(
+            $"Set-Location -LiteralPath '{EscapeSingleQuoted(scriptDir)}'; " +
+            $"& '{EscapeSingleQuoted(scriptPath)}' -- {toolArgument}");
 
         ps.Invoke();
         if (ps.HadErrors)

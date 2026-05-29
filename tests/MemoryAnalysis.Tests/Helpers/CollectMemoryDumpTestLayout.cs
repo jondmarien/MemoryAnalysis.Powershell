@@ -12,8 +12,8 @@ internal static class CollectMemoryDumpTestLayout
         var scriptPath = Path.Combine(scriptDir, "Collect-MemoryDump.ps1");
         var dumpPath = dumpFileName == null ? null : Path.Combine(root, dumpFileName);
         var scriptBody = dumpPath == null
-            ? "if ($args.Count -eq 0) { exit 0 }; Write-Output 'noop'"
-            : $"if ($args.Count -eq 0) {{ exit 0 }}; Set-Content -LiteralPath '{dumpPath.Replace("'", "''")}' -Value 'acquired'";
+            ? "if ($args.Count -lt 1 -or $args[0] -ne '-WinPMEM') { exit 0 }; Write-Output 'noop'"
+            : $"if ($args.Count -lt 1 -or $args[0] -ne '-WinPMEM') {{ exit 0 }}; Set-Content -LiteralPath '{dumpPath.Replace("'", "''")}' -Value 'acquired'";
         File.WriteAllText(scriptPath, scriptBody);
         File.WriteAllText(
             Path.Combine(scriptDir, "Tools", "WinPMEM", "winpmem_mini_x64_rc2.exe"),
