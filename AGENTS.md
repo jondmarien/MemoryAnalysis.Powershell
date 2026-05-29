@@ -4,7 +4,9 @@
 
 ### Project Overview
 
-PowerShell Memory Analysis Module — a PowerShell module for memory dump forensics bridging C#/.NET cmdlets → Rust FFI (PyO3) → Python Volatility 3. No external services (no databases, web servers, or Docker containers required).
+PowerShell Memory Analysis Module — a PowerShell module for memory dump forensics bridging C#/.NET cmdlets → Rust FFI (PyO3) → Python Volatility 3. Optional Windows live acquisition via the **Collect-MemoryDump** submodule (GPL-3.0, fork). No external services (no databases, web servers, or Docker containers required).
+
+**License:** MIT for this repository’s own code — see [LICENSE](LICENSE). Submodules and runtime deps have separate terms — see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ### Tool Versions
 
@@ -28,7 +30,7 @@ These must be set (already in `~/.bashrc` after setup):
 
 ### Build Order (important)
 
-1. `git submodule update --init --recursive` — the `rust-bridge` submodule must be initialized first
+1. `git submodule update --init --recursive` — initializes `rust-bridge` and `third-party/Collect-MemoryDump`
 2. `uv venv volatility-env --python 3.14 && uv pip install -r requirements.txt` — Python + Volatility
 3. `cd rust-bridge && PYO3_PYTHON=../volatility-env/bin/python cargo build --release` — build Rust native library
 4. `dotnet publish PowerShell.MemoryAnalysis/PowerShell.MemoryAnalysis.csproj -c Release -o PowerShell.MemoryAnalysis/publish` — build C# module

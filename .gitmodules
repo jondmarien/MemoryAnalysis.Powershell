@@ -1,3 +1,6 @@
 [submodule "rust-bridge"]
 	path = rust-bridge
 	url = https://github.com/jondmarien/rust-bridge.git
+[submodule "third-party/Collect-MemoryDump"]
+	path = third-party/Collect-MemoryDump
+	url = https://github.com/jondmarien/Collect-MemoryDump.git

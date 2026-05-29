@@ -19,12 +19,21 @@ A high-performance PowerShell module for memory dump forensics using the Volatil
 
 ## Repository Structure
 
-This is a **monorepo** with a Git submodule:
+This is a **monorepo** with Git submodules:
 
-- **Main Repository:** [MemoryAnalysis.Powershell](https://github.com/jondmarien/MemoryAnalysis.Powershell.git) - PowerShell module and documentation
-- **Submodule:** [rust-bridge](https://github.com/jondmarien/rust-bridge.git) - Rust PyO3 bridge to Volatility 3
+| Path | Repository | Role |
+|------|------------|------|
+| *(this repo)* | [MemoryAnalysis.Powershell](https://github.com/jondmarien/MemoryAnalysis.Powershell.git) | PowerShell analysis module (MIT) |
+| `rust-bridge/` | [rust-bridge](https://github.com/jondmarien/rust-bridge.git) | Rust PyO3 bridge to Volatility 3 |
+| `third-party/Collect-MemoryDump/` | [Collect-MemoryDump](https://github.com/jondmarien/Collect-MemoryDump.git) | Windows live memory acquisition (GPL-3.0, fork of [LETHAL-FORENSICS](https://github.com/LETHAL-FORENSICS/Collect-MemoryDump)) |
 
-The Rust bridge is maintained as a separate repository but linked as a submodule for seamless development.
+Clone with submodules:
+
+```powershell
+git clone --recurse-submodules https://github.com/jondmarien/MemoryAnalysis.Powershell.git
+```
+
+See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and [docs/plans/collect-memorydump-integration-plan.md](docs/plans/collect-memorydump-integration-plan.md) for licensing and acquisition integration.
 
 ## Features
 
@@ -40,7 +49,7 @@ The Rust bridge is maintained as a separate repository but linked as a submodule
 ## Requirements
 
 - **PowerShell:** 7.7.0 or later (Core only; 7.7.0-preview.2 recommended for development)
-- **.NET:** 10.0 SDK
+- **.NET:** 11.0 SDK (preview)
 - **Python:** 3.14+ with Volatility 3 2.28.0 (`pip install -r requirements.txt` or `uv pip install -r requirements.txt`)
 - **Rust:** 1.90.0+ (for building from source)
 - **Docker:** Required for GitHub Actions testing with `act`
@@ -55,8 +64,7 @@ git clone --recurse-submodules https://github.com/jondmarien/MemoryAnalysis.Powe
 cd MemoryAnalysis
 
 # OR if already cloned without submodules:
-git submodule init
-git submodule update
+git submodule update --init --recursive
 ```
 
 2. Build the Rust bridge:
