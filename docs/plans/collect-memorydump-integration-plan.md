@@ -1,6 +1,6 @@
 # Collect-MemoryDump Integration Plan
 
-**Status:** Approved — Phase 0 in progress  
+**Status:** Phases 0–3 complete; Phases 4–5 follow-up  
 **Branch:** `cursor/collect-memorydump-integration-d23a`  
 **Last updated:** 2026-05-29
 
@@ -15,18 +15,14 @@
 | Bundled memory tools | **Not included** — user supplies binaries under submodule `Tools/` per upstream docs |
 | Main repo license | **MIT** (see `LICENSE`) — personal/educational DFIR learning project |
 | GPL acquisition script | Remains **GPL-3.0** in submodule; see `THIRD_PARTY_NOTICES.md` |
+| **Search scope** | **Default `MaxSearchDepth = 1`** (cwd + one subdirectory level); override with `-MaxSearchDepth` (0–32) |
 
-## Search scope (what it means)
+## Search scope (locked)
 
-When no `-Path` is passed to the new resolver cmdlets, the module must decide **where to look** for an existing dump:
-
-| Option | Behavior | Recommendation |
-|--------|----------|----------------|
-| **A. Current directory only** | Only files in `Get-Location` | Too narrow — Collect-MemoryDump writes subfolders |
-| **B. Current + 1 level down** | `./*` and `./*/*` | Good default for v1 |
-| **C. Recursive** | All subfolders | May pick wrong/old dumps in large case folders |
-
-**v1 recommendation:** **Option B** — search the session directory and **one level of subdirectories** (e.g. `./case01/host-dump.raw` and `./DumpIt_20250310/memory.raw`). Exclude files smaller than the minidump threshold (see `docs/DUMP_REQUIREMENTS.md`).
+- **Default:** current directory + **one** subdirectory level (`MaxSearchDepth = 1`).
+- **Override:** `-MaxSearchDepth` on `Resolve-MemoryDumpPath` and `Start-MemoryAnalysis` (e.g. `0` = cwd only, `3` = deeper case trees).
+- **After acquisition:** also searches under `third-party/Collect-MemoryDump/` output folders (hostname/timestamp paths) with depth ≥ 3.
+- **Minidump filter:** `.dmp` files under 100MB excluded (see `DUMP_REQUIREMENTS.md`).
 
 ## Monorepo architecture
 
@@ -104,30 +100,30 @@ Bump submodule pointer on main repo when fork releases tags.
 
 ## Implementation phases
 
-### Phase 0 — Monorepo & legal ✅ (this branch)
+### Phase 0 — Monorepo & legal ✅
 
 - [x] Submodule `third-party/Collect-MemoryDump`
 - [x] Root `LICENSE` (MIT)
 - [x] `THIRD_PARTY_NOTICES.md`
 - [x] This plan + README/AGENTS submodule docs
 
-### Phase 1 — Discovery (1 day)
+### Phase 1 — Discovery ✅
 
-- [ ] `MemoryDumpDiscoveryService` + tests
-- [ ] `Resolve-MemoryDumpPath` cmdlet
-- [ ] Pester: 0/1/N files, minidump exclusion
+- [x] `MemoryDumpDiscoveryService` + unit tests
+- [x] `Resolve-MemoryDumpPath` cmdlet (`-MaxSearchDepth`, `-NoAcquire`, `-Force`)
+- [ ] Pester: 0/1/N files (optional follow-up)
 
-### Phase 2 — Acquisition wrapper (1–2 days)
+### Phase 2 — Acquisition wrapper ✅
 
-- [ ] `Invoke-MemoryDumpAcquisition` (Windows, WinPMEM default)
-- [ ] Tool path validation under submodule `Tools/`
-- [ ] Re-run discovery after capture
+- [x] `Invoke-MemoryDumpAcquisition` (Windows, WinPMEM default)
+- [x] WinPMEM path validation under submodule `Tools/`
+- [x] `CollectMemoryDumpRunner` + post-capture discovery
 
-### Phase 3 — Orchestration (1 day)
+### Phase 3 — Orchestration ✅
 
-- [ ] `Start-MemoryAnalysis` with consent prompt
-- [ ] `-NoAcquire`, `-SearchPath`, `-MaxSearchDepth` (default 1)
-- [ ] Help / examples
+- [x] `Start-MemoryAnalysis` (resolve → `Get-MemoryDump`)
+- [x] `-NoAcquire`, `-SearchPath`, `-MaxSearchDepth` (default 1)
+- [ ] platyPS help / examples (optional follow-up)
 
 ### Phase 4 — Docs & CI (0.5 day)
 

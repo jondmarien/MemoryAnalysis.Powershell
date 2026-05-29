@@ -35,6 +35,9 @@
     # Cmdlets to export from this module
     CmdletsToExport = @(
         'Get-MemoryDump'
+        'Resolve-MemoryDumpPath'  # Resolve verb (discovery / optional acquisition)
+        'Invoke-MemoryDumpAcquisition'
+        'Start-MemoryAnalysis'
         'Test-ProcessTree'
         'Get-ProcessCommandLine'
         'Get-ProcessDll'
@@ -79,7 +82,7 @@
             )
             
             # A URL to the license for this module
-            LicenseUri = ''
+            LicenseUri = 'https://github.com/jondmarien/MemoryAnalysis.Powershell/blob/main/LICENSE'
             
             # A URL to the main website for this project
             ProjectUri = 'https://github.com/jondmarien/MemoryAnalysis.Powershell'
@@ -92,6 +95,8 @@
 Version 0.1.0
 - Initial release
 - Get-MemoryDump cmdlet for loading memory dumps
+- Resolve-MemoryDumpPath / Start-MemoryAnalysis with optional WinPMEM acquisition (Windows)
+- Invoke-MemoryDumpAcquisition for Collect-MemoryDump integration
 - Test-ProcessTree cmdlet for process hierarchy analysis
 - Get-ProcessCommandLine cmdlet for command line extraction
 - Get-ProcessDll cmdlet for DLL enumeration

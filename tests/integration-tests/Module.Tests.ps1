@@ -87,10 +87,30 @@ Describe "MemoryAnalysis Module" {
             Get-Command Get-ProcessDll -Module MemoryAnalysis -ErrorAction SilentlyContinue | 
                 Should -Not -BeNullOrEmpty
         }
+
+        It "Should export Resolve-MemoryDumpPath cmdlet" {
+            Get-Command Resolve-MemoryDumpPath -Module MemoryAnalysis -ErrorAction SilentlyContinue |
+                Should -Not -BeNullOrEmpty
+        }
+
+        It "Should export Invoke-MemoryDumpAcquisition cmdlet" {
+            Get-Command Invoke-MemoryDumpAcquisition -Module MemoryAnalysis -ErrorAction SilentlyContinue |
+                Should -Not -BeNullOrEmpty
+        }
+
+        It "Should export Start-MemoryAnalysis cmdlet" {
+            Get-Command Start-MemoryAnalysis -Module MemoryAnalysis -ErrorAction SilentlyContinue |
+                Should -Not -BeNullOrEmpty
+        }
         
-        It "Should export exactly 4 working cmdlets (2 disabled in Win11)" {
+        It "Should export all cmdlets listed in the module manifest" {
+            $manifest = Get-Module MemoryAnalysis | Select-Object -ExpandProperty ExportedCommands
+            $expected = (Import-PowerShellDataFile (Join-Path $PSScriptRoot "..\..\PowerShell.MemoryAnalysis\MemoryAnalysis.psd1")).CmdletsToExport
             $cmdlets = Get-Command -Module MemoryAnalysis -CommandType Cmdlet
-            $cmdlets.Count | Should -Be 4
+            $cmdlets.Count | Should -Be $expected.Count
+            foreach ($name in $expected) {
+                $cmdlets.Name | Should -Contain $name
+            }
         }
     }
     

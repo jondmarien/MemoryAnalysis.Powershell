@@ -91,7 +91,7 @@ Import-Module .\PowerShell.MemoryAnalysis\publish\MemoryAnalysis.psd1
 
 ### ✅ Get-MemoryDump (Production Ready)
 
-Loads a memory dump file for analysis.
+Loads a memory dump file for analysis. `-Path` remains **mandatory** for direct loads.
 
 ```powershell
 # Basic usage
@@ -102,6 +102,32 @@ $dump = Get-MemoryDump -Path C:\dumps\memory.raw -Validate
 
 # With OS profile detection
 $dump = Get-MemoryDump -Path C:\dumps\memory.dmp -DetectProfile
+```
+
+### ✅ Resolve-MemoryDumpPath / Start-MemoryAnalysis (Discovery & acquisition)
+
+Find a memory image under the current directory (default: cwd + one subdirectory level) or prompt for WinPMEM capture on Windows when none is found.
+
+**Search scope:** `-MaxSearchDepth` defaults to `1` (current directory + one level of subfolders). Use `0` for cwd only, or a higher value for deeper case folders.
+
+**WinPMEM:** Place `winpmem_mini_x64_rc2.exe` under `third-party/Collect-MemoryDump/Tools/WinPMEM/` per the [Collect-MemoryDump fork](https://github.com/jondmarien/Collect-MemoryDump) README. Run PowerShell **as Administrator** for live acquisition.
+
+```powershell
+# Discover and load (prompts if no dump; offers WinPMEM on Windows)
+$dump = Start-MemoryAnalysis
+
+# Search a case folder three levels deep, no live acquisition
+$dump = Start-MemoryAnalysis -SearchPath D:\Cases\2026-001 -MaxSearchDepth 3 -NoAcquire
+
+# Resolve path only (no Volatility load)
+$resolved = Resolve-MemoryDumpPath -SearchPath . -MaxSearchDepth 1
+$dump = Get-MemoryDump -Path $resolved.FullPath
+
+# Explicit path (skips discovery)
+Resolve-MemoryDumpPath -Path C:\dumps\host.raw
+
+# Run acquisition only (Windows + WinPMEM)
+Invoke-MemoryDumpAcquisition
 ```
 
 ### ✅ Test-ProcessTree (Production Ready)
