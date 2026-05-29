@@ -18,8 +18,10 @@ public static class CollectMemoryDumpRunner
         using var ps = System.Management.Automation.PowerShell.Create();
         ps.Runspace = RunspaceFactory.CreateRunspace();
         ps.Runspace.Open();
+        // Pass the tool flag as a quoted positional argument so scripts that parse $args[0]
+        // (Collect-MemoryDump.ps1) and minimal test stubs both work without a param() block.
         ps.AddScript($"Set-Location -LiteralPath '{EscapeSingleQuoted(scriptDir)}'")
-            .AddScript($"& '{EscapeSingleQuoted(scriptPath)}' {toolArgument}");
+            .AddScript($"& '{EscapeSingleQuoted(scriptPath)}' '{EscapeSingleQuoted(toolArgument)}'");
 
         ps.Invoke();
         if (ps.HadErrors)

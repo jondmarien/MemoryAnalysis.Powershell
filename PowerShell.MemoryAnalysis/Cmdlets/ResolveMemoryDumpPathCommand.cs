@@ -152,26 +152,9 @@ public class ResolveMemoryDumpPathCommand : PSCmdlet
 
     private List<DiscoveredMemoryDump> DiscoverAll(string searchRoot, int maxDepth)
     {
-        var merged = new Dictionary<string, DiscoveredMemoryDump>(StringComparer.OrdinalIgnoreCase);
-
-        foreach (var dump in _discovery.Discover(searchRoot, maxDepth))
-        {
-            merged[dump.Path] = dump;
-        }
-
         var moduleRoot = FindModuleRoot();
         var scriptPath = CollectMemoryDumpLocator.FindScriptPath(moduleRoot);
-        if (scriptPath != null)
-        {
-            var outputRoot = CollectMemoryDumpLocator.GetCollectMemoryDumpOutputRoot(scriptPath);
-            var extraDepth = Math.Max(maxDepth, 3);
-            foreach (var dump in _discovery.Discover(outputRoot, extraDepth))
-            {
-                merged[dump.Path] = dump;
-            }
-        }
-
-        return merged.Values.ToList();
+        return _discovery.DiscoverWithCollectMemoryDumpOutput(searchRoot, maxDepth, scriptPath).ToList();
     }
 
     private List<DiscoveredMemoryDump> DiscoverAfterAcquisition(string searchRoot)

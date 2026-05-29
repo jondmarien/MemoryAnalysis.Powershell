@@ -12,9 +12,9 @@ internal sealed class TestPSHost : PSHost
 {
     private readonly TestPSHostUserInterface _ui;
 
-    public TestPSHost(int promptForChoiceResult = 0, string? readLine = "1")
+    public TestPSHost(int promptForChoiceResult = 0, params string[] readLines)
     {
-        _ui = new TestPSHostUserInterface(promptForChoiceResult, readLine);
+        _ui = new TestPSHostUserInterface(promptForChoiceResult, readLines);
     }
 
     public override PSHostUserInterface UI => _ui;
@@ -52,12 +52,13 @@ internal sealed class TestPSHost : PSHost
     private sealed class TestPSHostUserInterface : PSHostUserInterface
     {
         private readonly int _promptForChoiceResult;
-        private readonly string? _readLine;
+        private readonly Queue<string> _readLines;
 
-        public TestPSHostUserInterface(int promptForChoiceResult, string? readLine)
+        public TestPSHostUserInterface(int promptForChoiceResult, string[] readLines)
         {
             _promptForChoiceResult = promptForChoiceResult;
-            _readLine = readLine;
+            _readLines = new Queue<string>(
+                readLines.Length > 0 ? readLines : new[] { "1" });
         }
 
         public override PSCredential PromptForCredential(
@@ -91,7 +92,8 @@ internal sealed class TestPSHost : PSHost
 
         public override PSHostRawUserInterface RawUI { get; } = new TestRawUi();
 
-        public override string? ReadLine() => _readLine;
+        public override string? ReadLine() =>
+            _readLines.Count > 0 ? _readLines.Dequeue() : "1";
 
         public override System.Security.SecureString? ReadLineAsSecureString() => null;
 

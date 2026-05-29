@@ -231,7 +231,7 @@ public class ResolveMemoryDumpPathCommandTests
             File.WriteAllText(Path.Combine(root, "one.raw"), new string('x', 256));
             File.WriteAllText(Path.Combine(root, "two.raw"), "b");
 
-            using var helper = ModuleCommandHelper.Create(new TestPSHost(readLine: "1"));
+            using var helper = ModuleCommandHelper.Create(new TestPSHost(0, "1"));
             var results = helper.InvokeResolveMemoryDumpPath(
                 ("SearchPath", root),
                 ("MaxSearchDepth", 0),
@@ -313,6 +313,10 @@ public class ResolveMemoryDumpPathCommandTests
         }
 
         var root = CreateTempDirectory();
+        var previousGitHubActions = Environment.GetEnvironmentVariable("GITHUB_ACTIONS");
+        var previousCi = Environment.GetEnvironmentVariable("MEMORYANALYSIS_CI");
+        Environment.SetEnvironmentVariable("GITHUB_ACTIONS", null);
+        Environment.SetEnvironmentVariable("MEMORYANALYSIS_CI", null);
         try
         {
             using var helper = ModuleCommandHelper.Create(new TestPSHost(promptForChoiceResult: 1));
@@ -321,6 +325,8 @@ public class ResolveMemoryDumpPathCommandTests
         }
         finally
         {
+            Environment.SetEnvironmentVariable("GITHUB_ACTIONS", previousGitHubActions);
+            Environment.SetEnvironmentVariable("MEMORYANALYSIS_CI", previousCi);
             Directory.Delete(root, recursive: true);
         }
     }

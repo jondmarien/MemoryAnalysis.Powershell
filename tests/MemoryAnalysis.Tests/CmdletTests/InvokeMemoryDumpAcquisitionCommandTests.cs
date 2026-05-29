@@ -2,6 +2,7 @@ using System.Management.Automation;
 using System.Runtime.InteropServices;
 using PowerShell.MemoryAnalysis.Cmdlets;
 using MemoryAnalysis.Tests.Helpers;
+using CollectMemoryDumpTestLayout = MemoryAnalysis.Tests.Helpers.CollectMemoryDumpTestLayout;
 using Xunit;
 
 namespace MemoryAnalysis.Tests.CmdletTests;
@@ -71,23 +72,98 @@ public class InvokeMemoryDumpAcquisitionCommandTests
         var root = CreateTempDirectory();
         try
         {
+            var fixture = CollectMemoryDumpTestLayout.Create(root);
+
+            using var helper = ModuleCommandHelper.Create();
+            helper.PowerShell.AddCommand("Invoke-MemoryDumpAcquisition")
+                .AddParameter("SearchPath", root)
+                .AddParameter("CollectMemoryDumpScript", fixture.ScriptPath);
+
+            var results = helper.PowerShell.Invoke();
+            Assert.NotEmpty(results);
+            Assert.Equal(Path.GetFullPath(fixture.DumpPath!), results[0].BaseObject);
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void Invoke_OnWindows_WhenNoDumpAfterScript_WritesWarning()
+    {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return;
+        }
+
+        var root = CreateTempDirectory();
+        try
+        {
+            var fixture = CollectMemoryDumpTestLayout.Create(root, dumpFileName: null);
+
+            using var helper = ModuleCommandHelper.Create();
+            helper.PowerShell.AddCommand("Invoke-MemoryDumpAcquisition")
+                .AddParameter("SearchPath", root)
+                .AddParameter("CollectMemoryDumpScript", fixture.ScriptPath);
+
+            var results = helper.PowerShell.Invoke();
+            Assert.Empty(results);
+            Assert.NotEmpty(helper.PowerShell.Streams.Warning);
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void Invoke_OnWindows_WithMissingScriptPath_Throws()
+    {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return;
+        }
+
+        var root = CreateTempDirectory();
+        try
+        {
+            var missingScript = Path.Combine(root, "nope", "Collect-MemoryDump.ps1");
+            using var helper = ModuleCommandHelper.Create();
+            helper.PowerShell.AddCommand("Invoke-MemoryDumpAcquisition")
+                .AddParameter("SearchPath", root)
+                .AddParameter("CollectMemoryDumpScript", missingScript);
+
+            Assert.Throws<CmdletInvocationException>(() => helper.PowerShell.Invoke());
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Fact]
+    public void Invoke_OnWindows_WithMissingWinPmem_Throws()
+    {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return;
+        }
+
+        var root = CreateTempDirectory();
+        try
+        {
             var scriptDir = Path.Combine(root, "third-party", "Collect-MemoryDump");
-            Directory.CreateDirectory(Path.Combine(scriptDir, "Tools", "WinPMEM"));
+            Directory.CreateDirectory(scriptDir);
             var scriptPath = Path.Combine(scriptDir, "Collect-MemoryDump.ps1");
-            var dumpPath = Path.Combine(root, "captured.raw");
-            File.WriteAllText(
-                scriptPath,
-                $"Set-Content -LiteralPath '{dumpPath.Replace("'", "''")}' -Value 'acquired'");
-            File.WriteAllText(Path.Combine(scriptDir, "Tools", "WinPMEM", "winpmem_mini_x64_rc2.exe"), string.Empty);
+            File.WriteAllText(scriptPath, "# no winpmem");
 
             using var helper = ModuleCommandHelper.Create();
             helper.PowerShell.AddCommand("Invoke-MemoryDumpAcquisition")
                 .AddParameter("SearchPath", root)
                 .AddParameter("CollectMemoryDumpScript", scriptPath);
 
-            var results = helper.PowerShell.Invoke();
-            Assert.NotEmpty(results);
-            Assert.Equal(Path.GetFullPath(dumpPath), results[0].BaseObject);
+            Assert.Throws<CmdletInvocationException>(() => helper.PowerShell.Invoke());
         }
         finally
         {

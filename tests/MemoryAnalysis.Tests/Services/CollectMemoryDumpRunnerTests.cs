@@ -13,7 +13,7 @@ public class CollectMemoryDumpRunnerTests
         try
         {
             var scriptPath = Path.Combine(root, "Collect-MemoryDump.ps1");
-            File.WriteAllText(scriptPath, "param([switch]$WinPMEM)\nWrite-Output 'ok'");
+            File.WriteAllText(scriptPath, "Write-Output 'ok'");
 
             var exception = Record.Exception(() => CollectMemoryDumpRunner.Run(scriptPath, "-WinPMEM"));
             Assert.Null(exception);

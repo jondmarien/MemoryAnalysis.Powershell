@@ -74,13 +74,7 @@ public class InvokeMemoryDumpAcquisitionCommand : PSCmdlet
 
             var searchRoot = SessionState.Path.GetUnresolvedProviderPathFromPSPath(SearchPath);
             var discovery = new MemoryDumpDiscoveryService();
-            var depth = Math.Max(MemoryDumpDiscoveryService.DefaultMaxSearchDepth, 3);
-            var outputRoot = CollectMemoryDumpLocator.GetCollectMemoryDumpOutputRoot(scriptPath);
-
-            var dumps = discovery.Discover(searchRoot, depth)
-                .Concat(discovery.Discover(outputRoot, depth))
-                .OrderByDescending(d => d.SizeBytes)
-                .ToList();
+            var dumps = discovery.DiscoverAfterAcquisition(searchRoot, scriptPath).ToList();
 
             if (dumps.Count == 0)
             {

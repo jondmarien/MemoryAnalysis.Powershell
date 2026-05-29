@@ -75,6 +75,60 @@ public sealed class MemoryDumpDiscoveryService
             .ToList();
     }
 
+    /// <summary>
+    /// Merges discovery under <paramref name="searchRoot"/> with scans of Collect-MemoryDump output folders.
+    /// </summary>
+    public IReadOnlyList<DiscoveredMemoryDump> DiscoverWithCollectMemoryDumpOutput(
+        string searchRoot,
+        int maxSearchDepth,
+        string? collectMemoryDumpScriptPath)
+    {
+        var merged = new Dictionary<string, DiscoveredMemoryDump>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var dump in Discover(searchRoot, maxSearchDepth))
+        {
+            merged[dump.Path] = dump;
+        }
+
+        if (!string.IsNullOrWhiteSpace(collectMemoryDumpScriptPath)
+            && File.Exists(collectMemoryDumpScriptPath))
+        {
+            var outputRoot = CollectMemoryDumpLocator.GetCollectMemoryDumpOutputRoot(collectMemoryDumpScriptPath);
+            var extraDepth = Math.Max(maxSearchDepth, 3);
+            foreach (var dump in Discover(outputRoot, extraDepth))
+            {
+                merged[dump.Path] = dump;
+            }
+        }
+
+        return merged.Values.ToList();
+    }
+
+    /// <summary>
+    /// Re-scans search and script output directories after live acquisition (depth ≥ 3).
+    /// </summary>
+    public IReadOnlyList<DiscoveredMemoryDump> DiscoverAfterAcquisition(string searchRoot, string collectMemoryDumpScriptPath)
+    {
+        var depth = Math.Max(DefaultMaxSearchDepth, 3);
+        var merged = new Dictionary<string, DiscoveredMemoryDump>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var dump in Discover(searchRoot, depth))
+        {
+            merged[dump.Path] = dump;
+        }
+
+        var outputRoot = CollectMemoryDumpLocator.GetCollectMemoryDumpOutputRoot(collectMemoryDumpScriptPath);
+        foreach (var dump in Discover(outputRoot, depth))
+        {
+            merged[dump.Path] = dump;
+        }
+
+        return merged.Values
+            .OrderByDescending(d => d.SizeBytes)
+            .ThenByDescending(d => d.LastWriteTimeUtc)
+            .ToList();
+    }
+
     public bool IsCandidateDumpFile(string filePath)
     {
         var extension = Path.GetExtension(filePath);
