@@ -42,8 +42,8 @@ These must be set (already in `~/.bashrc` after setup):
 - **Rust lint:** `cd rust-bridge && cargo clippy -- -D warnings`
 - **Rust format check:** `cd rust-bridge && cargo fmt -- --check`
 - **C# tests:** `dotnet test tests/MemoryAnalysis.Tests/MemoryAnalysis.Tests.csproj --verbosity normal`
-- **PowerShell integration tests:** Publish the module first, then:
-  `pwsh-preview -Command 'Import-Module Pester -MinimumVersion 5.0; Invoke-Pester -Path tests/integration-tests -CI'`
+- **PowerShell integration tests:** CI builds via `.github/workflows/platform-pipeline.yml` (Rust → C# → publish → Pester). Locally, publish the module first, then:
+  `pwsh-preview -NoProfile -Command 'Import-Module Pester -MinimumVersion 5.0; Invoke-Pester -Path tests/integration-tests -CI'`
 - **Discovery defaults:** `Resolve-MemoryDumpPath` / `Start-MemoryAnalysis` use `MaxSearchDepth = 1` (cwd + one subdirectory). Use `-NoAcquire` in CI; `GITHUB_ACTIONS=true` blocks live acquisition prompts.
 
 ### Known Gotchas
