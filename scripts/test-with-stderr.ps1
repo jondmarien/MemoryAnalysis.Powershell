@@ -1,4 +1,4 @@
-Import-Module .\PowerShell.MemoryAnalysis\bin\Debug\net10.0\PowerShell.MemoryAnalysis.dll
+Import-Module .\PowerShell.MemoryAnalysis\bin\Debug\net11.0\PowerShell.MemoryAnalysis.dll
 
 $dump = Get-MemoryDump -Path 'F:\physmem.raw'
 
