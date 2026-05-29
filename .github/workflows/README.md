@@ -15,60 +15,37 @@ Automated build, test, and release pipelines for the MemoryAnalysis PowerShell m
 
 **Jobs:**
 
-#### Rust Unit Tests (3 platforms)
-- **Platforms:** Windows, Linux, macOS
-- **Steps:**
-  - Setup Rust toolchain (stable)
-  - Setup Python 3.12 + Volatility3
-  - Run Cargo tests (20 tests)
-  - Run Clippy linting
-  - Check code formatting
-- **Cache:** Cargo registry and build artifacts
+Three top-level jobs (`ci-windows`, `ci-ubuntu`, `ci-macos`) run **in parallel**. Each invokes the reusable workflow [platform-pipeline.yml](platform-pipeline.yml), which runs this **sequential** chain on that runner only:
 
-#### C# Unit Tests (3 platforms)
-- **Platforms:** Windows, Linux, macOS  
-- **Steps:**
-  - Setup .NET 10.0
-  - Restore dependencies
-  - Build test project
-  - Run xUnit tests (33 tests)
-  - Generate code coverage (Ubuntu only)
-  - Upload to Codecov
-- **Coverage:** Cobertura XML format
+1. **Rust unit tests** → 2. **C# unit tests** → 3. **Build PowerShell module** → 4. **PowerShell integration tests**
 
-#### Build PowerShell Module (3 platforms)
-- **Platforms:** Windows, Linux, macOS
-- **Dependencies:** Requires Rust and C# tests to pass
-- **Steps:**
-  - Setup .NET, Rust, Python
-  - Build Rust bridge (release mode)
-  - Build PowerShell module (`dotnet publish`)
-  - Copy platform-specific native libraries
-    - Windows: `rust_bridge.dll`
-    - Linux: `librust_bridge.so`
-    - macOS: `librust_bridge.dylib`
-  - Generate MAML help files (Windows only)
-  - Upload build artifacts
-- **Artifacts:** Module binaries for each platform (7-day retention)
+Ubuntu and macOS no longer wait for Windows to finish Rust/C# before starting their own build; each OS owns its full pipeline.
 
-#### PowerShell Integration Tests (3 platforms)
-- **Platforms:** Windows, Linux, macOS
-- **Dependencies:** Requires module build
-- **Steps:**
-  - Install Pester 5+
-  - Download build artifacts
-  - Run Pester tests (21/25 passing, 4 skipped)
-  - Upload test results
-- **Test Output:** NUnitXml format for CI
+#### Per-platform pipeline (`platform-pipeline.yml`)
 
-#### Performance Benchmarks (Windows only)
-- **Platform:** Windows latest
-- **Trigger:** Only on push to `main` branch
-- **Steps:**
-  - Download Windows build artifacts
-  - Run `Measure-Performance.ps1`
-  - Upload benchmark results (30-day retention)
-- **Metrics:** Module load, FFI overhead, memory usage
+**Rust unit tests**
+- Setup Rust, Python 3.14, Volatility3
+- Cargo test, Clippy, `rustfmt` check
+- Rust coverage → Codecov
+
+**C# unit tests** (after Rust on the same runner)
+- Setup .NET 11
+- Restore, build, run xUnit tests with coverage → Codecov
+
+**Build PowerShell module** (after C# on the same runner)
+- Build Rust bridge (release), `dotnet publish`
+- Copy native library (`rust_bridge.dll` / `librust_bridge.so` / `librust_bridge.dylib`)
+- Generate MAML help (Windows only)
+- Upload `MemoryAnalysis-{runner}` artifacts (7-day retention)
+
+**PowerShell integration tests** (after build on the same runner)
+- Install Pester 5+, download build artifacts, run Pester with `-CI`
+- Upload test results
+
+#### Performance benchmarks (Windows only)
+- **Depends on:** `ci-windows` (Windows pipeline complete)
+- **Trigger:** Push to `main` only
+- Downloads Windows build artifacts, runs `Measure-Performance.ps1`
 
 ## Status Badges
 
@@ -82,21 +59,22 @@ Add to README.md:
 
 ## Build Matrix
 
-| Platform | Rust Tests | C# Tests | Module Build | Integration Tests |
-|----------|-----------|----------|--------------|-------------------|
-| Windows  | ✅ | ✅ | ✅ | ✅ |
-| Linux    | ✅ | ✅ | ✅ | ✅ |
-| macOS    | ✅ | ✅ | ✅ | ✅ |
+Each row is one parallel pipeline (steps run in order left → right):
+
+| Platform | Rust → C# → Build → Integration |
+|----------|-----------------------------------|
+| Windows  | ✅ (independent pipeline) |
+| Linux    | ✅ (independent pipeline) |
+| macOS    | ✅ (independent pipeline) |
 
 ## Environment Variables
 
 ```yaml
-DOTNET_VERSION: '10.0.x'      # .NET preview version
-RUST_VERSION: 'stable'         # Rust toolchain
-PYTHON_VERSION: '3.14'         # Python for Volatility3
+DOTNET_VERSION: '11.0.x'       # .NET SDK (in platform-pipeline.yml)
+RUST_VERSION: 'stable'
+PYTHON_VERSION: '3.14'
 POWERSHELL_VERSION: '7.7.0-preview.2'
 VOLATILITY3_VERSION: '2.28.0'
-DOTNET_VERSION: '11.0.x'
 ```
 
 ## Caching Strategy
