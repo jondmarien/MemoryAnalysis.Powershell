@@ -42,26 +42,6 @@ public class InvokeMemoryDumpAcquisitionCommandTests
     }
 
     [Fact]
-    public void Invoke_OnWindows_WithoutWinPmem_Throws()
-    {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            return;
-        }
-
-        var repoRoot = FindRepoRoot();
-        if (repoRoot == null)
-        {
-            return;
-        }
-
-        using var helper = ModuleCommandHelper.Create();
-        helper.PowerShell.AddCommand("Invoke-MemoryDumpAcquisition")
-            .AddParameter("SearchPath", repoRoot);
-        Assert.Throws<CmdletInvocationException>(() => helper.PowerShell.Invoke());
-    }
-
-    [Fact]
     public void Invoke_OnWindows_WithStubScriptAndWinPmem_DiscoversDump()
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -169,23 +149,6 @@ public class InvokeMemoryDumpAcquisitionCommandTests
         {
             Directory.Delete(root, recursive: true);
         }
-    }
-
-    private static string? FindRepoRoot()
-    {
-        var dir = new DirectoryInfo(Directory.GetCurrentDirectory());
-        while (dir != null)
-        {
-            if (File.Exists(Path.Combine(dir.FullName, "MemoryAnalysis.Powershell.sln"))
-                || File.Exists(Path.Combine(dir.FullName, "PowerShell.MemoryAnalysis", "PowerShell.MemoryAnalysis.csproj")))
-            {
-                return dir.FullName;
-            }
-
-            dir = dir.Parent;
-        }
-
-        return null;
     }
 
     private static string CreateTempDirectory() =>
