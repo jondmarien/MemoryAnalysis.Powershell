@@ -20,7 +20,8 @@
 [CmdletBinding()]
 param(
     [string]$DumpPath,
-    [int]$Iterations = 10
+    [int]$Iterations = 10,
+    [string]$RunnerLabel = $env:RUNNER_OS
 )
 
 $ErrorActionPreference = "Stop"
@@ -33,6 +34,7 @@ Write-Host "`n=== MemoryAnalysis Performance Benchmark ===" -ForegroundColor Cya
 Write-Host "Module Version: $($(Get-Module MemoryAnalysis).Version)" -ForegroundColor Gray
 Write-Host "PowerShell: $($PSVersionTable.PSVersion)" -ForegroundColor Gray
 Write-Host "Platform: $($PSVersionTable.Platform)" -ForegroundColor Gray
+Write-Host "Runner: $RunnerLabel" -ForegroundColor Gray
 Write-Host "Iterations: $Iterations" -ForegroundColor Gray
 
 # Results storage
@@ -184,7 +186,8 @@ if ($results.CmdletExecution.Count -gt 0) {
 Write-Host $report -ForegroundColor White
 
 # Export results
-$resultsPath = Join-Path $PSScriptRoot "benchmark-results-$(Get-Date -Format 'yyyyMMdd-HHmmss').json"
+$safeLabel = ($RunnerLabel -replace '[^\w\-.]+', '-').Trim('-')
+$resultsPath = Join-Path $PSScriptRoot "benchmark-results-${safeLabel}-$(Get-Date -Format 'yyyyMMdd-HHmmss').json"
 $results | ConvertTo-Json -Depth 5 | Out-File $resultsPath
 Write-Host "Results exported to: $resultsPath" -ForegroundColor Gray
 #endregion

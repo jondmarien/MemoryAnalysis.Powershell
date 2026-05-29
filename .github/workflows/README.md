@@ -61,8 +61,8 @@ Add to README.md:
 
 Each row is one parallel pipeline (steps run in order left → right):
 
-| Platform | Rust → C# → Build → Integration |
-|----------|-----------------------------------|
+| Platform | Rust → C# → Build → Integration → Benchmarks |
+|----------|-----------------------------------------------|
 | Windows  | ✅ (independent pipeline) |
 | Linux    | ✅ (independent pipeline) |
 | macOS    | ✅ (independent pipeline) |
@@ -111,8 +111,8 @@ PowerShell 7.7 preview is installed per job and exposed as `PWSH_PREVIEW` (Windo
 - **Retention:** 7 days
 
 ### Benchmark Results
-- **Name:** `benchmark-results`
-- **Contents:** Performance JSON files
+- **Name:** `benchmark-results-{runner}` (e.g. `benchmark-results-ubuntu-latest`)
+- **Contents:** Performance JSON files per OS
 - **Retention:** 30 days
 
 ## Local Testing

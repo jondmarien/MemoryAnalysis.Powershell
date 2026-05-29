@@ -1,0 +1,103 @@
+# Reusable performance benchmark job for a single platform.
+# Invoked from build-and-test.yml after each platform pipeline completes.
+name: Performance Benchmark
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        description: GitHub-hosted runner label (must match platform-pipeline artifact name)
+        required: true
+        type: string
+
+env:
+  POWERSHELL_VERSION: '7.7.0-preview.2'
+  PYTHON_VERSION: '3.14'
+
+jobs:
+  benchmark:
+    name: Run benchmarks
+    runs-on: ${{ inputs.runner }}
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Install PowerShell 7.7 Preview (Windows)
+        if: inputs.runner == 'windows-2025-vs2026'
+        shell: pwsh
+        run: |
+          $version = '${{ env.POWERSHELL_VERSION }}'
+          $zip = "PowerShell-$version-win-x64.zip"
+          $url = "https://github.com/PowerShell/PowerShell/releases/download/v$version/$zip"
+          Invoke-WebRequest -Uri $url -OutFile $zip
+          Expand-Archive -Path $zip -DestinationPath "$env:RUNNER_TEMP\pwsh-preview" -Force
+          $pwsh = Get-ChildItem -Path "$env:RUNNER_TEMP\pwsh-preview" -Recurse -Filter pwsh.exe | Select-Object -First 1
+          echo "PWSH_PREVIEW=$($pwsh.FullName)" >> $env:GITHUB_ENV
+          & $pwsh.FullName -Version
+
+      - name: Install PowerShell 7.7 Preview (macOS)
+        if: inputs.runner == 'macos-latest'
+        shell: bash
+        run: |
+          version='${{ env.POWERSHELL_VERSION }}'
+          arch=$(uname -m)
+          case "$arch" in
+            arm64) asset="powershell-${version}-osx-arm64.tar.gz" ;;
+            *) asset="powershell-${version}-osx-x64.tar.gz" ;;
+          esac
+          url="https://github.com/PowerShell/PowerShell/releases/download/v${version}/${asset}"
+          curl -fsSL -o "$asset" "$url"
+          install_dir="${RUNNER_TEMP}/pwsh-preview"
+          mkdir -p "$install_dir"
+          tar -xzf "$asset" -C "$install_dir"
+          pwsh_bin="$(find "$install_dir" -name pwsh -type f | head -1)"
+          echo "PWSH_PREVIEW=${pwsh_bin}" >> "$GITHUB_ENV"
+          "$pwsh_bin" -Version
+
+      - name: Install PowerShell 7.7 Preview (Linux)
+        if: inputs.runner == 'ubuntu-latest'
+        shell: bash
+        run: |
+          version='${{ env.POWERSHELL_VERSION }}'
+          wget -q "https://github.com/PowerShell/PowerShell/releases/download/v${version}/powershell-preview_${version}-1.deb_amd64.deb"
+          sudo dpkg -i "powershell-preview_${version}-1.deb_amd64.deb"
+          sudo apt-get install -f -y
+          echo "PWSH_PREVIEW=$(command -v pwsh-preview)" >> "$GITHUB_ENV"
+          pwsh-preview -Version
+
+      - name: Setup Python for native bridge runtime
+        if: inputs.runner == 'ubuntu-latest' || inputs.runner == 'macos-latest'
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set native library path (Linux)
+        if: inputs.runner == 'ubuntu-latest'
+        shell: bash
+        run: |
+          python_lib=$(python3 -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))')
+          echo "LD_LIBRARY_PATH=${python_lib}:${LD_LIBRARY_PATH:-}" >> "$GITHUB_ENV"
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: MemoryAnalysis-${{ inputs.runner }}
+          path: PowerShell.MemoryAnalysis/publish/
+
+      - name: Run Benchmarks
+        shell: pwsh
+        run: |
+          & $env:PWSH_PREVIEW -NoProfile -Command {
+            Set-Location $env:GITHUB_WORKSPACE
+            ./benchmarks/Measure-Performance.ps1 -RunnerLabel '${{ inputs.runner }}'
+          }
+
+      - name: Upload Benchmark Results
+        uses: actions/upload-artifact@v7
+        with:
+          name: benchmark-results-${{ inputs.runner }}
+          path: benchmarks/benchmark-results-*.json
+          retention-days: 30
+          if-no-files-found: error

@@ -32,45 +32,26 @@ jobs:
     with:
       runner: macos-latest
 
-  benchmark:
-    name: Performance Benchmarks
-    runs-on: windows-2025-vs2026
+  benchmark-windows:
+    name: Performance Benchmarks (Windows)
     needs: ci-windows
     if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    uses: ./.github/workflows/benchmark.yml
+    with:
+      runner: windows-2025-vs2026
 
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          submodules: recursive
+  benchmark-ubuntu:
+    name: Performance Benchmarks (Ubuntu)
+    needs: ci-ubuntu
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    uses: ./.github/workflows/benchmark.yml
+    with:
+      runner: ubuntu-latest
 
-      - name: Install PowerShell 7.7 Preview
-        shell: pwsh
-        run: |
-          $version = '${{ env.POWERSHELL_VERSION }}'
-          $zip = "PowerShell-$version-win-x64.zip"
-          $url = "https://github.com/PowerShell/PowerShell/releases/download/v$version/$zip"
-          Invoke-WebRequest -Uri $url -OutFile $zip
-          Expand-Archive -Path $zip -DestinationPath "$env:RUNNER_TEMP\pwsh-preview" -Force
-          $pwsh = Get-ChildItem -Path "$env:RUNNER_TEMP\pwsh-preview" -Recurse -Filter pwsh.exe | Select-Object -First 1
-          echo "PWSH_PREVIEW=$($pwsh.FullName)" >> $env:GITHUB_ENV
-
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v8
-        with:
-          name: MemoryAnalysis-windows-2025-vs2026
-          path: PowerShell.MemoryAnalysis/publish/
-
-      - name: Run Benchmarks
-        shell: pwsh
-        run: |
-          & $env:PWSH_PREVIEW -Command {
-            Set-Location "$env:GITHUB_WORKSPACE"
-            ./benchmarks/Measure-Performance.ps1
-          }
-
-      - name: Upload Benchmark Results
-        uses: actions/upload-artifact@v7
-        with:
-          name: benchmark-results
-          path: benchmarks/benchmark-results-*.json
-          retention-days: 30
+  benchmark-macos:
+    name: Performance Benchmarks (macOS)
+    needs: ci-macos
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    uses: ./.github/workflows/benchmark.yml
+    with:
+      runner: macos-latest
