@@ -207,10 +207,10 @@ The `.csproj` includes conditional copy rules:
 
 ## Requirements & Dependencies
 
-- **PowerShell:** 7.6.0+ (PowerShell Core only, not Windows PowerShell 5.1)
+- **PowerShell:** 7.7.0+ (PowerShell Core only, not Windows PowerShell 5.1)
 - **.NET:** 10.0 SDK
 - **Rust:** 1.90.0+ (with `cargo`)
-- **Python:** 3.12+ with Volatility 3 installed
+- **Python:** 3.14+ with Volatility 3 2.28.0 installed
 - **Volatility Environment:** Python packages must be in system or `volatility-env` virtual environment
 
 **Package Dependencies:**

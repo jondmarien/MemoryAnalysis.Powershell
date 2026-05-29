@@ -8,9 +8,11 @@ on:
   workflow_dispatch:
 
 env:
-  DOTNET_VERSION: '10.0.x'
+  DOTNET_VERSION: '11.0.x'
   RUST_VERSION: 'stable'
-  PYTHON_VERSION: '3.12'
+  PYTHON_VERSION: '3.14'
+  VOLATILITY3_VERSION: '2.28.0'
+  POWERSHELL_VERSION: '7.7.0-preview.2'
 
 jobs:
   rust-tests:
@@ -40,7 +42,7 @@ jobs:
         run: pip install uv
       
       - name: Install Volatility3
-        run: uv pip install --system volatility3
+        run: uv pip install --system "volatility3==${{ env.VOLATILITY3_VERSION }}"
       
       - name: Cache Cargo
         uses: actions/cache@v4
@@ -55,10 +57,14 @@ jobs:
       
       - name: Run Rust Tests
         working-directory: rust-bridge
+        env:
+          PYO3_PYTHON: python
         run: cargo test --verbose
       
       - name: Run Clippy
         working-directory: rust-bridge
+        env:
+          PYO3_PYTHON: python
         run: cargo clippy -- -D warnings
       
       - name: Check Formatting
@@ -151,7 +157,7 @@ jobs:
         run: pip install uv
       
       - name: Install Volatility3
-        run: uv pip install --system volatility3
+        run: uv pip install --system "volatility3==${{ env.VOLATILITY3_VERSION }}"
       
       - name: Install build essentials (Linux)
         if: matrix.os == 'ubuntu-latest'
@@ -159,6 +165,8 @@ jobs:
       
       - name: Build Rust Bridge
         working-directory: rust-bridge
+        env:
+          PYO3_PYTHON: python
         run: cargo build --release
       
       - name: Build PowerShell Module
@@ -181,32 +189,37 @@ jobs:
         run: |
           cp rust-bridge/target/release/librust_bridge.dylib PowerShell.MemoryAnalysis/publish/
       
-      - name: Install PowerShell 7.6 Preview (Windows)
+      - name: Install PowerShell 7.7 Preview (Windows)
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
-          winget install --id Microsoft.PowerShell.Preview --version 7.6.0.5 --silent --accept-source-agreements --accept-package-agreements
-          # Refresh PATH to pick up pwsh-preview
-          $env:PATH = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-          pwsh-preview -Version
+          $version = '${{ env.POWERSHELL_VERSION }}'
+          $zip = "PowerShell-$version-win-x64.zip"
+          $url = "https://github.com/PowerShell/PowerShell/releases/download/v$version/$zip"
+          Invoke-WebRequest -Uri $url -OutFile $zip
+          Expand-Archive -Path $zip -DestinationPath "$env:RUNNER_TEMP\pwsh-preview" -Force
+          $pwsh = Get-ChildItem -Path "$env:RUNNER_TEMP\pwsh-preview" -Recurse -Filter pwsh.exe | Select-Object -First 1
+          echo "PWSH_PREVIEW=$($pwsh.FullName)" >> $env:GITHUB_ENV
+          & $pwsh.FullName -Version
       
-      - name: Install PowerShell 7.6 Preview (macOS)
+      - name: Install PowerShell 7.7 Preview (macOS)
         if: matrix.os == 'macos-latest'
         run: |
           brew install --cask powershell@preview
       
-      - name: Install PowerShell 7.6 Preview (Linux)
+      - name: Install PowerShell 7.7 Preview (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
-          wget https://github.com/PowerShell/PowerShell/releases/download/v7.6.0-preview.5/powershell-preview_7.6.0-preview.5-1.deb_amd64.deb
-          sudo dpkg -i powershell-preview_7.6.0-preview.5-1.deb_amd64.deb
+          version='${{ env.POWERSHELL_VERSION }}'
+          wget "https://github.com/PowerShell/PowerShell/releases/download/v${version}/powershell-preview_${version}-1.deb_amd64.deb"
+          sudo dpkg -i "powershell-preview_${version}-1.deb_amd64.deb"
           sudo apt-get install -f -y
       
       - name: Generate MAML Help (Windows)
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
-          pwsh-preview -Command {
+          & $env:PWSH_PREVIEW -Command {
             Install-Module -Name platyPS -Force -Scope CurrentUser
             Set-Location "$env:GITHUB_WORKSPACE"
             ./scripts/Generate-Help.ps1
@@ -234,24 +247,29 @@ jobs:
         with:
           submodules: recursive
       
-      - name: Install PowerShell 7.6 Preview (Windows)
+      - name: Install PowerShell 7.7 Preview (Windows)
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
-          winget install --id Microsoft.PowerShell.Preview --version 7.6.0.5 --silent --accept-source-agreements --accept-package-agreements
-          # Refresh PATH
-          $env:PATH = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+          $version = '${{ env.POWERSHELL_VERSION }}'
+          $zip = "PowerShell-$version-win-x64.zip"
+          $url = "https://github.com/PowerShell/PowerShell/releases/download/v$version/$zip"
+          Invoke-WebRequest -Uri $url -OutFile $zip
+          Expand-Archive -Path $zip -DestinationPath "$env:RUNNER_TEMP\pwsh-preview" -Force
+          $pwsh = Get-ChildItem -Path "$env:RUNNER_TEMP\pwsh-preview" -Recurse -Filter pwsh.exe | Select-Object -First 1
+          echo "PWSH_PREVIEW=$($pwsh.FullName)" >> $env:GITHUB_ENV
       
-      - name: Install PowerShell 7.6 Preview (macOS)
+      - name: Install PowerShell 7.7 Preview (macOS)
         if: matrix.os == 'macos-latest'
         run: |
           brew install --cask powershell@preview
       
-      - name: Install PowerShell 7.6 Preview (Linux)
+      - name: Install PowerShell 7.7 Preview (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
-          wget https://github.com/PowerShell/PowerShell/releases/download/v7.6.0-preview.5/powershell-preview_7.6.0-preview.5-1.deb_amd64.deb
-          sudo dpkg -i powershell-preview_7.6.0-preview.5-1.deb_amd64.deb
+          version='${{ env.POWERSHELL_VERSION }}'
+          wget "https://github.com/PowerShell/PowerShell/releases/download/v${version}/powershell-preview_${version}-1.deb_amd64.deb"
+          sudo dpkg -i "powershell-preview_${version}-1.deb_amd64.deb"
           sudo apt-get install -f -y
       
       - name: Verify PowerShell Installation (Windows)
@@ -285,7 +303,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
-          pwsh-preview -Command {
+          & $env:PWSH_PREVIEW -Command {
             Import-Module Pester -MinimumVersion 5.0
             Set-Location "$env:GITHUB_WORKSPACE"
             Invoke-Pester -Path tests/integration-tests/Module.Tests.ps1 -CI
@@ -328,12 +346,16 @@ jobs:
         with:
           submodules: recursive
       
-      - name: Install PowerShell 7.6 Preview
+      - name: Install PowerShell 7.7 Preview
         shell: pwsh
         run: |
-          winget install --id Microsoft.PowerShell.Preview --version 7.6.0.5 --silent --accept-source-agreements --accept-package-agreements
-          # Refresh PATH
-          $env:PATH = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+          $version = '${{ env.POWERSHELL_VERSION }}'
+          $zip = "PowerShell-$version-win-x64.zip"
+          $url = "https://github.com/PowerShell/PowerShell/releases/download/v$version/$zip"
+          Invoke-WebRequest -Uri $url -OutFile $zip
+          Expand-Archive -Path $zip -DestinationPath "$env:RUNNER_TEMP\pwsh-preview" -Force
+          $pwsh = Get-ChildItem -Path "$env:RUNNER_TEMP\pwsh-preview" -Recurse -Filter pwsh.exe | Select-Object -First 1
+          echo "PWSH_PREVIEW=$($pwsh.FullName)" >> $env:GITHUB_ENV
       
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4
@@ -344,7 +366,7 @@ jobs:
       - name: Run Benchmarks
         shell: pwsh
         run: |
-          pwsh-preview -Command {
+          & $env:PWSH_PREVIEW -Command {
             Set-Location "$env:GITHUB_WORKSPACE"
             ./benchmarks/Measure-Performance.ps1
           }

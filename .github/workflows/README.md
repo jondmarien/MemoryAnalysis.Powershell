@@ -93,7 +93,10 @@ Add to README.md:
 ```yaml
 DOTNET_VERSION: '10.0.x'      # .NET preview version
 RUST_VERSION: 'stable'         # Rust toolchain
-PYTHON_VERSION: '3.12'         # Python for Volatility3
+PYTHON_VERSION: '3.14'         # Python for Volatility3
+POWERSHELL_VERSION: '7.7.0-preview.2'
+VOLATILITY3_VERSION: '2.28.0'
+DOTNET_VERSION: '11.0.x'
 ```
 
 ## Caching Strategy

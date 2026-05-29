@@ -69,9 +69,9 @@ PowerShell.MemoryAnalysis/
 ### Prerequisites
 
 - .NET 10.0 SDK
-- PowerShell 7.6.0 or later (Core only, not Windows PowerShell 5.1)
+- PowerShell 7.7.0 or later (Core only, not Windows PowerShell 5.1)
 - Rust bridge DLL (built from `rust-bridge/`)
-- Python 3.12+ with Volatility 3
+- Python 3.14+ with Volatility 3 2.28.0
 
 ### Build Commands
 

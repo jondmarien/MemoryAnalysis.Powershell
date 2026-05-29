@@ -24,10 +24,10 @@
     Description = 'PowerShell module for memory dump analysis using Volatility 3 framework with high-performance Rust/Python bridge. Note: Network scanning and malware detection are not supported on Windows 11 Build 26100 due to Volatility 3 compatibility issues.'
     
     # Minimum version of the PowerShell engine required by this module
-    PowerShellVersion = '7.6.0'
+    PowerShellVersion = '7.7.0'
     
     # Minimum version of the .NET Framework required by this module
-    DotNetFrameworkVersion = '10.0'
+    DotNetFrameworkVersion = '11.0'
     
     # Functions to export from this module
     FunctionsToExport = @()

@@ -1,0 +1,2 @@
+# Pinned Python dependencies for Volatility 3 integration (see AGENTS.md)
+volatility3==2.28.0

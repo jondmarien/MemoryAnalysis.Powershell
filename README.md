@@ -39,9 +39,9 @@ The Rust bridge is maintained as a separate repository but linked as a submodule
 
 ## Requirements
 
-- **PowerShell:** 7.6.0 or later (Core only)
+- **PowerShell:** 7.7.0 or later (Core only; 7.7.0-preview.2 recommended for development)
 - **.NET:** 10.0 SDK
-- **Python:** 3.12+ with Volatility 3 (`pip install volatility3` or `uv pip install --system volatility3`)
+- **Python:** 3.14+ with Volatility 3 2.28.0 (`pip install -r requirements.txt` or `uv pip install -r requirements.txt`)
 - **Rust:** 1.90.0+ (for building from source)
 - **Docker:** Required for GitHub Actions testing with `act`
 

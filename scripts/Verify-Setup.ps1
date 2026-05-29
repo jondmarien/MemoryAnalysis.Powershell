@@ -97,10 +97,10 @@ try {
         if ($versionMatch) {
             $version = $matches[1]
             $major, $minor, $patch = $version.Split('.')
-            if ([int]$major -ge 1 -and [int]$minor -ge 74) {
-                Add-Result -Component "Rust" -Success $true -Details "rustc $version" -Expected "1.74.0+" -Actual $version
+            if ([int]$major -gt 1 -or ([int]$major -eq 1 -and [int]$minor -ge 83)) {
+                Add-Result -Component "Rust" -Success $true -Details "rustc $version" -Expected "1.83.0+" -Actual $version
             } else {
-                Add-Result -Component "Rust" -Success $false -Details "Version too old" -Expected "1.74.0+" -Actual $version
+                Add-Result -Component "Rust" -Success $false -Details "Version too old" -Expected "1.83.0+" -Actual $version
             }
         }
     }
@@ -151,15 +151,15 @@ try {
         if ($versionMatch) {
             $version = $matches[1]
             $major = $version.Split('.')[0]
-            if ([int]$major -ge 9) {
-                Add-Result -Component ".NET SDK" -Success $true -Details "Version $version" -Expected "9.0.0+" -Actual $version
+            if ([int]$major -ge 11) {
+                Add-Result -Component ".NET SDK" -Success $true -Details "Version $version" -Expected "11.0.0+" -Actual $version
             } else {
-                Add-Result -Component ".NET SDK" -Success $false -Details "Version too old" -Expected "9.0.0+" -Actual $version
+                Add-Result -Component ".NET SDK" -Success $false -Details "Version too old" -Expected "11.0.0+" -Actual $version
             }
         }
     }
 } catch {
-    Add-Result -Component ".NET SDK" -Success $false -Details "Not installed or not in PATH" -Expected "9.0.0+"
+    Add-Result -Component ".NET SDK" -Success $false -Details "Not installed or not in PATH" -Expected "11.0.0+"
 }
 
 # Verify .NET project exists and builds
@@ -185,7 +185,7 @@ if (Test-Path $csprojPath) {
 $csprojContent = Get-Content $csprojPath -Raw -ErrorAction SilentlyContinue
 if ($csprojContent -match 'Microsoft\.PowerShell\.SDK.*?Version="([^"]+)"') {
     $psVersion = $matches[1]
-    Add-Result -Component "PowerShell SDK" -Success $true -Details "Version $psVersion" -Expected "7.6.0-preview.5" -Actual $psVersion
+    Add-Result -Component "PowerShell SDK" -Success $true -Details "Version $psVersion" -Expected "7.7.0-preview.2" -Actual $psVersion
 } else {
     Add-Result -Component "PowerShell SDK" -Success $false -Details "Package not found in project"
 }
@@ -194,9 +194,15 @@ if ($csprojContent -match 'Microsoft\.PowerShell\.SDK.*?Version="([^"]+)"') {
 #region Python & Volatility3 Verification
 Write-SectionHeader "Python Environment"
 
-$pythonExe = ".\volatility-env\Scripts\python.exe"
+$pythonExe = if (Test-Path ".\volatility-env\Scripts\python.exe") {
+    ".\volatility-env\Scripts\python.exe"
+} elseif (Test-Path ".\volatility-env\bin\python") {
+    ".\volatility-env\bin\python"
+} else {
+    $null
+}
 
-if (Test-Path $pythonExe) {
+if ($pythonExe -and (Test-Path $pythonExe)) {
     try {
         $pythonVersion = & $pythonExe --version 2>&1
         if ($LASTEXITCODE -eq 0) {
@@ -204,10 +210,10 @@ if (Test-Path $pythonExe) {
             if ($versionMatch) {
                 $version = $matches[1]
                 $major, $minor = $version.Split('.')[0..1]
-                if ([int]$major -eq 3 -and [int]$minor -eq 12) {
-                    Add-Result -Component "Python venv" -Success $true -Details "Python $version" -Expected "3.12.x" -Actual $version
+                if ([int]$major -eq 3 -and [int]$minor -ge 14) {
+                    Add-Result -Component "Python venv" -Success $true -Details "Python $version" -Expected "3.14.x" -Actual $version
                 } else {
-                    Add-Result -Component "Python venv" -Success $false -Details "Wrong version" -Expected "3.12.x" -Actual $version
+                    Add-Result -Component "Python venv" -Success $false -Details "Wrong version" -Expected "3.14.x" -Actual $version
                 }
             }
         }
@@ -225,10 +231,10 @@ if (Test-Path $volExe) {
         $volOutput = & $volExe -h 2>&1 | Select-Object -First 1
         if ($volOutput -match "Volatility 3 Framework (\d+\.\d+\.\d+)") {
             $volVersion = $matches[1]
-            if ($volVersion -eq "2.26.2") {
-                Add-Result -Component "Volatility3" -Success $true -Details "Version $volVersion" -Expected "2.26.2" -Actual $volVersion
+            if ($volVersion -eq "2.28.0") {
+                Add-Result -Component "Volatility3" -Success $true -Details "Version $volVersion" -Expected "2.28.0" -Actual $volVersion
             } else {
-                Add-Result -Component "Volatility3" -Success $false -Details "Wrong version" -Expected "2.26.2" -Actual $volVersion
+                Add-Result -Component "Volatility3" -Success $false -Details "Wrong version" -Expected "2.28.0" -Actual $volVersion
             }
         }
     } catch {
@@ -244,7 +250,7 @@ if (Test-Path $pythonExe) {
         $pipList = uv pip list --python $pythonExe 2>&1 | Select-Object -Skip 2
         
         $packages = @{
-            'volatility3' = '2.26.2'
+            'volatility3' = '2.28.0'
             'pefile'      = '2024.8.26'
             'capstone'    = '5.0.6'
             'yara-python' = '4.5.4'
