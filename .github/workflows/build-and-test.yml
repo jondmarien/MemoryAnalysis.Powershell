@@ -236,6 +236,7 @@ jobs:
   integration-tests:
     name: PowerShell Integration Tests
     runs-on: ${{ matrix.os }}
+    # Discovery tests use -NoAcquire; GITHUB_ACTIONS also blocks acquisition prompts in the module.
     strategy:
       fail-fast: false
       matrix:
@@ -306,7 +307,7 @@ jobs:
           & $env:PWSH_PREVIEW -Command {
             Import-Module Pester -MinimumVersion 5.0
             Set-Location "$env:GITHUB_WORKSPACE"
-            Invoke-Pester -Path tests/integration-tests/Module.Tests.ps1 -CI
+            Invoke-Pester -Path tests/integration-tests -CI
           }
       
       - name: Run Integration Tests (macOS)
@@ -315,7 +316,7 @@ jobs:
           /usr/local/bin/pwsh-preview -Command {
             Import-Module Pester -MinimumVersion 5.0
             Set-Location "$env:GITHUB_WORKSPACE"
-            Invoke-Pester -Path tests/integration-tests/Module.Tests.ps1 -CI
+            Invoke-Pester -Path tests/integration-tests -CI
           }
       
       - name: Run Integration Tests (Linux)
@@ -324,7 +325,7 @@ jobs:
           pwsh-preview -Command {
             Import-Module Pester -MinimumVersion 5.0
             Set-Location "$env:GITHUB_WORKSPACE"
-            Invoke-Pester -Path tests/integration-tests/Module.Tests.ps1 -CI
+            Invoke-Pester -Path tests/integration-tests -CI
           }
       
       - name: Upload Test Results

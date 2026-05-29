@@ -148,6 +148,20 @@ Describe "MemoryAnalysis Module" {
             $cmd = Get-Command Get-ProcessDll
             $cmd.Parameters.Keys | Should -Contain 'Pid'
         }
+
+        It "Resolve-MemoryDumpPath should have MaxSearchDepth and NoAcquire parameters" {
+            $cmd = Get-Command Resolve-MemoryDumpPath
+            $cmd.Parameters.Keys | Should -Contain 'MaxSearchDepth'
+            $cmd.Parameters.Keys | Should -Contain 'NoAcquire'
+            $cmd.Parameters.Keys | Should -Contain 'SearchPath'
+        }
+
+        It "Start-MemoryAnalysis should have MaxSearchDepth default discovery parameters" {
+            $cmd = Get-Command Start-MemoryAnalysis
+            $cmd.Parameters.Keys | Should -Contain 'MaxSearchDepth'
+            $cmd.Parameters.Keys | Should -Contain 'NoAcquire'
+            $cmd.Parameters.Keys | Should -Contain 'SearchPath'
+        }
     }
     
     Context "Cmdlet Help" {

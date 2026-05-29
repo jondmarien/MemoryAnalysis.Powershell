@@ -1,110 +1,96 @@
-# Memory Dump Requirements for Volatility 3
+# Memory Dump Requirements
 
-## Issue Found
-The `preview.DMP` file in `samples/dumps/` is a **Windows Minidump (MDMP)** file, which Volatility 3 **cannot process**.
+Volatility 3 and this module require a **full physical memory image**, not a crash minidump.
 
-### Why Minidumps Don't Work
-Minidumps are created by Windows Error Reporting and contain:
-- Limited memory pages (only those relevant to the crash)
-- Thread stacks
-- Exception information
-- Module lists
+## Supported vs unsupported
 
-Volatility 3 requires **full memory dumps** to:
-- Build complete translation layers
-- Map virtual to physical memory
-- Access kernel structures
-- List all processes
+### Supported
 
-## Required Dump Types
+| Type | Extensions | Notes |
+|------|------------|--------|
+| Raw physical image | `.raw`, `.vmem`, `.mem`, `.img`, `.bin`, `.lime` | Preferred for labs |
+| AFF4 / other | `.aff` | If produced by your toolchain |
+| Large crash dumps | `.dmp` ≥ 100 MB | Treated as candidate full dumps |
 
-### ✅ Supported
-1. **Full Memory Dump** - Contains all physical memory
-2. **Kernel Memory Dump** - Contains kernel-mode memory
-3. **Complete Memory Dump** - Full RAM capture
-4. **Raw Memory Image** - From tools like:
-   - WinPMEM
-   - FTK Imager
-   - DumpIt
-   - Magnet RAM Capture
+### Not supported
 
-### ❌ Not Supported
-1. **Minidumps (.dmp)** - Too limited
-2. **Small memory dumps** - Insufficient data
-3. **User-mode dumps** - No kernel access
+| Type | Why |
+|------|-----|
+| WER minidumps | `.dmp` &lt; 100 MB — filtered by `MemoryDumpDiscoveryService` |
+| Per-process dumps | Task Manager “Create dump file” — user-mode only |
+| Empty files | Size must be &gt; 0 |
 
-## Creating Test Dumps
+The sample `preview.DMP` under `samples/dumps/` (if present) is typically a **minidump** and will fail Volatility automagic.
 
-### Option 1: Using WinPMEM (Recommended)
+## Automatic discovery (module)
+
+`Resolve-MemoryDumpPath` and `Start-MemoryAnalysis` search for dumps before loading Volatility:
+
+- **Default depth:** `MaxSearchDepth = 1` (search directory + one subdirectory level)
+- **Override:** `-MaxSearchDepth 0` (cwd only) through `32` (deep case folders)
+- **Skip acquisition:** `-NoAcquire` (discovery only; error if none found)
+- **Explicit file:** `Resolve-MemoryDumpPath -Path C:\dumps\host.raw`
+
 ```powershell
-# Download WinPMEM from https://github.com/Velocidex/WinPmem
-.\winpmem_mini_x64_rc2.exe test.raw
+Resolve-MemoryDumpPath -SearchPath D:\Cases\2026-001 -MaxSearchDepth 3 -NoAcquire
+Start-MemoryAnalysis -SearchPath . -NoAcquire
 ```
 
-### Option 2: Using DumpIt
+## Live acquisition (Windows)
+
+When no dump is found and `-NoAcquire` is not set, the module can offer **WinPMEM** via the Collect-MemoryDump fork:
+
+1. Initialize submodule: `git submodule update --init third-party/Collect-MemoryDump`
+2. Place `winpmem_mini_x64_rc2.exe` in `third-party/Collect-MemoryDump/Tools/WinPMEM/`
+3. Run PowerShell **as Administrator**
+4. `Invoke-MemoryDumpAcquisition` or accept the prompt from `Resolve-MemoryDumpPath`
+
+Output layout (upstream):  
+`third-party/Collect-MemoryDump/<HOSTNAME>/<timestamp>-Collect-MemoryDump/Memory/WinPMEM/<COMPUTERNAME>.raw`  
+(archive step may produce `.7z` — prefer keeping `.raw` for Volatility until fork supports predictable raw output.)
+
+**CI / automation:** Use `-NoAcquire` and provide a dump path. Live acquisition is disabled when `GITHUB_ACTIONS=true`.
+
+## Creating dumps manually
+
+### WinPMEM (recommended)
+
 ```powershell
-# Download DumpIt from Comae
+# Standalone
+.\winpmem_mini_x64_rc2.exe C:\dumps\host.raw
+
+# Via this repo (after Tools/ setup)
+Invoke-MemoryDumpAcquisition
+```
+
+### DumpIt
+
+```powershell
 .\DumpIt.exe /O test.raw /T RAW
 ```
 
-### Option 3: Using Task Manager (Creates Minidump - NOT suitable)
-- Right-click process → Create dump file
-- **This creates a minidump** - Won't work with Volatility!
+### Do not use for Volatility
 
-### Option 4: Using NotMyFault (Kernel Dump)
+- Task Manager → Create dump file (minidump)
+- Small `.dmp` files from WER
+
+## Validation workflow
+
 ```powershell
-# Download from Sysinternals
-# This will BSOD your system!
-.\notmyfault64.exe /crash
-# Then copy C:\Windows\MEMORY.DMP
-```
-
-## Testing the Implementation
-
-### With a Real Dump
-Once you have a proper dump file:
-```powershell
-# Test with Volatility CLI first
+# 1. Volatility CLI (optional sanity check)
 vol -f memory.raw windows.pslist.PsList
 
-# Then test with our PowerShell module
-Import-Module .\publish\PowerShell.MemoryAnalysis.dll
-$dump = Get-MemoryDump -Path "memory.raw"
-$dump | Test-ProcessTree | Select -First 10
+# 2. Module
+Import-Module .\PowerShell.MemoryAnalysis\publish\MemoryAnalysis.psd1
+$dump = Get-MemoryDump -Path .\memory.raw -Validate
+$dump | Test-ProcessTree | Select-Object -First 10
+
+# 3. Discovery path
+Start-MemoryAnalysis -SearchPath C:\dumps -MaxSearchDepth 2 -NoAcquire
 ```
 
-### With Mock Data (For Development)
-For now, our tests use dummy paths which return placeholder data. This is sufficient for:
-- Testing the Rust-PowerShell interop
-- Verifying JSON serialization
-- Testing PowerShell cmdlet logic
+## References
 
-## Next Steps
-
-1. **Option A**: Get a proper memory dump
-   - Use WinPMEM or DumpIt on a test VM
-   - Copy to `samples/dumps/`
-   
-2. **Option B**: Continue with integration tests
-   - Our code is correct for real dumps
-   - Just need valid input data
-   
-3. **Option C**: Add minidump support
-   - Would require different Volatility plugins
-   - Limited functionality (no full process tree)
-
-## Current Implementation Status
-
-✅ **Working**:
-- Rust-Python bridge with PyO3 0.26
-- Volatility 3 Python API integration
-- Proper context initialization
-- Automagic execution
-- Plugin construction
-- TreeGrid parsing
-- Error handling
-
-❌ **Blocked by**:
-- Invalid input file (minidump instead of full dump)
-
-The implementation is complete and correct - we just need valid test data!
+- [architecture.md](architecture.md) — monorepo and discovery design
+- [plans/collect-memorydump-integration-plan.md](plans/collect-memorydump-integration-plan.md) — integration phases
+- [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) — GPL submodule and tool licensing

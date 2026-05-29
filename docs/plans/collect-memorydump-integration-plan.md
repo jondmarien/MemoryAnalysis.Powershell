@@ -1,6 +1,6 @@
 # Collect-MemoryDump Integration Plan
 
-**Status:** Phases 0–3 complete; Phases 4–5 follow-up  
+**Status:** Phases 0–4 complete; Phase 5 manual validation pending  
 **Branch:** `cursor/collect-memorydump-integration-d23a`  
 **Last updated:** 2026-05-29
 
@@ -111,7 +111,7 @@ Bump submodule pointer on main repo when fork releases tags.
 
 - [x] `MemoryDumpDiscoveryService` + unit tests
 - [x] `Resolve-MemoryDumpPath` cmdlet (`-MaxSearchDepth`, `-NoAcquire`, `-Force`)
-- [ ] Pester: 0/1/N files (optional follow-up)
+- [x] Pester: 0/1/N discovery scenarios (`Resolve-MemoryDumpPath.Tests.ps1`; multi-file prompt remains manual)
 
 ### Phase 2 — Acquisition wrapper ✅
 
@@ -123,12 +123,12 @@ Bump submodule pointer on main repo when fork releases tags.
 
 - [x] `Start-MemoryAnalysis` (resolve → `Get-MemoryDump`)
 - [x] `-NoAcquire`, `-SearchPath`, `-MaxSearchDepth` (default 1)
-- [ ] platyPS help / examples (optional follow-up)
+- [x] platyPS markdown help (`docs/help/Resolve-MemoryDumpPath.md`, etc.)
 
-### Phase 4 — Docs & CI (0.5 day)
+### Phase 4 — Docs & CI ✅
 
-- [ ] Update `DUMP_REQUIREMENTS.md`, architecture docs
-- [ ] CI: recursive submodule; no live acquisition in runners
+- [x] Update `DUMP_REQUIREMENTS.md`, `docs/architecture.md`
+- [x] CI: recursive submodule (existing); `GITHUB_ACTIONS` blocks acquisition prompts; Pester uses `-NoAcquire`
 
 ### Phase 5 — Manual validation
 

@@ -62,10 +62,13 @@ public class ResolveMemoryDumpPathCommand : PSCmdlet
 
             if (candidates.Count == 0)
             {
-                if (NoAcquire)
+                if (NoAcquire || IsContinuousIntegration())
                 {
+                    var message = IsContinuousIntegration()
+                        ? $"No memory dump found under {searchRoot}. Live acquisition is disabled in CI; use -NoAcquire explicitly, provide -Path, or place a dump in the search directory."
+                        : $"No memory dump found under {searchRoot}.";
                     ThrowTerminatingError(new ErrorRecord(
-                        new FileNotFoundException($"No memory dump found under {searchRoot}."),
+                        new FileNotFoundException(message),
                         "MemoryDumpNotFound",
                         ErrorCategory.ObjectNotFound,
                         searchRoot));
@@ -299,4 +302,8 @@ public class ResolveMemoryDumpPathCommand : PSCmdlet
 
     private static Collection<ChoiceDescription> YesNoChoices() =>
         new(new[] { new ChoiceDescription("&Yes"), new ChoiceDescription("&No") });
+
+    private static bool IsContinuousIntegration() =>
+        string.Equals(Environment.GetEnvironmentVariable("GITHUB_ACTIONS"), "true", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(Environment.GetEnvironmentVariable("MEMORYANALYSIS_CI"), "1", StringComparison.OrdinalIgnoreCase);
 }
