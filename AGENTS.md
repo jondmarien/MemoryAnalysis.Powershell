@@ -42,12 +42,15 @@ These must be set (already in `~/.bashrc` after setup):
 - **Rust lint:** `cd rust-bridge && cargo clippy -- -D warnings`
 - **Rust format check:** `cd rust-bridge && cargo fmt -- --check`
 - **C# tests:** `dotnet test tests/MemoryAnalysis.Tests/MemoryAnalysis.Tests.csproj --verbosity normal`
-- **PowerShell integration tests:** `pwsh-preview -Command 'Import-Module Pester -MinimumVersion 5.0; Invoke-Pester -Path tests/integration-tests/Module.Tests.ps1 -CI'`
+- **PowerShell integration tests:** CI builds via `.github/workflows/platform-pipeline.yml` (Rust → C# → publish → Pester). Locally, publish the module first, then:
+  `pwsh-preview -NoProfile -Command 'Import-Module Pester -MinimumVersion 5.0; Invoke-Pester -Path tests/integration-tests -CI'`
+- **Discovery defaults:** `Resolve-MemoryDumpPath` / `Start-MemoryAnalysis` use `MaxSearchDepth = 1` (cwd + one subdirectory). Use `-NoAcquire` in CI; `GITHUB_ACTIONS=true` blocks live acquisition prompts.
 
 ### Known Gotchas
 
 - The `.csproj` references `rust_bridge.dll` (Windows naming) but on Linux the built artifact is `librust_bridge.so`. You must manually copy it to the publish directory.
-- PowerShell integration tests have 3 pre-existing failures (cmdlet count expectation mismatch, missing help examples, missing parameter descriptions). These are not environment issues.
+- Integration tests require `PowerShell.MemoryAnalysis/publish/` — run `dotnet publish` and copy the Rust native library before Pester.
+- Some help-related Pester tests may warn until `scripts/Generate-Help.ps1` is run on Windows to refresh MAML under `publish/en-US/`.
 - The error-handling integration test for `Get-ProcessDll` will hang because Pester doesn't suppress mandatory parameter prompts. If running integration tests non-interactively, be prepared to kill the process or set a timeout.
 - The module uses `net11.0` and **Microsoft.PowerShell.SDK 7.7.0-preview.2**, which requires the .NET 11 preview SDK.
 - The Rust bridge uses PyO3 0.28 against Python 3.14 from `volatility-env`; set `PYO3_PYTHON` before building.

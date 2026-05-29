@@ -23,6 +23,8 @@
 /tests/**/obj/
 /tests/**/TestResults/
 /tests/**/CoverageReport/
+testResults.xml
+**/testResults.xml
 
 # Python
 volatility-env/

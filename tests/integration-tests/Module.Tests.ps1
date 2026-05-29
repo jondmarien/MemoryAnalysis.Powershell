@@ -84,9 +84,28 @@ Describe "MemoryAnalysis Module" {
                 Should -Not -BeNullOrEmpty
         }
 
-        It "Should export exactly 10 cmdlets (2 disabled in Win11)" {
+        It "Should export Resolve-MemoryDumpPath cmdlet" {
+            Get-Command Resolve-MemoryDumpPath -Module MemoryAnalysis -ErrorAction SilentlyContinue |
+                Should -Not -BeNullOrEmpty
+        }
+
+        It "Should export Invoke-MemoryDumpAcquisition cmdlet" {
+            Get-Command Invoke-MemoryDumpAcquisition -Module MemoryAnalysis -ErrorAction SilentlyContinue |
+                Should -Not -BeNullOrEmpty
+        }
+
+        It "Should export Start-MemoryAnalysis cmdlet" {
+            Get-Command Start-MemoryAnalysis -Module MemoryAnalysis -ErrorAction SilentlyContinue |
+                Should -Not -BeNullOrEmpty
+        }
+
+        It "Should export all cmdlets listed in the module manifest" {
+            $expected = (Import-PowerShellDataFile (Join-Path $PSScriptRoot "..\..\PowerShell.MemoryAnalysis\MemoryAnalysis.psd1")).CmdletsToExport
             $cmdlets = Get-Command -Module MemoryAnalysis -CommandType Cmdlet
-            $cmdlets.Count | Should -Be 10
+            $cmdlets.Count | Should -Be $expected.Count
+            foreach ($name in $expected) {
+                $cmdlets.Name | Should -Contain $name
+            }
         }
     }
 
@@ -122,6 +141,20 @@ Describe "MemoryAnalysis Module" {
         It "Get-ProcessDll should have Pid parameter" {
             $cmd = Get-Command Get-ProcessDll
             $cmd.Parameters.Keys | Should -Contain 'Pid'
+        }
+
+        It "Resolve-MemoryDumpPath should have MaxSearchDepth and NoAcquire parameters" {
+            $cmd = Get-Command Resolve-MemoryDumpPath
+            $cmd.Parameters.Keys | Should -Contain 'MaxSearchDepth'
+            $cmd.Parameters.Keys | Should -Contain 'NoAcquire'
+            $cmd.Parameters.Keys | Should -Contain 'SearchPath'
+        }
+
+        It "Start-MemoryAnalysis should have MaxSearchDepth default discovery parameters" {
+            $cmd = Get-Command Start-MemoryAnalysis
+            $cmd.Parameters.Keys | Should -Contain 'MaxSearchDepth'
+            $cmd.Parameters.Keys | Should -Contain 'NoAcquire'
+            $cmd.Parameters.Keys | Should -Contain 'SearchPath'
         }
     }
 

@@ -42,10 +42,12 @@ Ubuntu and macOS no longer wait for Windows to finish Rust/C# before starting th
 - Install Pester 5+, download build artifacts, run Pester with `-CI`
 - Upload test results
 
-#### Performance benchmarks (Windows only)
-- **Depends on:** `ci-windows` (Windows pipeline complete)
-- **Trigger:** Push to `main` only
-- Downloads Windows build artifacts, runs `Measure-Performance.ps1`
+#### Performance benchmarks (all platforms)
+- **Workflow:** `.github/workflows/benchmark.yml` (reusable)
+- **Jobs:** `benchmark-windows`, `benchmark-ubuntu`, `benchmark-macos` — each runs after its platform pipeline
+- **Trigger:** Pull requests and pushes to `main`
+- Downloads that platform's `MemoryAnalysis-{runner}` artifact, runs `Measure-Performance.ps1`
+- Uploads `benchmark-results-{runner}` (JSON includes runner label in the filename)
 
 ## Status Badges
 
@@ -61,8 +63,8 @@ Add to README.md:
 
 Each row is one parallel pipeline (steps run in order left → right):
 
-| Platform | Rust → C# → Build → Integration |
-|----------|-----------------------------------|
+| Platform | Rust → C# → Build → Integration → Benchmarks |
+|----------|-----------------------------------------------|
 | Windows  | ✅ (independent pipeline) |
 | Linux    | ✅ (independent pipeline) |
 | macOS    | ✅ (independent pipeline) |
@@ -111,8 +113,8 @@ PowerShell 7.7 preview is installed per job and exposed as `PWSH_PREVIEW` (Windo
 - **Retention:** 7 days
 
 ### Benchmark Results
-- **Name:** `benchmark-results`
-- **Contents:** Performance JSON files
+- **Name:** `benchmark-results-{runner}` (e.g. `benchmark-results-ubuntu-latest`)
+- **Contents:** Performance JSON files per OS
 - **Retention:** 30 days
 
 ## Local Testing

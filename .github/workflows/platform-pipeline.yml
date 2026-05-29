@@ -320,13 +320,14 @@ jobs:
         run: |
           & $env:PWSH_PREVIEW -NoProfile -Command 'Install-Module -Name Pester -Force -MinimumVersion 5.0 -Scope CurrentUser -AllowClobber'
 
+      # Discovery tests use -NoAcquire; GITHUB_ACTIONS blocks acquisition prompts in the module.
       - name: Run Integration Tests
         shell: pwsh
         run: |
           & $env:PWSH_PREVIEW -NoProfile -Command {
             Import-Module Pester -MinimumVersion 5.0
             Set-Location $env:GITHUB_WORKSPACE
-            Invoke-Pester -Path tests/integration-tests/Module.Tests.ps1 -CI
+            Invoke-Pester -Path tests/integration-tests -CI
           }
 
       - name: Upload Test Results

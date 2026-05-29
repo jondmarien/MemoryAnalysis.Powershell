@@ -49,7 +49,15 @@ Write-Host "  MAML help: $OutputPath\MemoryAnalysis-help.xml" -ForegroundColor G
 
 # Test the help
 Write-Host "`nTesting help content..." -ForegroundColor Cyan
-$testCmdlets = @('Get-MemoryDump', 'Analyze-ProcessTree', 'Get-ProcessCommandLine', 'Get-ProcessDll')
+$testCmdlets = @(
+    'Get-MemoryDump'
+    'Resolve-MemoryDumpPath'
+    'Invoke-MemoryDumpAcquisition'
+    'Start-MemoryAnalysis'
+    'Analyze-ProcessTree'
+    'Get-ProcessCommandLine'
+    'Get-ProcessDll'
+)
 
 foreach ($cmdlet in $testCmdlets) {
     try {
