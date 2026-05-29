@@ -6,7 +6,7 @@ on:
   workflow_call:
     inputs:
       runner:
-        description: GitHub-hosted runner label (e.g. windows-latest)
+        description: GitHub-hosted runner label (e.g. windows-2025-vs2026)
         required: true
         type: string
 
@@ -168,7 +168,7 @@ jobs:
         run: dotnet publish -c Release -o publish
 
       - name: Copy Rust DLL (Windows)
-        if: inputs.runner == 'windows-latest'
+        if: inputs.runner == 'windows-2025-vs2026'
         run: |
           Copy-Item rust-bridge/target/release/rust_bridge.dll PowerShell.MemoryAnalysis/publish/
         shell: pwsh
@@ -184,7 +184,7 @@ jobs:
           cp rust-bridge/target/release/librust_bridge.dylib PowerShell.MemoryAnalysis/publish/
 
       - name: Install PowerShell 7.7 Preview (Windows)
-        if: inputs.runner == 'windows-latest'
+        if: inputs.runner == 'windows-2025-vs2026'
         shell: pwsh
         run: |
           $version = '${{ env.POWERSHELL_VERSION }}'
@@ -227,7 +227,7 @@ jobs:
           pwsh-preview -Version
 
       - name: Generate MAML Help (Windows)
-        if: inputs.runner == 'windows-latest'
+        if: inputs.runner == 'windows-2025-vs2026'
         shell: pwsh
         run: |
           & $env:PWSH_PREVIEW -NoProfile -Command {
@@ -237,7 +237,7 @@ jobs:
           }
 
       - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: MemoryAnalysis-${{ inputs.runner }}
           path: PowerShell.MemoryAnalysis/publish/
@@ -254,7 +254,7 @@ jobs:
           submodules: recursive
 
       - name: Install PowerShell 7.7 Preview (Windows)
-        if: inputs.runner == 'windows-latest'
+        if: inputs.runner == 'windows-2025-vs2026'
         shell: pwsh
         run: |
           $version = '${{ env.POWERSHELL_VERSION }}'
@@ -310,7 +310,7 @@ jobs:
           echo "LD_LIBRARY_PATH=${python_lib}:${LD_LIBRARY_PATH:-}" >> "$GITHUB_ENV"
 
       - name: Download Build Artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: MemoryAnalysis-${{ inputs.runner }}
           path: PowerShell.MemoryAnalysis/publish/
@@ -331,7 +331,7 @@ jobs:
 
       - name: Upload Test Results
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: test-results-${{ inputs.runner }}
           path: tests/integration-tests/TestResults/
