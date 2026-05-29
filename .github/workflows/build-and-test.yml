@@ -9,7 +9,6 @@ on:
 
 env:
   POWERSHELL_VERSION: '7.7.0-preview.2'
-  WINDOWS_RUNNER: windows-2025-vs2026
 
 # Three independent platform pipelines run in parallel. Each pipeline is
 # sequential: Rust → C# → Build → Integration. Ubuntu/macOS no longer wait for
@@ -35,7 +34,7 @@ jobs:
 
   benchmark:
     name: Performance Benchmarks
-    runs-on: ${{ env.WINDOWS_RUNNER }}
+    runs-on: windows-2025-vs2026
     needs: ci-windows
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
@@ -58,7 +57,7 @@ jobs:
       - name: Download Build Artifacts
         uses: actions/download-artifact@v8
         with:
-          name: MemoryAnalysis-${{ env.WINDOWS_RUNNER }}
+          name: MemoryAnalysis-windows-2025-vs2026
           path: PowerShell.MemoryAnalysis/publish/
 
       - name: Run Benchmarks
