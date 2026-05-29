@@ -1,14 +1,15 @@
 ---
 external help file: PowerShell.MemoryAnalysis.dll-Help.xml
 Module Name: MemoryAnalysis
-online version:
+online version: https://github.com/jondmarien/MemoryAnalysis.Powershell
 schema: 2.0.0
 ---
 
 # Get-ProcessCommandLine
 
 ## SYNOPSIS
-{{ Fill in the Synopsis }}
+
+Extracts command line arguments for processes in a memory dump.
 
 ## SYNTAX
 
@@ -18,21 +19,37 @@ Get-ProcessCommandLine -MemoryDump <MemoryDump> [-Pid <UInt32>] [-ProcessName <S
 ```
 
 ## DESCRIPTION
-{{ Fill in the Description }}
+
+The `Get-ProcessCommandLine` cmdlet uses Volatility 3's CmdLine plugin to recover command-line arguments for processes in a loaded memory dump. Pipe a `MemoryDump` from `Get-MemoryDump`, or pass **-MemoryDump** explicitly. Optional filters narrow results by PID or process name.
 
 ## EXAMPLES
 
-### Example 1
+### Example 1: All command lines in a dump
+
 ```powershell
-PS C:\> {{ Add example code here }}
+PS C:\> Get-MemoryDump -Path C:\dumps\memory.vmem | Get-ProcessCommandLine
 ```
 
-{{ Add example description here }}
+Returns `CommandLineInfo` objects for each process that has a recoverable command line.
+
+### Example 2: Filter by process name
+
+```powershell
+PS C:\> Get-ProcessCommandLine -MemoryDump $dump -ProcessName "powershell*"
+```
+
+Returns command lines only for processes matching the wildcard.
+
+### Example 3: Single process by PID
+
+```powershell
+PS C:\> Get-ProcessCommandLine -MemoryDump $dump -Pid 1234
+```
 
 ## PARAMETERS
 
 ### -MemoryDump
-{{ Fill MemoryDump Description }}
+Memory dump object returned by `Get-MemoryDump`.
 
 ```yaml
 Type: MemoryDump
@@ -47,7 +64,7 @@ Accept wildcard characters: False
 ```
 
 ### -Pid
-{{ Fill Pid Description }}
+Limit results to a specific process ID.
 
 ```yaml
 Type: UInt32
@@ -62,7 +79,7 @@ Accept wildcard characters: False
 ```
 
 ### -ProcessName
-{{ Fill ProcessName Description }}
+Limit results to processes whose image name matches this pattern (wildcards supported).
 
 ```yaml
 Type: String
@@ -77,7 +94,7 @@ Accept wildcard characters: True
 ```
 
 ### -ProgressAction
-{{ Fill ProgressAction Description }}
+Determines how progress records are handled. Valid values: Continue (default), SilentlyContinue, Stop, Inquire, Ignore, Suspend, and Break.
 
 ```yaml
 Type: ActionPreference
@@ -105,3 +122,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## NOTES
 
 ## RELATED LINKS
+
+[Get-MemoryDump](Get-MemoryDump.md)
+
+[Test-ProcessTree](Test-ProcessTree.md)

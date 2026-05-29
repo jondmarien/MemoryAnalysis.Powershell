@@ -1,14 +1,15 @@
 ---
 external help file: PowerShell.MemoryAnalysis.dll-Help.xml
 Module Name: MemoryAnalysis
-online version:
+online version: https://github.com/jondmarien/MemoryAnalysis.Powershell
 schema: 2.0.0
 ---
 
 # Test-ProcessTree
 
 ## SYNOPSIS
-{{ Fill in the Synopsis }}
+
+Analyzes process hierarchies in a memory dump.
 
 ## SYNTAX
 
@@ -19,16 +20,34 @@ Test-ProcessTree [-MemoryDump] <MemoryDump> [-Pid <UInt32>] [-ProcessName <Strin
 ```
 
 ## DESCRIPTION
-{{ Fill in the Description }}
+
+The `Test-ProcessTree` cmdlet (alias `Analyze-ProcessTree`) walks the process tree in a loaded memory dump via Volatility 3. It reports parent-child relationships and can flag suspicious processes. Filter by PID, process name, or parent PID, and choose **Tree**, **Flat**, or **JSON** output.
 
 ## EXAMPLES
 
-### Example 1
+### Example 1: Analyze all processes
+
 ```powershell
-PS C:\> {{ Add example code here }}
+PS C:\> Get-MemoryDump -Path C:\dumps\memory.vmem | Test-ProcessTree
 ```
 
-{{ Add example description here }}
+Returns process tree information for every process in the dump.
+
+### Example 2: Tree view with suspicious flagging
+
+```powershell
+PS C:\> Test-ProcessTree -MemoryDump $dump -Format Tree -FlagSuspicious
+```
+
+Displays a hierarchical tree and marks processes that match suspicious heuristics.
+
+### Example 3: Filter by process name
+
+```powershell
+PS C:\> Test-ProcessTree -MemoryDump $dump -ProcessName "powershell*"
+```
+
+Limits results to processes whose names match the wildcard pattern.
 
 ## PARAMETERS
 
@@ -154,7 +173,7 @@ Accept wildcard characters: True
 ```
 
 ### -ProgressAction
-{{ Fill ProgressAction Description }}
+Determines how progress records are handled. Valid values: Continue (default), SilentlyContinue, Stop, Inquire, Ignore, Suspend, and Break.
 
 ```yaml
 Type: ActionPreference
@@ -181,4 +200,10 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## NOTES
 
+Alias: **Analyze-ProcessTree**
+
 ## RELATED LINKS
+
+[Get-MemoryDump](Get-MemoryDump.md)
+
+[Get-ProcessCommandLine](Get-ProcessCommandLine.md)

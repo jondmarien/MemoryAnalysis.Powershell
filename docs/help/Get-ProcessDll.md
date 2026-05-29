@@ -1,14 +1,15 @@
 ---
 external help file: PowerShell.MemoryAnalysis.dll-Help.xml
 Module Name: MemoryAnalysis
-online version:
+online version: https://github.com/jondmarien/MemoryAnalysis.Powershell
 schema: 2.0.0
 ---
 
 # Get-ProcessDll
 
 ## SYNOPSIS
-{{ Fill in the Synopsis }}
+
+Lists DLLs loaded by processes in a memory dump.
 
 ## SYNTAX
 
@@ -18,21 +19,37 @@ Get-ProcessDll -MemoryDump <MemoryDump> [-Pid <UInt32>] [-ProcessName <String>] 
 ```
 
 ## DESCRIPTION
-{{ Fill in the Description }}
+
+The `Get-ProcessDll` cmdlet uses Volatility 3's DllList plugin to enumerate DLLs loaded in a memory image. Accepts a `MemoryDump` from the pipeline or **-MemoryDump**. Filter by process PID, process name, or DLL name (wildcards supported on name parameters).
 
 ## EXAMPLES
 
-### Example 1
+### Example 1: List all DLLs
+
 ```powershell
-PS C:\> {{ Add example code here }}
+PS C:\> Get-MemoryDump -Path C:\dumps\memory.vmem | Get-ProcessDll
 ```
 
-{{ Add example description here }}
+Returns `DllInfo` records for loaded modules across all processes.
+
+### Example 2: DLLs for one process
+
+```powershell
+PS C:\> Get-ProcessDll -MemoryDump $dump -Pid 1234
+```
+
+### Example 3: Hunt for a suspicious module name
+
+```powershell
+PS C:\> Get-ProcessDll -MemoryDump $dump -DllName "*malware*"
+```
+
+Returns only DLL paths matching the wildcard.
 
 ## PARAMETERS
 
 ### -DllName
-{{ Fill DllName Description }}
+Filter by DLL file name or path (wildcards supported).
 
 ```yaml
 Type: String
@@ -47,7 +64,7 @@ Accept wildcard characters: True
 ```
 
 ### -MemoryDump
-{{ Fill MemoryDump Description }}
+Memory dump object returned by `Get-MemoryDump`.
 
 ```yaml
 Type: MemoryDump
@@ -62,7 +79,7 @@ Accept wildcard characters: False
 ```
 
 ### -Pid
-{{ Fill Pid Description }}
+Limit results to modules loaded by the specified process ID.
 
 ```yaml
 Type: UInt32
@@ -77,7 +94,7 @@ Accept wildcard characters: False
 ```
 
 ### -ProcessName
-{{ Fill ProcessName Description }}
+Limit results to processes whose image name matches this pattern (wildcards supported).
 
 ```yaml
 Type: String
@@ -92,7 +109,7 @@ Accept wildcard characters: True
 ```
 
 ### -ProgressAction
-{{ Fill ProgressAction Description }}
+Determines how progress records are handled. Valid values: Continue (default), SilentlyContinue, Stop, Inquire, Ignore, Suspend, and Break.
 
 ```yaml
 Type: ActionPreference
@@ -120,3 +137,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## NOTES
 
 ## RELATED LINKS
+
+[Get-MemoryDump](Get-MemoryDump.md)
+
+[Test-ProcessTree](Test-ProcessTree.md)

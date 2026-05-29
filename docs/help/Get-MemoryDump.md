@@ -1,14 +1,15 @@
 ---
 external help file: PowerShell.MemoryAnalysis.dll-Help.xml
 Module Name: MemoryAnalysis
-online version:
+online version: https://github.com/jondmarien/MemoryAnalysis.Powershell
 schema: 2.0.0
 ---
 
 # Get-MemoryDump
 
 ## SYNOPSIS
-{{ Fill in the Synopsis }}
+
+Loads a memory dump file for analysis with Volatility 3.
 
 ## SYNTAX
 
@@ -18,16 +19,35 @@ Get-MemoryDump [-Path] <String> [-Validate] [-DetectProfile] [-DebugMode] [-Prog
 ```
 
 ## DESCRIPTION
-{{ Fill in the Description }}
+
+The `Get-MemoryDump` cmdlet opens a memory image and prepares it for Volatility 3 analysis through the Rust bridge. Supported formats include raw images (`.raw`, `.mem`, `.bin`, `.lime`), VMware dumps (`.vmem`), AFF4 (`.aff`), and large crash dumps (`.dmp` ≥ 100 MB).
+
+Use `Resolve-MemoryDumpPath` or `Start-MemoryAnalysis` when you need to discover or acquire a dump before loading. **-Path** is required for this cmdlet.
 
 ## EXAMPLES
 
-### Example 1
+### Example 1: Load a raw memory image
+
 ```powershell
-PS C:\> {{ Add example code here }}
+PS C:\> $dump = Get-MemoryDump -Path C:\dumps\memory.raw
 ```
 
-{{ Add example description here }}
+Loads the file and returns a `MemoryDump` object for pipeline cmdlets.
+
+### Example 2: Load with validation and profile detection
+
+```powershell
+PS C:\> $dump = Get-MemoryDump -Path C:\evidence\host.vmem -Validate -DetectProfile
+```
+
+Validates structure and attempts OS profile detection before analysis.
+
+### Example 3: Pipeline from discovery
+
+```powershell
+PS C:\> $found = Resolve-MemoryDumpPath -SearchPath D:\Cases\2026-001 -NoAcquire
+PS C:\> Get-MemoryDump -Path $found.Path | Test-ProcessTree
+```
 
 ## PARAMETERS
 
@@ -92,7 +112,7 @@ Accept wildcard characters: False
 ```
 
 ### -ProgressAction
-{{ Fill ProgressAction Description }}
+Determines how progress records are handled. Valid values: Continue (default), SilentlyContinue, Stop, Inquire, Ignore, Suspend, and Break.
 
 ```yaml
 Type: ActionPreference
@@ -119,4 +139,10 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## NOTES
 
+Requires a full physical memory image. WER minidumps under 100 MB are not supported. See [DUMP_REQUIREMENTS.md](https://github.com/jondmarien/MemoryAnalysis.Powershell/blob/main/docs/DUMP_REQUIREMENTS.md).
+
 ## RELATED LINKS
+
+[Resolve-MemoryDumpPath](Resolve-MemoryDumpPath.md)
+
+[Start-MemoryAnalysis](Start-MemoryAnalysis.md)
