@@ -77,6 +77,12 @@ POWERSHELL_VERSION: '7.7.0-preview.2'
 VOLATILITY3_VERSION: '2.28.0'
 ```
 
+CI uses current GitHub Actions (Node 24): `actions/checkout@v6`, `actions/cache@v5`, `actions/setup-python@v6`, `actions/setup-dotnet@v5`, `codecov/codecov-action@v6`, `actions/upload-artifact@v7`, `actions/download-artifact@v8`.
+
+Windows jobs use `windows-2025-vs2026` explicitly (avoids `windows-latest` redirect notices).
+
+PowerShell 7.7 preview is installed per job and exposed as `PWSH_PREVIEW` (Windows zip extract does not add `pwsh-preview` to PATH).
+
 ## Caching Strategy
 
 ### Cargo Cache

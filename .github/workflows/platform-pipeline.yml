@@ -6,7 +6,7 @@ on:
   workflow_call:
     inputs:
       runner:
-        description: GitHub-hosted runner label (e.g. windows-latest)
+        description: GitHub-hosted runner label (e.g. windows-2025-vs2026)
         required: true
         type: string
 
@@ -23,7 +23,7 @@ jobs:
     runs-on: ${{ inputs.runner }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
 
@@ -34,7 +34,7 @@ jobs:
           components: rustfmt, clippy
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -45,7 +45,7 @@ jobs:
         run: uv pip install --system "volatility3==${{ env.VOLATILITY3_VERSION }}"
 
       - name: Cache Cargo
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/bin/
@@ -81,7 +81,7 @@ jobs:
           cargo tarpaulin --out xml --output-dir ./coverage --exclude-files ../PowerShell.MemoryAnalysis
 
       - name: Upload Rust Coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v6
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
@@ -95,12 +95,12 @@ jobs:
     needs: rust-tests
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
@@ -114,7 +114,7 @@ jobs:
         run: dotnet test tests/MemoryAnalysis.Tests/MemoryAnalysis.Tests.csproj --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./TestResults
 
       - name: Upload Coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v6
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
@@ -128,12 +128,12 @@ jobs:
     needs: csharp-tests
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
@@ -143,7 +143,7 @@ jobs:
           toolchain: ${{ env.RUST_VERSION }}
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -168,7 +168,7 @@ jobs:
         run: dotnet publish -c Release -o publish
 
       - name: Copy Rust DLL (Windows)
-        if: inputs.runner == 'windows-latest'
+        if: inputs.runner == 'windows-2025-vs2026'
         run: |
           Copy-Item rust-bridge/target/release/rust_bridge.dll PowerShell.MemoryAnalysis/publish/
         shell: pwsh
@@ -184,7 +184,7 @@ jobs:
           cp rust-bridge/target/release/librust_bridge.dylib PowerShell.MemoryAnalysis/publish/
 
       - name: Install PowerShell 7.7 Preview (Windows)
-        if: inputs.runner == 'windows-latest'
+        if: inputs.runner == 'windows-2025-vs2026'
         shell: pwsh
         run: |
           $version = '${{ env.POWERSHELL_VERSION }}'
@@ -198,29 +198,46 @@ jobs:
 
       - name: Install PowerShell 7.7 Preview (macOS)
         if: inputs.runner == 'macos-latest'
+        shell: bash
         run: |
-          brew install --cask powershell@preview
+          version='${{ env.POWERSHELL_VERSION }}'
+          arch=$(uname -m)
+          case "$arch" in
+            arm64) asset="powershell-${version}-osx-arm64.tar.gz" ;;
+            *) asset="powershell-${version}-osx-x64.tar.gz" ;;
+          esac
+          url="https://github.com/PowerShell/PowerShell/releases/download/v${version}/${asset}"
+          curl -fsSL -o "$asset" "$url"
+          install_dir="${RUNNER_TEMP}/pwsh-preview"
+          mkdir -p "$install_dir"
+          tar -xzf "$asset" -C "$install_dir"
+          pwsh_bin="$(find "$install_dir" -name pwsh -type f | head -1)"
+          echo "PWSH_PREVIEW=${pwsh_bin}" >> "$GITHUB_ENV"
+          "$pwsh_bin" -Version
 
       - name: Install PowerShell 7.7 Preview (Linux)
         if: inputs.runner == 'ubuntu-latest'
+        shell: bash
         run: |
           version='${{ env.POWERSHELL_VERSION }}'
-          wget "https://github.com/PowerShell/PowerShell/releases/download/v${version}/powershell-preview_${version}-1.deb_amd64.deb"
+          wget -q "https://github.com/PowerShell/PowerShell/releases/download/v${version}/powershell-preview_${version}-1.deb_amd64.deb"
           sudo dpkg -i "powershell-preview_${version}-1.deb_amd64.deb"
           sudo apt-get install -f -y
+          echo "PWSH_PREVIEW=$(command -v pwsh-preview)" >> "$GITHUB_ENV"
+          pwsh-preview -Version
 
       - name: Generate MAML Help (Windows)
-        if: inputs.runner == 'windows-latest'
+        if: inputs.runner == 'windows-2025-vs2026'
         shell: pwsh
         run: |
-          & $env:PWSH_PREVIEW -Command {
+          & $env:PWSH_PREVIEW -NoProfile -Command {
             Install-Module -Name platyPS -Force -Scope CurrentUser
-            Set-Location "$env:GITHUB_WORKSPACE"
+            Set-Location $env:GITHUB_WORKSPACE
             ./scripts/Generate-Help.ps1
           }
 
       - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: MemoryAnalysis-${{ inputs.runner }}
           path: PowerShell.MemoryAnalysis/publish/
@@ -232,12 +249,12 @@ jobs:
     needs: build-module
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
 
       - name: Install PowerShell 7.7 Preview (Windows)
-        if: inputs.runner == 'windows-latest'
+        if: inputs.runner == 'windows-2025-vs2026'
         shell: pwsh
         run: |
           $version = '${{ env.POWERSHELL_VERSION }}'
@@ -247,79 +264,76 @@ jobs:
           Expand-Archive -Path $zip -DestinationPath "$env:RUNNER_TEMP\pwsh-preview" -Force
           $pwsh = Get-ChildItem -Path "$env:RUNNER_TEMP\pwsh-preview" -Recurse -Filter pwsh.exe | Select-Object -First 1
           echo "PWSH_PREVIEW=$($pwsh.FullName)" >> $env:GITHUB_ENV
+          & $pwsh.FullName -Version
 
       - name: Install PowerShell 7.7 Preview (macOS)
         if: inputs.runner == 'macos-latest'
+        shell: bash
         run: |
-          brew install --cask powershell@preview
+          version='${{ env.POWERSHELL_VERSION }}'
+          arch=$(uname -m)
+          case "$arch" in
+            arm64) asset="powershell-${version}-osx-arm64.tar.gz" ;;
+            *) asset="powershell-${version}-osx-x64.tar.gz" ;;
+          esac
+          url="https://github.com/PowerShell/PowerShell/releases/download/v${version}/${asset}"
+          curl -fsSL -o "$asset" "$url"
+          install_dir="${RUNNER_TEMP}/pwsh-preview"
+          mkdir -p "$install_dir"
+          tar -xzf "$asset" -C "$install_dir"
+          pwsh_bin="$(find "$install_dir" -name pwsh -type f | head -1)"
+          echo "PWSH_PREVIEW=${pwsh_bin}" >> "$GITHUB_ENV"
+          "$pwsh_bin" -Version
 
       - name: Install PowerShell 7.7 Preview (Linux)
         if: inputs.runner == 'ubuntu-latest'
+        shell: bash
         run: |
           version='${{ env.POWERSHELL_VERSION }}'
-          wget "https://github.com/PowerShell/PowerShell/releases/download/v${version}/powershell-preview_${version}-1.deb_amd64.deb"
+          wget -q "https://github.com/PowerShell/PowerShell/releases/download/v${version}/powershell-preview_${version}-1.deb_amd64.deb"
           sudo dpkg -i "powershell-preview_${version}-1.deb_amd64.deb"
           sudo apt-get install -f -y
-
-      - name: Verify PowerShell Installation (Windows)
-        if: inputs.runner == 'windows-latest'
-        shell: pwsh
-        run: |
+          echo "PWSH_PREVIEW=$(command -v pwsh-preview)" >> "$GITHUB_ENV"
           pwsh-preview -Version
 
-      - name: Verify PowerShell Installation (macOS)
-        if: inputs.runner == 'macos-latest'
-        run: |
-          /usr/local/bin/pwsh-preview -Version
+      - name: Setup Python for native bridge runtime
+        if: inputs.runner == 'ubuntu-latest' || inputs.runner == 'macos-latest'
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Verify PowerShell Installation (Linux)
+      - name: Set native library path (Linux)
         if: inputs.runner == 'ubuntu-latest'
+        shell: bash
         run: |
-          pwsh-preview -Version
-
-      - name: Install Pester
-        shell: pwsh
-        run: |
-          Install-Module -Name Pester -Force -MinimumVersion 5.0 -Scope CurrentUser
+          python_lib=$(python3 -c 'import sysconfig; print(sysconfig.get_config_var("LIBDIR"))')
+          echo "LD_LIBRARY_PATH=${python_lib}:${LD_LIBRARY_PATH:-}" >> "$GITHUB_ENV"
 
       - name: Download Build Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: MemoryAnalysis-${{ inputs.runner }}
           path: PowerShell.MemoryAnalysis/publish/
 
-      - name: Run Integration Tests (Windows)
-        if: inputs.runner == 'windows-latest'
+      - name: Install Pester
         shell: pwsh
         run: |
-          & $env:PWSH_PREVIEW -Command {
-            Import-Module Pester -MinimumVersion 5.0
-            Set-Location "$env:GITHUB_WORKSPACE"
-            Invoke-Pester -Path tests/integration-tests/Module.Tests.ps1 -CI
-          }
+          & $env:PWSH_PREVIEW -NoProfile -Command 'Install-Module -Name Pester -Force -MinimumVersion 5.0 -Scope CurrentUser -AllowClobber'
 
-      - name: Run Integration Tests (macOS)
-        if: inputs.runner == 'macos-latest'
+      - name: Run Integration Tests
+        shell: pwsh
         run: |
-          /usr/local/bin/pwsh-preview -Command {
+          & $env:PWSH_PREVIEW -NoProfile -Command {
             Import-Module Pester -MinimumVersion 5.0
-            Set-Location "$env:GITHUB_WORKSPACE"
-            Invoke-Pester -Path tests/integration-tests/Module.Tests.ps1 -CI
-          }
-
-      - name: Run Integration Tests (Linux)
-        if: inputs.runner == 'ubuntu-latest'
-        run: |
-          pwsh-preview -Command {
-            Import-Module Pester -MinimumVersion 5.0
-            Set-Location "$env:GITHUB_WORKSPACE"
+            Set-Location $env:GITHUB_WORKSPACE
             Invoke-Pester -Path tests/integration-tests/Module.Tests.ps1 -CI
           }
 
       - name: Upload Test Results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-results-${{ inputs.runner }}
           path: tests/integration-tests/TestResults/
           retention-days: 7
+          if-no-files-found: ignore

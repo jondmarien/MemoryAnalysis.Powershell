@@ -9,6 +9,7 @@ on:
 
 env:
   POWERSHELL_VERSION: '7.7.0-preview.2'
+  WINDOWS_RUNNER: windows-2025-vs2026
 
 # Three independent platform pipelines run in parallel. Each pipeline is
 # sequential: Rust → C# → Build → Integration. Ubuntu/macOS no longer wait for
@@ -18,7 +19,7 @@ jobs:
     name: CI (Windows)
     uses: ./.github/workflows/platform-pipeline.yml
     with:
-      runner: windows-latest
+      runner: windows-2025-vs2026
 
   ci-ubuntu:
     name: CI (Ubuntu)
@@ -34,12 +35,12 @@ jobs:
 
   benchmark:
     name: Performance Benchmarks
-    runs-on: windows-latest
+    runs-on: ${{ env.WINDOWS_RUNNER }}
     needs: ci-windows
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
 
@@ -55,9 +56,9 @@ jobs:
           echo "PWSH_PREVIEW=$($pwsh.FullName)" >> $env:GITHUB_ENV
 
       - name: Download Build Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
-          name: MemoryAnalysis-windows-latest
+          name: MemoryAnalysis-${{ env.WINDOWS_RUNNER }}
           path: PowerShell.MemoryAnalysis/publish/
 
       - name: Run Benchmarks
@@ -69,7 +70,7 @@ jobs:
           }
 
       - name: Upload Benchmark Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: benchmark-results
           path: benchmarks/benchmark-results-*.json
