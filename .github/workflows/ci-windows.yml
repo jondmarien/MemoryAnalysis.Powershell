@@ -1,0 +1,23 @@
+name: CI (Windows)
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  ci:
+    name: CI (Windows)
+    uses: ./.github/workflows/platform-pipeline.yml
+    with:
+      runner: windows-2025-vs2026
+
+  benchmark:
+    name: Performance Benchmarks (Windows)
+    needs: ci
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    uses: ./.github/workflows/benchmark.yml
+    with:
+      runner: windows-2025-vs2026

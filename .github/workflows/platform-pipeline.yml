@@ -1,5 +1,5 @@
 # Reusable per-platform CI pipeline: Rust → C# → Build → Integration (sequential).
-# Invoked in parallel once per OS from build-and-test.yml.
+# Invoked in parallel once per OS from ci-windows.yml, ci-ubuntu.yml, and ci-macos.yml.
 name: Platform Pipeline
 
 on:

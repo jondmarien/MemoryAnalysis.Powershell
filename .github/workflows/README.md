@@ -6,20 +6,19 @@ Automated build, test, and release pipelines for the MemoryAnalysis PowerShell m
 
 ## Workflows
 
-### 1. Build and Test (`build-and-test.yml`)
+### 1. Per-platform CI (`ci-windows.yml`, `ci-ubuntu.yml`, `ci-macos.yml`)
 
-**Triggers:**
+**Triggers (each file):**
 - Push to `main` or `develop` branches
 - Pull requests to `main` or `develop`
 - Manual trigger (`workflow_dispatch`)
 
-**Jobs:**
+**Jobs (per workflow):**
 
-Three top-level jobs (`ci-windows`, `ci-ubuntu`, `ci-macos`) run **in parallel**. Each invokes the reusable workflow [platform-pipeline.yml](platform-pipeline.yml), which runs this **sequential** chain on that runner only:
+1. **CI** — invokes reusable [platform-pipeline.yml](platform-pipeline.yml) (Rust → C# → build → integration on that runner only)
+2. **Benchmark** — after CI, on pull requests and pushes to `main`
 
-1. **Rust unit tests** → 2. **C# unit tests** → 3. **Build PowerShell module** → 4. **PowerShell integration tests**
-
-Ubuntu and macOS no longer wait for Windows to finish Rust/C# before starting their own build; each OS owns its full pipeline.
+The three workflows run **in parallel**; each OS owns its full pipeline. Separate workflow files enable accurate per-OS status badges in the README.
 
 #### Per-platform pipeline (`platform-pipeline.yml`)
 
@@ -51,10 +50,17 @@ Ubuntu and macOS no longer wait for Windows to finish Rust/C# before starting th
 
 ## Status Badges
 
-Add to README.md:
+Per-OS CI badges (use `?branch=main` so README reflects default-branch status):
 
 ```markdown
-[![Build and Test](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/build-and-test.yml)
+[![CI Windows](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/ci-windows.yml/badge.svg?branch=main)](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/ci-windows.yml)
+[![CI Ubuntu](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/ci-ubuntu.yml/badge.svg?branch=main)](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/ci-ubuntu.yml)
+[![CI macOS](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/ci-macos.yml/badge.svg?branch=main)](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/ci-macos.yml)
+```
+
+Other badges:
+
+```markdown
 [![Update Lines of Code Statistics](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/loc-counter.yml/badge.svg)](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/loc-counter.yml)
 [![codecov](https://codecov.io/gh/jondmarien/MemoryAnalysis.Powershell/branch/main/graph/badge.svg)](https://codecov.io/gh/jondmarien/MemoryAnalysis.Powershell)
 ```

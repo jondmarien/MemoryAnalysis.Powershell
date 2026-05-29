@@ -1,5 +1,5 @@
 # Reusable performance benchmark job for a single platform.
-# Invoked from build-and-test.yml after each platform pipeline completes.
+# Invoked from ci-windows.yml, ci-ubuntu.yml, and ci-macos.yml after each platform pipeline completes.
 name: Performance Benchmark
 
 on:

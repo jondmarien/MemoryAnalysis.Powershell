@@ -50,7 +50,7 @@
 
 ## CI/CD and quality (2026-05)
 
-**Workflow:** `.github/workflows/build-and-test.yml` → reusable `platform-pipeline.yml` per OS.
+**Workflows:** `.github/workflows/ci-windows.yml`, `ci-ubuntu.yml`, `ci-macos.yml` → reusable `platform-pipeline.yml` per OS.
 
 | Stage | Windows | Ubuntu | macOS |
 |-------|---------|--------|-------|

@@ -7,8 +7,14 @@ A high-performance PowerShell module for memory dump forensics using the Volatil
 > **Note:** `Get-NetworkConnection` and `Find-Malware` are not exported on Windows 11 Build 26100 (Volatility 3 compatibility).  
 > See [architecture.md](docs/architecture.md), [DUMP_REQUIREMENTS.md](docs/DUMP_REQUIREMENTS.md), and [PROJECT_STATUS.md](docs/PROJECT_STATUS.md).
 
-## 🏗️ Build Status
-[![Build and Test](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/build-and-test.yml)
+## Build Status
+
+| Platform | Status |
+|----------|--------|
+| Windows | [![CI Windows](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/ci-windows.yml/badge.svg?branch=main)](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/ci-windows.yml) |
+| Ubuntu | [![CI Ubuntu](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/ci-ubuntu.yml/badge.svg?branch=main)](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/ci-ubuntu.yml) |
+| macOS | [![CI macOS](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/ci-macos.yml/badge.svg?branch=main)](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/ci-macos.yml) |
+
 [![Update Lines of Code Statistics](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/loc-counter.yml/badge.svg)](https://github.com/jondmarien/MemoryAnalysis.Powershell/actions/workflows/loc-counter.yml)
 [![codecov](https://codecov.io/gh/jondmarien/MemoryAnalysis.Powershell/branch/main/graph/badge.svg)](https://codecov.io/gh/jondmarien/MemoryAnalysis.Powershell)
 
@@ -449,7 +455,7 @@ MemoryAnalysis.Powershell/          # MIT — main module
 
 ## CI/CD
 
-GitHub Actions ([build-and-test.yml](.github/workflows/build-and-test.yml)) runs **three parallel platform pipelines** (`ci-windows`, `ci-ubuntu`, `ci-macos`). Each pipeline is sequential: Rust → C# → build artifact → Pester integration tests.
+GitHub Actions runs **three parallel platform workflows** ([ci-windows.yml](.github/workflows/ci-windows.yml), [ci-ubuntu.yml](.github/workflows/ci-ubuntu.yml), [ci-macos.yml](.github/workflows/ci-macos.yml)). Each invokes [platform-pipeline.yml](.github/workflows/platform-pipeline.yml): Rust → C# → build artifact → Pester integration tests.
 
 | Stage | What runs |
 |-------|-----------|

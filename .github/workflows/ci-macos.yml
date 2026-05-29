@@ -1,0 +1,23 @@
+name: CI (macOS)
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  ci:
+    name: CI (macOS)
+    uses: ./.github/workflows/platform-pipeline.yml
+    with:
+      runner: macos-latest
+
+  benchmark:
+    name: Performance Benchmarks (macOS)
+    needs: ci
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    uses: ./.github/workflows/benchmark.yml
+    with:
+      runner: macos-latest
